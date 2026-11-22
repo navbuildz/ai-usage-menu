@@ -1,0 +1,26 @@
+You are currently using your subscription to power your Claude Code usage
+
+Current session: 94% used · resets Nov 22 at 11:09am (America/Los_Angeles)
+Current week (all models): 57% used · resets Nov 28 at 6:59am (America/Los_Angeles)
+Current week (Fable): 90% used · resets Nov 28 at 6:59am (America/Los_Angeles)
+
+What's contributing to your usage?
+Approximate · sessions on this machine only · shares overlap
+
+Last 24h · 2446 requests · 16 sessions
+  98%  Start fresh when you switch tasks · run /clear
+  90%  Review sessions active over many hours · whole sessions with requests in 8 or more separate hours
+  89%  Check which models your subagents use · share covers whole sessions, not only subagents
+  22%  Trim ~/Projects/example/docs/memory/INDEX.md · 19k tokens per request
+  Top skills: /claude-api 8%, /humanizer 7%
+  Top subagents: general-purpose 2%
+  Top MCP servers: claude-in-chrome 4%, cmux-cua 1%, claude.ai Ymail 1%
+
+Last 7d · 9769 requests · 18 sessions
+  99%  Review sessions active over many hours · whole sessions with requests in 8 or more separate hours
+  98%  Start fresh when you switch tasks · run /clear
+  87%  Check which models your subagents use · share covers whole sessions, not only subagents
+  26%  Trim ~/Projects/example-2/docs/memory/INDEX.md · 28k tokens per request
+  Top skills: /claude-api 3%, /humanizer 3%
+  Top subagents: general-purpose 1%
+  Top MCP servers: claude-in-chrome 7%, claude.ai Ymail 1%, cmux-cua 1%
