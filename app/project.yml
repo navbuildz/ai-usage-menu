@@ -1,0 +1,46 @@
+name: AIUsageMenu
+options:
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGNING_ALLOWED: NO
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: YES
+    GENERATE_INFOPLIST_FILE: YES
+targets:
+  AIUsageMenu:
+    type: application
+    platform: macOS
+    sources:
+      - Sources
+      - Assets.xcassets
+      - ../brand/08-design-tokens/BrandColors.swift
+    settings:
+      base:
+        PRODUCT_NAME: AI Usage Menu
+        PRODUCT_BUNDLE_IDENTIFIER: ai.aiusagemenu.app
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        INFOPLIST_KEY_LSUIElement: YES
+        ENABLE_APP_SANDBOX: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  ScaffoldTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [Tests]
+    dependencies:
+      - target: AIUsageMenu
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ai.aiusagemenu.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/AI Usage Menu.app/Contents/MacOS/AI Usage Menu"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  AIUsageMenu:
+    build:
+      targets:
+        AIUsageMenu: all
+    test:
+      targets: [ScaffoldTests]

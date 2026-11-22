@@ -1,0 +1,29 @@
+{
+  "files_total": 111,
+  "transparent_assets": {
+    "02-logos/mark/mark-gradient-512.png": {
+      "alpha_corner": 0,
+      "size": [
+        512,
+        512
+      ]
+    },
+    "02-logos/lockups/horizontal-dark-background-1020.png": {
+      "alpha_corner": 0,
+      "size": [
+        1020,
+        216
+      ]
+    },
+    "03-macos-app-icons/alternatives/app-icon-dark-1024.png": {
+      "alpha_corner": 0,
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  },
+  "app_icon_images": 10,
+  "ui_icons": 13,
+  "reference_crops": 5
+}

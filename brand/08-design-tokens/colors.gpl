@@ -1,0 +1,22 @@
+GIMP Palette
+Name: AI Usage Menu / Aurora Gauge
+Columns: 4
+#
+124  92 255 violet
+189 110 255 orchid
+255 122 162 pink
+ 76 201 255 cyan
+ 56 123 255 blue
+ 52 211 153 mint
+255 187  36 amber
+255  92 138 danger
+ 11  14  32 background
+ 21  24  44 surface
+ 31  35  58 surfaceRaised
+ 52  52  82 border
+246 247 255 text
+169 170 196 textSecondary
+246 247 253 lightBackground
+255 255 255 lightSurface
+ 20  22  41 lightText
+ 86  89 116 lightMuted

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Usage Menu | Brand system sample</title><meta name="description" content="See your Claude Code and Codex usage, resets and contribution details from your Mac menu bar."><link rel="icon" href="../favicons/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../../08-design-tokens/tokens.css"><style>
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--aum-text); background: var(--aum-background); font-family: var(--aum-font-body); }
+main { max-width: 1170px; margin: auto; padding: 24px 24px 96px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--aum-border); }
+header img { width: 238px; height: auto; }
+nav { display: flex; align-items: center; gap: 24px; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--aum-cyan); }
+.hero { display: grid; align-items: center; gap: 24px; grid-template-columns: 1.2fr .8fr; padding: 90px 0 100px; }
+.kicker { color: var(--aum-cyan); font-weight: 700; letter-spacing: .11em; text-transform: uppercase; font-size: 12px; }
+h1 { font-family: var(--aum-font-display); font-size: clamp(44px, 5vw, 78px); line-height: 1.06; letter-spacing: -.055em; margin: 18px 0 22px; }
+h1 span { background: var(--aum-gradient-brandArc); background-clip: text; -webkit-background-clip: text; color: transparent; }
+p { font-size: 19px; color: var(--aum-textSecondary); max-width: 580px; line-height: 1.55; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.btn { display: inline-flex; min-height: 48px; align-items: center; padding: 0 22px; border-radius: 12px; background: var(--aum-gradient-button); font-weight: 700; color: white; }
+.outline { background: transparent; border: 1px solid var(--aum-border); }
+.visual { position: relative; }
+.visual:before { content: ''; position: absolute; inset: 9%; border-radius: 50%; background: #733AFA; filter: blur(95px); opacity: .24; }
+.visual img { display: block; position: relative; max-width: 100%; width: 400px; margin: auto; }
+.proof { display: flex; flex-wrap: wrap; gap: 14px 28px; border-top: 1px solid var(--aum-border); padding-top: 30px; color: var(--aum-textSecondary); }
+@media(max-width: 700px) { .hero { grid-template-columns: 1fr; padding: 48px 0; } nav { display: none; } .visual img { width: 260px; } header img { width: 190px; } }
+</style></head>
+<body><main><header><img src="../../02-logos/lockups/horizontal-dark-background.svg" alt="AI Usage Menu"><nav><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="#opensource">Open source</a><a href="https://typefire.app">TypeFire</a></nav></header>
+<section class="hero"><div><div class="kicker">Free and open source for macOS</div><h1>Know your AI usage.<br><span>Stay in control.</span></h1><p>Track Claude Code and Codex limits, resets and contributing usage from your Mac menu bar. No cookies or API keys required.</p><div class="actions"><a class="btn" href="/download">Download for macOS</a><a class="btn outline" href="/open-source">View source</a></div></div><div class="visual"><img src="../../03-macos-app-icons/app-icon-dark.svg" alt="AI Usage Menu app icon"></div></section><div class="proof"><span>No cookies or API keys</span><span>Reads your existing tools</span><span>Open source, MIT</span><span>From the makers of <a href="https://typefire.app">TypeFire</a></span></div></main></body></html>

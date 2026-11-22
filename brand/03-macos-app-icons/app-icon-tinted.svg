@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" >
+<defs>
+ <linearGradient id="arc" x1="0%" y1="66%" x2="100%" y2="21%"><stop offset="0%" stop-color="#3868FF"/><stop offset="21%" stop-color="#4CC9FF"/><stop offset="49%" stop-color="#8D7DFF"/><stop offset="70%" stop-color="#E67DFF"/><stop offset="85%" stop-color="#FF8F99"/><stop offset="100%" stop-color="#FF8459"/></linearGradient>
+ <linearGradient id="bar1" x1="0%" y1="0%" x2="18%" y2="100%"><stop stop-color="#79D8FF"/><stop offset="100%" stop-color="#3774FF"/></linearGradient>
+ <linearGradient id="bar2" x1="0%" y1="0%" x2="30%" y2="100%"><stop stop-color="#F18AF6"/><stop offset="100%" stop-color="#7C4BFA"/></linearGradient>
+ <linearGradient id="bar3" x1="0%" y1="0%" x2="20%" y2="100%"><stop stop-color="#FFBE68"/><stop offset="43%" stop-color="#FF729C"/><stop offset="100%" stop-color="#CE37CE"/></linearGradient>
+ <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F5675"/><stop offset="54%" stop-color="#242B48"/><stop offset="100%" stop-color="#171A32"/></linearGradient>
+ <linearGradient id="rim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#59B9FF" stop-opacity=".75"/><stop offset="53%" stop-color="#7356FF" stop-opacity=".12"/><stop offset="100%" stop-color="#D954F4" stop-opacity=".40"/></linearGradient>
+ <radialGradient id="bluehalo"><stop stop-color="#467EFF" stop-opacity=".30"/><stop offset="100%" stop-color="#467EFF" stop-opacity="0"/></radialGradient>
+ <radialGradient id="pinkhalo"><stop stop-color="#9A40FF" stop-opacity=".40"/><stop offset="100%" stop-color="#9A40FF" stop-opacity="0"/></radialGradient>
+ <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%"><stop stop-color="#FFFFFF" stop-opacity=".28"/><stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="100%" stop-color="#FFFFFF" stop-opacity=".02"/></linearGradient>
+ <clipPath id="clip"><rect x="4.4" y="4.4" width="91.2" height="91.2" rx="24.5"/></clipPath>
+ </defs><g clip-path="url(#clip)"><rect x="4.4" y="4.4" width="91.2" height="91.2" rx="24.5" fill="url(#bg)"/>
+ <path d="M 9 48 C 13 20 27 10 55 7 C 24 8 13 33 9 48 Z" fill="url(#shine)" opacity=".33"/>
+ </g>
+ <rect x="4.8" y="4.8" width="90.4" height="90.4" rx="24.3" fill="none" stroke="url(#rim)" stroke-width=".65"/>
+ <g transform="translate(5 5) scale(.9)"><path d="M 18.5 78 A 40.4 40.4 0 1 1 90.4 52" fill="none" stroke="url(#arc)" stroke-width="5.65" stroke-linecap="round"/>
+ <rect x="25.5" y="56.7" width="14" height="21.2" rx="7" fill="url(#bar1)"/>
+ <rect x="44" y="46" width="14" height="31.9" rx="7" fill="url(#bar2)"/>
+ <rect x="62.5" y="33" width="14" height="44.9" rx="7" fill="url(#bar3)"/></g>
+</svg>

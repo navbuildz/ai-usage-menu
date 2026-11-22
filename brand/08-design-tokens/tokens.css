@@ -1,0 +1,43 @@
+/* AI Usage Menu / Aurora Gauge */
+:root {
+  --aum-violet: #7C5CFF;
+  --aum-orchid: #BD6EFF;
+  --aum-pink: #FF7AA2;
+  --aum-cyan: #4CC9FF;
+  --aum-blue: #387BFF;
+  --aum-mint: #34D399;
+  --aum-amber: #FFBB24;
+  --aum-danger: #FF5C8A;
+  --aum-background: #0B0E20;
+  --aum-surface: #15182C;
+  --aum-surfaceRaised: #1F233A;
+  --aum-border: #343452;
+  --aum-text: #F6F7FF;
+  --aum-textSecondary: #A9AAC4;
+  --aum-lightBackground: #F6F7FD;
+  --aum-lightSurface: #FFFFFF;
+  --aum-lightText: #141629;
+  --aum-lightMuted: #565974;
+  --aum-gradient-brandArc: linear-gradient(105deg, #3868FF 0%, #4CC9FF 21%, #8D7DFF 49%, #E67DFF 70%, #FF8F99 85%, #FF8459 100%);
+  --aum-gradient-brandHero: linear-gradient(125deg, #171842 0%, #0B0E20 54%, #3A154C 100%);
+  --aum-gradient-button: linear-gradient(105deg, #7C5CFF 0%, #BF5DFF 100%);
+  --aum-radius-panel: 18px;
+  --aum-radius-card: 14px;
+  --aum-radius-button: 12px;
+  --aum-font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --aum-font-body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --aum-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root[data-theme="light"] {
+  --aum-canvas: var(--aum-lightBackground);
+  --aum-panel: var(--aum-lightSurface);
+  --aum-foreground: var(--aum-lightText);
+  --aum-subtle: var(--aum-lightMuted);
+}
+:root[data-theme="dark"] {
+  --aum-canvas: var(--aum-background);
+  --aum-panel: var(--aum-surface);
+  --aum-foreground: var(--aum-text);
+  --aum-subtle: var(--aum-textSecondary);
+}

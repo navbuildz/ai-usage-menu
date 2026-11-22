@@ -1,0 +1,6 @@
+.DS_Store
+/app/build/
+xcuserdata/
+*.xcuserstate
+/site/node_modules/
+/site/dist/
