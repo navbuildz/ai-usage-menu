@@ -1,6 +1,6 @@
 # AI Usage Menu
 
-AI Usage Menu is a free macOS menu bar app for tracking Claude Code and Codex plan limits. The Phase 2 build reads both providers in the background. The menu bar still shows the kit’s static gauge and Quit command. The usage window, live menu bar readings and live Dock icon are scheduled for Phase 3.
+AI Usage Menu is a free macOS menu bar app for tracking Claude Code and Codex plan limits. The menu bar shows the highest current reading across enabled providers. Click it to compare windows, check reset times or explore Claude Code’s contribution breakdown. Click the Dock icon to open the same view in a titled window.
 
 ## Build from source
 
@@ -29,6 +29,20 @@ Claude Code can create a project entry even for a read with session persistence 
 ## Adding a provider
 
 Implement the `Provider` protocol and include the type in the `UsageStore` provider list. Supply its identity, display name, original glyph, availability check and asynchronous snapshot reader, with fixtures for each supported response and failure state. Use data already available from a signed-in local tool. Preserve unknown values and report the time of each reading.
+
+## Display settings
+
+Open Settings with the gear or Cmd+comma. Choose Menu bar and Dock, Menu bar only or Dock only. The choice takes effect immediately. The combined menu bar gauge lights one mint bar, two amber bars or three danger bars. One item per provider uses the kit’s individual provider glyphs. The optional number follows the same reading.
+
+Choose the Dock provider and window separately. Auto follows the highest current reading across enabled providers. The live donut shows the selected percentage once, centered inside the ring. Its track uses the same thresholds as the cards and menu bar. An expired or unavailable selected reading shows a gray ring with a warning. When no providers are installed, the Dock uses the original kit icon.
+
+## Phase 3 verification, November 22, 2026
+
+The hosted tests exercise all three placement settings live, the regular and accessory activation policies, status item counts, the titled Dock window and access to Settings. The selection tests cover an individual provider, a single enabled provider, both providers on Auto, and session and weekly filtering. The display settings persist across launches.
+
+The [Dock snapshots](handoff/screenshots/dock) cover 13 cases at 32, 128 and 1024 pixels, including custom thresholds and stale readings. The [window captures](handoff/screenshots/window) use the built views and fixture data in both appearances. The renderer also runs at 64 and 512 pixels. To deliberately regenerate reference captures, run `TEST_RUNNER_RECORD_DOCK=1 TEST_RUNNER_RECORD_PANEL=1 ./app/build.sh test`.
+
+Desktop checks on this Mac included the real provider tabs and a titled usage window with the Dock on the right, left and bottom, including bottom placement with auto-hide and magnification enabled. The original Dock configuration was restored. Individual Dock hover frames, Cmd-Tab artwork, the absence of a one-frame launch flash and notched-display overflow still need visual verification. Login-item startup requires Phase 4. The Release build targets Apple silicon and Intel. Tests ran on Apple silicon.
 
 ## Phase 2 verification, November 22, 2026
 

@@ -7,7 +7,18 @@ final class UsageStore: NSObject, ObservableObject {
     let providers: [any Provider]
     @Published private(set) var snapshots: [String: ProviderSnapshot] = [:]
     var onChange: (() -> Void)?
-    private var active: Set<String> = []
+    @Published private(set) var active: Set<String> = []
+    @Published private(set) var disabled: Set<String> = []
+    var enabled: [any Provider] { providers.filter { !disabled.contains($0.id) } }
+    var readingChanged: (() -> Void)?
+
+    func setDisabled(_ ids: Set<String>) {
+        guard ids != disabled else { return }
+        let returning = disabled.subtracting(ids)
+        disabled = ids
+        snapshots = snapshots.filter { !ids.contains($0.key) }
+        enabled.filter { returning.contains($0.id) }.forEach { refresh($0) }
+    }
     private var lastRead: [String: Date] = [:]
     private var timer: Timer?
     private var expiry: Timer?
@@ -48,18 +59,21 @@ final class UsageStore: NSObject, ObservableObject {
         for provider in providers where now.timeIntervalSince(lastRead[provider.id] ?? .distantPast) > 60 { refresh(provider) }
     }
     func refresh(_ provider: any Provider) {
-        guard active.insert(provider.id).inserted else { return }
+        guard !disabled.contains(provider.id), active.insert(provider.id).inserted else { return }
+        readingChanged?()
         Task {
             let snapshot = await provider.read()
-            snapshots[provider.id] = snapshot
+            if !disabled.contains(provider.id) { snapshots[provider.id] = snapshot }
             lastRead[provider.id] = Date()
             active.remove(provider.id)
+            readingChanged?()
             scheduleExpiry()
             onChange?()
         }
     }
 
     @objc private func expire() {
+        objectWillChange.send()
         onChange?()
         scheduleExpiry()
     }
