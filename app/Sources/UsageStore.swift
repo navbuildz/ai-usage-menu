@@ -10,6 +10,15 @@ final class UsageStore: NSObject, ObservableObject {
     @Published private(set) var active: Set<String> = []
     @Published private(set) var disabled: Set<String> = []
     var enabled: [any Provider] { providers.filter { !disabled.contains($0.id) } }
+    var displayProviders: [any Provider] {
+        enabled.filter {
+            switch snapshots[$0.id]?.state {
+            case .notInstalled, .signedOut, .nonSubscription, .noSessions: false
+            default: true
+            }
+        }
+    }
+
     var readingChanged: (() -> Void)?
 
     func setDisabled(_ ids: Set<String>) {
@@ -29,8 +38,8 @@ final class UsageStore: NSObject, ObservableObject {
         self.providers = providers
     }
 
-    func start() {
-        setInterval(minutes: 5)
+    func start(minutes: Int = 5) {
+        setInterval(minutes: minutes)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(refreshAll), name: NSWorkspace.didWakeNotification, object: nil)
         for provider in providers {
             if let directory = provider.watchedDirectory { watch(directory) }
@@ -49,8 +58,9 @@ final class UsageStore: NSObject, ObservableObject {
     }
 
     func setInterval(minutes: Int) {
-        timer?.invalidate()
         let interval = [2,5,10,15,30].contains(minutes) ? minutes : 5
+        guard timer?.timeInterval != Double(interval * 60) || timer?.isValid != true else { return }
+        timer?.invalidate()
         timer = Timer.scheduledTimer(timeInterval: Double(interval * 60), target: self, selector: #selector(refreshAll), userInfo: nil, repeats: true)
     }
 

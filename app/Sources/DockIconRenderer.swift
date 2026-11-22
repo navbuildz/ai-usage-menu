@@ -3,6 +3,29 @@ import AppKit
 struct DockSnapshot: Equatable {
     var indicator: Indicator
     var thresholds: Thresholds
+    var session: Double?
+    var weekly: Double?
+
+    static func resolve(providers: [any Provider], snapshots: [String: ProviderSnapshot], options: DisplayOptions, now: Date) -> Self {
+        let available = providers.filter { snapshots[$0.id]?.state != .notInstalled && snapshots[$0.id] != nil }
+        var choices = available
+        if available.count > 1, let selected = available.first(where: { $0.id == options.dockProvider }) { choices = [selected] }
+        var result = Self(indicator: .absent, thresholds: options.thresholds)
+        var best = -2.0
+        for provider in choices {
+            func value(_ window: WindowChoice) -> Double? {
+                Indicator.select(providers: [provider], snapshots: snapshots, window: window, at: now).percent
+            }
+            let session = value(.session), weekly = value(.weekly)
+            let score = max(session ?? -1, weekly ?? -1)
+            guard score > best else { continue }
+            best = score
+            let center = options.dockWindow == .weekly ? weekly : session
+            result = Self(indicator: center.map { .value($0, provider.glyph) } ?? .warning,
+                          thresholds: options.thresholds, session: session, weekly: weekly)
+        }
+        return result
+    }
 }
 
 @MainActor
@@ -27,40 +50,41 @@ enum DockIconRenderer {
         NSImage(named: empty ? "StaticIcon" : "DockBase")?.draw(in: bounds)
         guard !empty else { return }
         let center = CGPoint(x: 50, y: 50)
-        let radius = 32.0
-        let ring = CGRect(x: 18, y: 18, width: 64, height: 64)
-        c.setLineWidth(8)
         c.setLineCap(.round)
-        c.setStrokeColor(NSColor(srgbRed: 52/255, green: 52/255, blue: 82/255, alpha: 0.72).cgColor)
-        c.strokeEllipse(in: ring)
-        guard case let .value(percent, glyph) = snapshot.indicator else {
-            c.setStrokeColor(NSColor.lightGray.withAlphaComponent(0.55).cgColor)
-            c.strokeEllipse(in: ring)
-            drawText("!", fontSize: 38, centerY: 50)
-            return
-        }
-
-        func arc(_ from: Double, _ to: Double, _ radius: Double) {
-            c.addArc(center: center, radius: radius, startAngle: .pi / 2 - from * .pi / 50, endAngle: .pi / 2 - to * .pi / 50, clockwise: true)
-            c.strokePath()
-        }
-        if percent > 0 {
+        func segment(start: Double, length: Double, value: Double?) {
+            func stroke(_ from: Double, _ to: Double, radius: Double = 32) {
+                let a = (90 - start - length * from / 100) * .pi / 180
+                let b = (90 - start - length * to / 100) * .pi / 180
+                c.addArc(center: center, radius: radius, startAngle: a, endAngle: b, clockwise: true)
+                c.strokePath()
+            }
+            c.setLineWidth(7)
+            c.setStrokeColor((value == nil ? NSColor.gray : NSColor(named: "border")!).withAlphaComponent(0.70).cgColor)
+            stroke(0, 100)
+            guard let value, value > 0 else { return }
+            let end = snapshot.thresholds.color(value, sweep: true)
             c.saveGState()
-            let end = snapshot.thresholds.color(percent, sweep: true)
-            c.setShadow(offset: .zero, blur: 3.5, color: end.withAlphaComponent(0.5).cgColor)
-            c.setStrokeColor(end.withAlphaComponent(0.55).cgColor)
-            arc(0, percent, radius)
+            c.setShadow(offset: .zero, blur: 3, color: end.withAlphaComponent(0.5).cgColor)
+            c.setStrokeColor(end.cgColor)
+            stroke(0, value)
             c.restoreGState()
             var from = 0.0
-            while from < percent {
-                let to = min(percent, from + 0.45)
+            while from < value {
+                let to = min(value, from + 0.75)
                 c.setStrokeColor(snapshot.thresholds.color(to, sweep: true).cgColor)
-                arc(from, to, radius)
+                stroke(from, to)
                 from = to
             }
-            c.setLineWidth(0.65)
-            c.setStrokeColor(NSColor.white.withAlphaComponent(0.28).cgColor)
-            arc(0, percent, radius + 3)
+            c.setLineWidth(0.6)
+            c.setStrokeColor(NSColor.white.withAlphaComponent(0.25).cgColor)
+            stroke(0, value, radius: 34.7)
+        }
+        // Rounded caps extend beyond the endpoints. Leave room for both at each break.
+        segment(start: -50, length: 100, value: snapshot.session)
+        segment(start: 70, length: 220, value: snapshot.weekly)
+        guard case let .value(percent, glyph) = snapshot.indicator else {
+            drawText("!", fontSize: 27, centerY: 50)
+            return
         }
         let large = size >= 128
         let digits = percent.usageNumber

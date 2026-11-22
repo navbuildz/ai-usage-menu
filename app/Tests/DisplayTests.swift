@@ -33,20 +33,26 @@ final class DisplayTests: XCTestCase {
     @MainActor func testDockSnapshots() throws {
         let record = ProcessInfo.processInfo.environment["RECORD_DOCK"] == "1"
         if record { try FileManager.default.createDirectory(at: screenshotFolder, withIntermediateDirectories: true) }
-        var samples: [(String, Indicator, Thresholds)] = [0,12,30,57,72,94,100].map { ("usage-\($0)",.value(Double($0),"provider-claude-code"),Thresholds()) }
-        let thresholds = Thresholds(amber: 50, red: 70)
-        samples += [("custom-57",.value(57,"provider-claude-code"),thresholds), ("custom-78",.value(78,"provider-claude-code"),thresholds)]
-        func resolved(_ readings: [String: ProviderSnapshot]) -> Indicator {
-            Indicator.select(providers: providers, snapshots: readings, at: now)
+        func resolved(_ readings: [String: ProviderSnapshot], colors: Thresholds = .init()) -> DockSnapshot {
+            var options = DisplayOptions()
+            options.thresholds = colors
+            return DockSnapshot.resolve(providers: providers, snapshots: readings, options: options, now: now)
         }
-        let stale = resolved(["codex":snapshot(94,100,stale:true)])
-        let error = resolved(["claude":.init(asOf: now,state:.timedOut)])
-        let missing = resolved(["codex":.init(asOf: now,state:.notInstalled)])
-        XCTAssertEqual(stale,.warning); XCTAssertEqual(error,.warning); XCTAssertEqual(missing,.absent)
-        samples += [("codex-stale",stale,.init()),("error",error,.init()),("no-providers",missing,.init()),("auto-both",resolved(["claude":snapshot(12,30),"codex":snapshot(72,57)]),.init())]
-        for (name, indicator, colors) in samples {
+        var samples: [(String, DockSnapshot)] = [0,12,30,57,72,94,100].map {
+            ("usage-\($0)", resolved(["claude":snapshot(Double($0), 57)]))
+        }
+        let custom = Thresholds(amber: 50, red: 70)
+        samples += [
+            ("custom-57",resolved(["claude":snapshot(57,78)],colors:custom)),
+            ("custom-78",resolved(["claude":snapshot(78,57)],colors:custom)),
+            ("codex-stale",resolved(["codex":snapshot(94,100,stale:true)])),
+            ("error",resolved(["claude":.init(asOf:now,state:.timedOut)])),
+            ("no-providers",resolved(["codex":.init(asOf:now,state:.notInstalled)])),
+            ("auto-both",resolved(["claude":snapshot(12,30),"codex":snapshot(72,57)]))
+        ]
+        for (name, snapshot) in samples {
             for size in [32,128,1024] {
-                let image = DockIconRenderer.image(for: .init(indicator: indicator, thresholds: colors), size: size)
+                let image = DockIconRenderer.image(for: snapshot, size: size)
                 let bitmap = try XCTUnwrap(image.representations.first as? NSBitmapImageRep)
                 let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
                 let url = screenshotFolder.appendingPathComponent("\(name)-\(size).png")
@@ -71,6 +77,31 @@ final class DisplayTests: XCTestCase {
         for size in [64,512] { XCTAssertEqual(DockIconRenderer.image(for: .init(indicator:.value(72,"provider-codex"),thresholds:.init()),size:size).size.width,CGFloat(size)) }
     }
 
+    func testSplitRingProviderAndCenterStayIndependent() throws {
+        var options = DisplayOptions()
+        var claude = snapshot(12, 57)
+        claude.limits.append(.init(label:"Current week (Fable)",usedPercent:99,resetsAt:nil,windowMinutes:nil,source:"Claude Code"))
+        let readings = ["claude":claude, "codex":snapshot(30, 72)]
+        func resolve() -> DockSnapshot {
+            DockSnapshot.resolve(providers: providers, snapshots: readings, options: options, now: now)
+        }
+        XCTAssertEqual(resolve().indicator,.value(30,"provider-codex"))
+        options.dockWindow = .weekly
+        XCTAssertEqual(resolve().indicator,.value(72,"provider-codex"))
+        XCTAssertEqual(resolve().session,30)
+        XCTAssertEqual(resolve().weekly,72)
+        options.dockProvider = "claude"
+        XCTAssertEqual(resolve().indicator,.value(57,"provider-claude-code"))
+        XCTAssertEqual(resolve().session,12)
+        let old = Data(#"{"dockWindow":"Most constrained","separateItems":true,"dockProvider":"codex"}"#.utf8)
+        let migrated = try JSONDecoder().decode(DisplayOptions.self, from:old)
+        XCTAssertEqual(migrated.dockProvider,"codex")
+        XCTAssertEqual(migrated.dockWindow,.session)
+        XCTAssertTrue(migrated.separateItems)
+        XCTAssertEqual(migrated.refreshMinutes,5)
+        XCTAssertEqual(migrated.theme,.system)
+    }
+
     func testHealthBoundaries() {
         let standard = Thresholds()
         XCTAssertEqual([0,59.99,60,84.99,85,100].map(standard.tier),[1,1,2,2,3,3])
@@ -91,7 +122,8 @@ final class DisplayTests: XCTestCase {
         XCTAssertNil(NSApp.dockTile.badgeLabel)
         XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
         let window = try XCTUnwrap(NSApp.windows.first { $0.title == "AI Usage Menu" && $0.isVisible })
-        XCTAssertTrue(window.styleMask.contains(.titled))
+        XCTAssertFalse(window.styleMask.contains(.titled))
+        XCTAssertTrue(window.canBecomeKey)
         XCTAssertTrue(delegate.applicationDockMenu(NSApp)?.items.contains { $0.title == "Settings…" } == true)
         delegate.showSettings()
         let settings = try XCTUnwrap(NSApp.windows.first { $0.title == "AI Usage Menu Settings" && $0.isVisible })

@@ -1,6 +1,6 @@
 # AI Usage Menu
 
-AI Usage Menu is a free macOS menu bar app for tracking Claude Code and Codex plan limits. The menu bar shows the highest current reading across enabled providers. Click it to compare windows, check reset times or explore Claude Code’s contribution breakdown. Click the Dock icon to open the same view in a titled window.
+AI Usage Menu is a free macOS menu bar app for tracking Claude Code and Codex plan limits. Choose which provider and usage window to track in the menu bar. Click the gauge to check reset times and scroll through Claude Code’s contribution breakdown. The Dock opens the same view in a draggable window without a title bar. Close it with × or Cmd+W and tracking continues.
 
 ## Build from source
 
@@ -34,11 +34,13 @@ Implement the `Provider` protocol and include the type in the `UsageStore` provi
 
 Open Settings with the gear or Cmd+comma. Choose Menu bar and Dock, Menu bar only or Dock only. The choice takes effect immediately. The combined menu bar gauge lights one mint bar, two amber bars or three danger bars. One item per provider uses the kit’s individual provider glyphs. The optional number follows the same reading.
 
-Choose the Dock provider and window separately. Auto follows the highest current reading across enabled providers. The live donut shows the selected percentage once, centered inside the ring. Its track uses the same thresholds as the cards and menu bar. An expired or unavailable selected reading shows a gray ring with a warning. When no providers are installed, the Dock uses the original kit icon.
+Menu bar and Dock preferences are independent. Each offers Auto or an explicit provider when multiple tools are available. Both default to the 5-hour number. In the Dock, the upper arc shows the 5-hour window and the lower arc shows overall weekly usage. The center selector changes only the number. Auto keeps both arcs on the provider with the highest current overall weekly or 5-hour reading. The menu bar’s Auto compares just its selected window. Claude’s model-specific limits remain visible in its usage cards.
+
+Select System, Light or Dark in the header or Settings. System follows macOS and is the default. Scheduled refresh defaults to five minutes. Settings also offers 2, 10, 15 and 30 minutes. Manual, wake and Codex file-change refreshes work independently.
 
 ## Phase 3 verification, November 22, 2026
 
-The hosted tests exercise all three placement settings live, the regular and accessory activation policies, status item counts, the titled Dock window and access to Settings. The selection tests cover an individual provider, a single enabled provider, both providers on Auto, and session and weekly filtering. The display settings persist across launches.
+The hosted tests exercise all three placement settings live, the regular and accessory activation policies, status item counts, the Dock window and access to Settings. The selection tests cover an individual provider, a single enabled provider, both providers on Auto, and session and weekly filtering. The display settings persist across launches.
 
 The [Dock snapshots](handoff/screenshots/dock) cover 13 cases at 32, 128 and 1024 pixels, including custom thresholds and stale readings. The [window captures](handoff/screenshots/window) use the built views and fixture data in both appearances. The renderer also runs at 64 and 512 pixels. To deliberately regenerate reference captures, run `TEST_RUNNER_RECORD_DOCK=1 TEST_RUNNER_RECORD_PANEL=1 ./app/build.sh test`.
 

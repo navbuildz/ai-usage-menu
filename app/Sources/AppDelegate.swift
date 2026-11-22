@@ -2,6 +2,11 @@ import AppKit
 import SwiftUI
 import QuartzCore
 
+private final class UsageWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+}
+
 @main
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPopoverDelegate {
@@ -44,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             self?.handle(event) == true ? nil : event
         }
         applyPreferences()
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil { store.start() }
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil { store.start(minutes: preferences.options.refreshMinutes) }
     }
 
     private func applyActivation() {
@@ -54,6 +59,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
 
     private func applyPreferences() {
         applyActivation()
+        NSApp.appearance = preferences.options.theme.appearance
+        store.setInterval(minutes: preferences.options.refreshMinutes)
         store.setDisabled(preferences.options.disabled)
         if preferences.options.placement == .dock { popover.performClose(nil) }
         updateDisplays()
@@ -66,12 +73,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             if rendered != nil { NSApp.dockTile.contentView = nil; rendered = nil }
             return
         }
-        let value = Indicator.select(providers: store.enabled, snapshots: store.snapshots, providerID: options.dockProvider, window: options.dockWindow, at: .now)
-        let snapshot = DockSnapshot(indicator: value, thresholds: options.thresholds)
+        let snapshot = DockSnapshot.resolve(providers: store.displayProviders, snapshots: store.snapshots, options: options, now: .now)
         let tile = NSApp.dockTile
         guard rendered != snapshot else { return }
         rendered = snapshot
-        if value == .absent { tile.contentView = nil }
+        if snapshot.indicator == .absent { tile.contentView = nil }
         else {
             let view = NSImageView(frame: .init(origin: .zero, size: tile.size))
             view.imageScaling = .scaleProportionallyUpOrDown
@@ -81,10 +87,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         tile.display()
     }
 
+    private func menuValue(_ item: String) -> Indicator {
+        let options = preferences.options
+        let candidates = store.displayProviders
+        let choice = item == "auto" ? options.menuProvider : item
+        let id = candidates.contains { $0.id == choice } ? choice : "auto"
+        return Indicator.select(providers: candidates, snapshots: store.snapshots, providerID: id, window: options.menuWindow, at: .now)
+    }
+
     private func updateItems() {
         let options = preferences.options
-        let separate = options.separateItems && !store.enabled.isEmpty
-        let keys = options.placement == .dock ? [] : (separate ? store.enabled.map(\.id) : ["auto"])
+        let separate = options.separateItems && !store.displayProviders.isEmpty
+        let keys = options.placement == .dock ? [] : (separate ? store.displayProviders.map(\.id) : ["auto"])
         for key in Array(items.keys) where !keys.contains(key) {
             if panelID == key { popover.performClose(nil) }
             if let item = items.removeValue(forKey: key) { NSStatusBar.system.removeStatusItem(item) }
@@ -96,7 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             button.target = self
             button.action = #selector(openPanel(_:))
             let provider = store.providers.first { $0.id == key }
-            let value = Indicator.select(providers: store.enabled, snapshots: store.snapshots, providerID: key, at: .now)
+            let value = menuValue(key)
             let title = value.percent.flatMap { options.showPercent ? $0.usageNumber + "%" : nil } ?? (value == .warning ? "⚠" : "")
             var ink = NSColor.labelColor
             if let percent = value.percent { ink = options.thresholds.color(percent) }
@@ -125,7 +139,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     }
 
     private func usage(_ navigation: Navigation) -> NSHostingController<UsageView> {
-        NSHostingController(rootView: UsageView(store: store, preferences: preferences, navigation: navigation) { [weak self] in self?.showSettings() })
+        NSHostingController(rootView: UsageView(store: store, preferences: preferences, navigation: navigation, settings: { [weak self] in self?.showSettings() }, close: { [weak self] in
+            guard let self else { return }
+            if navigation === panelNavigation { popover.performClose(nil) } else { window?.close() }
+        }))
     }
 
     @objc private func openPanel(_ sender: NSStatusBarButton) {
@@ -137,8 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         }
         panelID = id
         if id != "auto" { panelNavigation.select(id) }
-        else if case let .value(_, glyph) = Indicator.select(providers: store.enabled, snapshots: store.snapshots, at: .now), let winner = store.enabled.first(where: { $0.glyph == glyph }) { panelNavigation.select(winner.id) }
-        panelNavigation.detail = false
+        else if case let .value(_, glyph) = menuValue("auto"), let winner = store.enabled.first(where: { $0.glyph == glyph }) { panelNavigation.select(winner.id) }
         store.opened()
         popover.contentViewController = usage(panelNavigation)
         popover.contentSize = .init(width: 380, height: 535)
@@ -152,8 +168,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         guard preferences.options.placement != .menu else { return false }
         store.opened()
         if window == nil {
-            let w = NSWindow(contentRect: .init(x: 0, y: 0, width: 390, height: 525), styleMask: [.titled,.closable,.resizable,.miniaturizable], backing: .buffered, defer: false)
+            let w = UsageWindow(contentRect: .init(x: 0, y: 0, width: 390, height: 525), styleMask: [.borderless,.resizable], backing: .buffered, defer: false)
             w.minSize = .init(width: 380, height: 455)
+            w.isOpaque = false
+            w.backgroundColor = .clear
+            w.hasShadow = true
             w.title = "AI Usage Menu"
             w.isReleasedWhenClosed = false
             w.delegate = self
@@ -162,6 +181,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             window = w
         }
         if window?.contentViewController == nil { window?.contentViewController = usage(windowNavigation) }
+        window?.contentView?.wantsLayer = true
+        window?.contentView?.layer?.cornerRadius = 18
+        window?.contentView?.layer?.masksToBounds = true
         window?.makeKeyAndOrderFront(nil)
         return true
     }
@@ -187,6 +209,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     private func handle(_ event: NSEvent) -> Bool {
         if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command {
             switch event.charactersIgnoringModifiers {
+            case "w":
+                if popover.isShown { popover.performClose(nil) }
+                else if let window, event.window === window { window.close() }
+                else { return false }
             case "r": refresh()
             case ",": showSettings()
             case "q": NSApp.terminate(nil)
@@ -199,9 +225,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         let navigation = panel ? panelNavigation : windowNavigation
         switch event.keyCode {
         case 53:
-            if navigation.detail { navigation.detail = false }
-            else if panel { popover.performClose(nil) }
-            else { window?.performClose(nil) }
+            if panel { popover.performClose(nil) }
+            else { window?.close() }
         case 123, 124:
             let ids = store.enabled.map(\.id)
             guard !ids.isEmpty else { return false }

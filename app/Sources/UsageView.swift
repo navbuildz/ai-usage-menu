@@ -3,8 +3,7 @@ import SwiftUI
 @MainActor
 final class Navigation: ObservableObject {
     @Published var provider = "claude"
-    @Published var detail = false
-    func select(_ id: String) { provider = id; detail = false }
+    func select(_ id: String) { provider = id }
 }
 
 struct KitIcon: View {
@@ -45,6 +44,7 @@ struct UsageView: View {
     @ObservedObject var preferences: DisplayPreferences
     @ObservedObject var navigation: Navigation
     var settings: () -> Void
+    var close: () -> Void = {}
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private var provider: (any Provider)? { store.enabled.first { $0.id == navigation.provider } ?? store.enabled.first }
     private var snapshot: ProviderSnapshot? { provider.flatMap { store.snapshots[$0.id] } }
@@ -56,22 +56,39 @@ struct UsageView: View {
         } == true
         TimelineView(.periodic(from: .now, by: urgent ? 1 : 60)) { tick in
             VStack(spacing: 0) {
-                HStack(spacing: 9) {
-                    KitIcon(name: "BrandMark", size: 32)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("AI Usage").font(.system(size: 17, weight: .bold))
+                HStack(spacing: 10) {
+                    ZStack(alignment: .bottomLeading) {
+                        Link(destination: URL(string: "https://www.aiusagemenu.com/")!) {
+                            HStack(spacing: 8) {
+                                KitIcon(name: "BrandMark", size: 32)
+                                Text("AI Usage").font(.system(size: 16, weight: .bold)).padding(.bottom, 13)
+                            }
+                        }.buttonStyle(.plain).accessibilityLabel("AI Usage Menu website")
                         if let snapshot {
-                            Text("Updated " + relative(snapshot.asOf, tick.date)).font(.caption).foregroundStyle(Color("textSecondary")).help(snapshot.asOf.formatted())
+                            Text("Updated " + relative(snapshot.asOf, tick.date)).font(.caption2)
+                                .foregroundStyle(Color("textSecondary")).padding(.leading, 40)
+                                .help(snapshot.asOf.formatted())
                         }
-                    }
-                    Spacer()
+                    }.fixedSize()
+                    Spacer(minLength: 2).frame(height: 32).overlay(HeaderDragArea())
+                    HStack(spacing: 1) {
+                        ForEach(AppTheme.allCases, id: \.self) { theme in
+                            Button { preferences.options.theme = theme } label: {
+                                Image(systemName: theme.symbol).font(.system(size: 11, weight: .medium)).frame(width: 22, height: 22)
+                                    .background(preferences.options.theme == theme ? Color("surface") : .clear, in: Circle())
+                                    .foregroundStyle(preferences.options.theme == theme ? Color("violet") : Color("textSecondary"))
+                            }.help(theme.rawValue + " appearance").accessibilityLabel(theme.rawValue + " appearance")
+                                .accessibilityAddTraits(preferences.options.theme == theme ? .isSelected : [])
+                        }
+                    }.padding(2).background(Color("surfaceRaised"), in: Capsule())
                     Button(action: store.refreshAll) {
                         RefreshGlyph(running: !store.active.isEmpty && !reduceMotion)
                     }.help("Refresh (⌘R)").accessibilityLabel("Refresh usage")
                     Button(action: settings) { KitIcon(name: "settings") }.help("Settings (⌘,)").accessibilityLabel("Settings")
-                }.buttonStyle(.plain).padding(.horizontal, 16).padding(.vertical, 12)
+                    Button(action: close) { Image(systemName: "xmark").font(.system(size: 12, weight: .semibold)).frame(width: 20,height: 22) }
+                        .help("Close (⌘W)").accessibilityLabel("Close usage window")
+                }.buttonStyle(.plain).padding(.horizontal, 14).padding(.vertical, 12)
 
-                if !navigation.detail {
                     HStack(spacing: 4) {
                         ForEach(store.enabled, id: \.id) { p in
                             let selected = p.id == provider?.id
@@ -85,13 +102,10 @@ struct UsageView: View {
                             }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
                         }
                     }.padding(4).background(Color("surfaceRaised"), in: RoundedRectangle(cornerRadius: 12)).padding(.horizontal, 14)
-                }
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        if navigation.detail, let periods = snapshot?.breakdown {
-                            BreakdownView(periods: periods) { navigation.detail = false }
-                        } else if let provider, let snapshot {
+                        if let provider, let snapshot {
                             if case .limitReached = snapshot.state {
                                 Text("Limit reached").font(.headline).foregroundStyle(Color("text"))
                             }
@@ -104,9 +118,11 @@ struct UsageView: View {
                             } else {
                                 ProviderMessage(snapshot: snapshot, provider: provider, allMissing: store.enabled.allSatisfy { store.snapshots[$0.id]?.state == .notInstalled }) { store.refresh(provider) }
                             }
-                            ForEach(snapshot.details.indices, id: \.self) { i in
-                                let row = snapshot.details[i]
-                                HStack { Text(row.label).foregroundStyle(Color("textSecondary")); Spacer(); Text(row.value) }.font(.caption)
+                            if !snapshot.details.isEmpty {
+                                ViewThatFits(in: .horizontal) {
+                                    HStack(spacing: 16) { metadata(snapshot) }
+                                    VStack(alignment: .leading, spacing: 5) { metadata(snapshot) }
+                                }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 3)
                             }
                             if provider.id == "codex" && !snapshot.limits.isEmpty {
                                 Text("As of \(relative(snapshot.asOf, tick.date)) (last Codex activity)").font(.caption).foregroundStyle(Color("textSecondary")).help(snapshot.asOf.formatted())
@@ -115,17 +131,9 @@ struct UsageView: View {
                                 Text("Couldn't read this, showing it as Claude Code printed it").font(.caption.bold())
                                 Text(raw).font(.caption.monospaced()).textSelection(.enabled)
                             }
-                            if snapshot.breakdown?.isEmpty == false {
-                                Button { navigation.detail = true } label: {
-                                    HStack(spacing: 10) {
-                                        KitIcon(name: "breakdown", size: 24).foregroundStyle(Color("orchid")).padding(8).background(Color("surfaceRaised"), in: RoundedRectangle(cornerRadius: 9))
-                                        VStack(alignment: .leading) {
-                                            Text("What's contributing?").fontWeight(.semibold)
-                                            Text("Top drivers, skills, subagents, and more").font(.caption).foregroundStyle(Color("textSecondary"))
-                                        }
-                                        Spacer(); Text("›").font(.title2)
-                                    }.padding(10).background(Color("surface"), in: RoundedRectangle(cornerRadius: 14))
-                                }.buttonStyle(.plain)
+                            if let periods = snapshot.breakdown, !periods.isEmpty {
+                                Divider().padding(.vertical, 2)
+                                BreakdownView(periods: periods)
                             }
                         } else if provider == nil {
                             Text("Choose a provider in Settings to see your usage.")
@@ -139,22 +147,45 @@ struct UsageView: View {
                     Spacer()
                     Button("Quit") { NSApp.terminate(nil) }.buttonStyle(.plain)
                 }.font(.caption).foregroundStyle(Color("textSecondary")).padding(.horizontal, 16).padding(.vertical, 10)
-            }.foregroundStyle(Color("text")).background(Color("background")).animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: navigation.detail)
+            }.foregroundStyle(Color("text")).background(Color("background"))
         }
         .frame(minWidth: 380, minHeight: 420)
     }
+
+    @ViewBuilder private func metadata(_ snapshot: ProviderSnapshot) -> some View {
+        ForEach(snapshot.details.indices, id: \.self) { index in
+            let row = snapshot.details[index]
+            let version = row.label == "Claude Code"
+            HStack(spacing: 4) {
+                Text(version ? "CLI version" : row.label).foregroundStyle(Color("textSecondary"))
+                Text(version ? row.value.replacingOccurrences(of: " (Claude Code)", with: "") : row.value).fontWeight(.medium)
+            }.font(.caption).fixedSize(horizontal: true, vertical: false)
+        }
+    }
+
 }
 
 private struct RefreshGlyph: View {
     var running: Bool
-    @State private var turn = false
     var body: some View {
-        KitIcon(name: "refresh").rotationEffect(.degrees(turn ? 360 : 0))
-            .onAppear { spin() }.onChange(of: running) { _ in spin() }
+        if running {
+            TimelineView(.animation(minimumInterval: 1.0 / 24)) { tick in
+                KitIcon(name: "refresh").rotationEffect(.degrees(tick.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.2) * 300))
+            }
+        } else {
+            KitIcon(name: "refresh")
+        }
     }
-    private func spin() {
-        withAnimation(running ? .linear(duration: 1.2).repeatForever(autoreverses: false) : nil) { turn = running }
+}
+
+private struct HeaderDragArea: NSViewRepresentable {
+    final class Handle: NSView {
+        override func mouseDown(with event: NSEvent) {
+            if window?.styleMask.contains(.resizable) == true { window?.performDrag(with: event) }
+        }
     }
+    func makeNSView(context: Context) -> Handle { Handle() }
+    func updateNSView(_ view: Handle, context: Context) {}
 }
 
 private struct LimitCard: View {

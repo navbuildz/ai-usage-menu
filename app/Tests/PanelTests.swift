@@ -52,10 +52,9 @@ final class PanelTests: XCTestCase {
             store.onChange = nil
             let navigation = Navigation()
             navigation.select(id)
-            navigation.detail = name == "breakdown"
             for (suffix,theme) in [("dark",ColorScheme.dark),("light",ColorScheme.light)] {
                 let view = UsageView(store:store,preferences:preferences,navigation:navigation,settings:{})
-                    .environment(\.colorScheme,theme).frame(width:380,height:535)
+                    .environment(\.colorScheme,theme).frame(width:380,height:name == "breakdown" ? 1150 : 535)
                 try capture(view, name:name+"-"+suffix, folder:folder, record:record, theme:theme)
                 if name == "normal" {
                     try capture(DisplaySettings(preferences:preferences,store:store).environment(\.colorScheme,theme),name:"settings-"+suffix,folder:folder,record:record,theme:theme)

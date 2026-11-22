@@ -13,7 +13,7 @@ enum WindowChoice: String, CaseIterable, Codable {
         switch self {
         case .highest: return true
         case .session: return window.windowMinutes == 300 || label == "current session" || label == "session"
-        case .weekly: return window.windowMinutes == 10080 || label == "weekly" || label.hasPrefix("current week")
+        case .weekly: return window.windowMinutes == 10080 || label == "weekly" || label == "current week (all models)" || label == "current week"
         }
     }
 }
@@ -35,14 +35,49 @@ struct Thresholds: Equatable, Codable {
     }
 }
 
+enum AppTheme: String, CaseIterable, Codable {
+    case system = "System", light = "Light", dark = "Dark"
+    var symbol: String {
+        switch self { case .system: "display"; case .light: "sun.max"; case .dark: "moon" }
+    }
+    var appearance: NSAppearance? {
+        switch self {
+        case .system: nil
+        case .light: NSAppearance(named: .aqua)
+        case .dark: NSAppearance(named: .darkAqua)
+        }
+    }
+}
+
 struct DisplayOptions: Equatable, Codable {
     var placement = Placement.both
     var separateItems = false
     var showPercent = true
     var dockProvider = "auto"
-    var dockWindow = WindowChoice.highest
+    var dockWindow = WindowChoice.session
+    var menuProvider = "auto"
+    var menuWindow = WindowChoice.session
+    var theme = AppTheme.system
+    var refreshMinutes = 5
     var thresholds = Thresholds()
     var disabled: Set<String> = []
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let fields = try decoder.container(keyedBy: CodingKeys.self)
+        placement = try fields.decodeIfPresent(Placement.self, forKey: .placement) ?? .both
+        separateItems = try fields.decodeIfPresent(Bool.self, forKey: .separateItems) ?? false
+        showPercent = try fields.decodeIfPresent(Bool.self, forKey: .showPercent) ?? true
+        dockProvider = try fields.decodeIfPresent(String.self, forKey: .dockProvider) ?? "auto"
+        dockWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .dockWindow) == .weekly ? .weekly : .session
+        menuProvider = try fields.decodeIfPresent(String.self, forKey: .menuProvider) ?? "auto"
+        menuWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .menuWindow) == .weekly ? .weekly : .session
+        theme = try fields.decodeIfPresent(AppTheme.self, forKey: .theme) ?? .system
+        refreshMinutes = try fields.decodeIfPresent(Int.self, forKey: .refreshMinutes) ?? 5
+        thresholds = try fields.decodeIfPresent(Thresholds.self, forKey: .thresholds) ?? Thresholds()
+        disabled = try fields.decodeIfPresent(Set<String>.self, forKey: .disabled) ?? []
+    }
 }
 
 @MainActor

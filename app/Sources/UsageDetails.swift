@@ -2,38 +2,51 @@ import SwiftUI
 
 struct BreakdownView: View {
     let periods: [BreakdownPeriod]
-    var back: () -> Void
     @State private var selection = 0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Button("‹  Back", action: back).buttonStyle(.plain)
-            Text("What's contributing?").font(.title3.bold())
-            Picker("Period", selection: $selection) {
-                ForEach(periods.indices, id: \.self) { i in Text("Last " + periods[i].span).tag(i) }
-            }.pickerStyle(.segmented).labelsHidden()
-            if periods.indices.contains(selection) {
-                let period = periods[selection]
-                Text("\(period.requests.formatted()) requests · \(period.sessions.formatted()) sessions").font(.subheadline.bold())
-                ForEach(period.tips.indices, id: \.self) { i in
-                    let tip = period.tips[i]
-                    HStack(alignment: .top) {
-                        VStack {
-                            Text("\(tip.percent)%").monospacedDigit()
-                            GeometryReader { geo in
-                                Capsule().fill(Color("border")).overlay(alignment: .leading) { Capsule().fill(Color("orchid")).frame(width: geo.size.width * CGFloat(tip.percent) / 100) }
-                            }.frame(height: 4)
-                        }.frame(width: 36)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(tip.name).fontWeight(.medium).lineLimit(2).truncationMode(.middle).help(tip.name)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                KitIcon(name: "breakdown", size: 18).foregroundStyle(Color("orchid"))
+                Text("What's contributing?").font(.system(size: 15, weight: .bold))
+                Spacer(minLength: 2)
+                HStack(spacing: 2) {
+                    ForEach(periods.indices, id: \.self) { i in
+                        Button("Last " + periods[i].span) { selection = i }
+                            .buttonStyle(.plain).font(.caption.weight(.medium)).fixedSize()
+                            .padding(.horizontal, 5).padding(.vertical, 4)
+                            .foregroundStyle(i == selection ? Color("violet") : Color("textSecondary"))
+                            .background(i == selection ? Color("violet").opacity(0.12) : .clear, in: Capsule())
+                            .accessibilityAddTraits(i == selection ? .isSelected : [])
+                    }
+                }.padding(2).background(Color("surfaceRaised"), in: Capsule())
+            }
+            if let period = periods.indices.contains(selection) ? periods[selection] : periods.first {
+                Text("\(period.requests.formatted()) requests · \(period.sessions.formatted()) sessions").font(.subheadline.weight(.semibold))
+                Text("Approximate · this Mac only · shares overlap").font(.caption).foregroundStyle(Color("textSecondary"))
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(period.tips.indices, id: \.self) { i in
+                        let tip = period.tips[i]
+                        if i > 0 { Divider() }
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                Text(shortTitle(tip.name)).font(.system(size: 12, weight: .semibold)).help(tip.name)
+                                Spacer(minLength: 2)
+                                Text("\(tip.percent)%").font(.caption.monospacedDigit().bold()).fixedSize()
+                            }
                             if let detail = tip.detail {
                                 if detail.hasPrefix("run /") {
-                                    Text(String(detail.dropFirst(4))).font(.caption.monospaced()).padding(.horizontal, 6).padding(.vertical, 2).background(Color("surfaceRaised"), in: Capsule())
+                                    Text(String(detail.dropFirst(4))).font(.caption.monospaced()).padding(.horizontal, 6).background(Color("surfaceRaised"), in: Capsule())
                                 } else { Text(detail).font(.caption).foregroundStyle(Color("textSecondary")) }
                             }
-                        }
-                    }.frame(maxWidth: .infinity, alignment: .leading).padding(9).background(Color("surface"), in: RoundedRectangle(cornerRadius: 10))
-                }
+                            GeometryReader { geo in
+                                Capsule().fill(Color("border").opacity(0.3)).overlay(alignment: .leading) {
+                                    Capsule().fill(Color("orchid")).frame(width: geo.size.width * CGFloat(tip.percent) / 100)
+                                }
+                            }.frame(height: 3).padding(.top, 2)
+                        }.padding(.vertical, 9)
+                    }
+                }.padding(.horizontal, 11).background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
                 ForEach(period.groups.keys.sorted(), id: \.self) { group in
                     Text("Top " + group).font(.caption.bold())
                     FlowLayout {
@@ -42,10 +55,15 @@ struct BreakdownView: View {
                         }
                     }
                 }
-                Text("Approximate · this Mac only · shares overlap").font(.caption).foregroundStyle(Color("textSecondary"))
             }
         }
     }
+
+    private func shortTitle(_ title: String) -> String {
+        guard title.hasPrefix("Trim "), title.dropFirst(5).contains("/") else { return title }
+        return "Trim " + (String(title.dropFirst(5)) as NSString).lastPathComponent
+    }
+
 }
 
 private struct FlowLayout: Layout {

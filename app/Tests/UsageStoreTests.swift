@@ -33,7 +33,9 @@ final class UsageStoreTests: XCTestCase {
             await fulfillment(of:[changed],timeout:2)
             store.onChange = nil
         }
-        await waitForChanges(2) { store.refreshAll(); store.refreshAll() }
+        await waitForChanges(2) { store.refreshAll(); store.opened(); XCTAssertEqual(store.active.count,2) }
+        store.opened()
+        XCTAssertTrue(store.active.isEmpty)
         let reads = await claude.reads
         XCTAssertEqual(reads,1)
         XCTAssertEqual(store.snapshots["claude"]?.limits.first?.usedPercent,90)
