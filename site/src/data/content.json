@@ -40,7 +40,7 @@
       ],
       [
         "How do I track Claude usage while working in another app?",
-        "To track Claude usage alongside Codex, select the provider whose work you are doing now. Claude and Codex usage come from different accounts and have independent reset clocks. A Claude session approaching its limit says nothing about how much Codex capacity remains. The same pair of provider tabs is available in the Mac window and from the menu bar. The Claude usage app Mac setup guide covers a first-time installation; the Codex usage app Mac instructions cover a machine with a new ChatGPT sign-in."
+        "To track Claude usage alongside Codex, select the provider whose work you are doing now. Claude and Codex usage come from different accounts and have independent reset clocks. A Claude session approaching its limit says nothing about how much Codex capacity remains. The same pair of provider tabs is available in the Mac window and from the menu bar. The Mac setup guide for Claude Code covers a first-time installation; the Codex setup steps cover a machine with a new ChatGPT sign-in."
       ],
       [
         "Can the Claude usage bar show both windows?",
@@ -82,12 +82,12 @@
         "A Claude usage tracker helps you answer a small, practical question before starting a large job: which window has the least room left? A long session may leave very little space for the next edit even though the weekly allowance looks comfortable. The reverse happens too. Open Claude Code usage to match a percentage to its reset time. If you want to understand why two times differ, the Claude usage limits guide walks through a session and a weekly reset on the same calendar. The Claude Code weekly limit and the Claude Opus weekly limit have separate explanations for the two kinds of weekly reading."
       ],
       [
-        "An AI coding usage monitor for a shared desktop",
-        "An AI coding usage monitor should tell you whose reading you are looking at. A Claude tab and a Codex tab sit next to each other, each with its own timestamp. Leave the menu bar set to the session that matters while keeping both windows visible in the Dock. On a Mac with only one connected provider, that provider supplies the readings. Open the Codex usage guide for the difference between the time of your last local activity and the time you clicked Refresh. Check ChatGPT Plus Codex limits or ChatGPT Pro Codex limits when the Codex tab shows a different plan from the one you expected."
+        "Claude and Codex on the same Mac",
+        "When you use more than one AI coding tool, a usage monitor has to show which tool each number belongs to. A Claude tab and a Codex tab sit next to each other, each with its own timestamp. Leave the menu bar set to the session that matters while keeping both windows visible in the Dock. On a Mac with only one connected provider, that provider supplies the readings. Open the Codex usage guide for the difference between the time of your last local activity and the time you clicked Refresh. Check ChatGPT Plus Codex limits or ChatGPT Pro Codex limits when the Codex tab shows a different plan from the one you expected."
       ],
       [
-        "Which AI usage tracker Mac view should I choose?",
-        "The AI usage tracker Mac users see in the Dock can show two windows at once. The short upper arc represents the five-hour session and the longer arc represents the week. In Settings, choose a single number if you want fewer details, or choose two numbers to read both without opening the window. For an uncluttered desktop, leave only the menu bar enabled. Your choice of provider and window for the Dock is independent of the choices for the menu bar. If the short and long arcs are unfamiliar, start with the Claude 5 hour limit or the Codex weekly limit, depending on the selected provider."
+        "Menu bar, Dock or both?",
+        "In the Dock, the icon can show two usage windows at once. The short upper arc represents the five-hour session and the longer arc represents the week. In Settings, choose a single number if you want fewer details, or choose two numbers to read both without opening the window. For an uncluttered desktop, leave only the menu bar enabled. Your choice of provider and window for the Dock is independent of the choices for the menu bar. If the short and long arcs are unfamiliar, start with the Claude 5 hour limit or the Codex weekly limit, depending on the selected provider."
       ]
     ],
     "sources": [
@@ -513,7 +513,7 @@
       ],
       [
         "How to add a provider",
-        "Implement the provider interface, map its output to usage windows and add fixtures covering a successful reading, a missing reading and an error. Follow the contribution guide for review. Use the AI coding usage monitor overview to see how a new reader will appear in the window. The AI usage tracker Mac display guide explains which readings can appear together."
+        "Implement the provider interface, map its output to usage windows and add fixtures covering a successful reading, a missing reading and an error. Follow the contribution guide for review. Use the home page overview to see how a new reader will appear in the window. The display guide on the home page explains which readings can appear together."
       ],
       [
         "Changelog",
@@ -525,19 +525,19 @@
       ],
       [
         "License",
-        "The MIT license permits use, modification and redistribution with its copyright and license notice. For a release binary, use the download Claude usage tracker Mac page to check distribution and verification details."
+        "The MIT license permits use, modification and redistribution with its copyright and license notice. For a release binary, use the download page to check distribution and verification details."
       ],
       [
         "What can I inspect in an open source Claude usage tracker?",
         "In an open source Claude usage tracker, the provider interface and parsing tests tell you more than a screenshot alone. Begin with the Claude reader to see how a local command becomes a usage snapshot. Then follow the parser into a test fixture containing the labels, fractions and reset times it expects."
       ],
       [
-        "Where will the Claude usage tracker GitHub release live?",
-        "The Claude usage tracker GitHub project is the source for release notes, licenses and published binaries once available. The site reads public repository information at build time. When those details are unavailable, it displays the license and leaves the statistics out."
+        "Where do releases live on GitHub?",
+        "The project's GitHub repository is the source for release notes, licenses and published binaries once available. The site reads public repository information at build time. When those details are unavailable, it displays the license and leaves the statistics out."
       ],
       [
-        "How does a menu bar app Swift open source contribution work?",
-        "For a menu bar app Swift open source contribution, a small fixture is a useful starting point. Capture a representative provider response with personal identifiers removed, then state the behavior you expect from the parser. A missing limit, an explicit zero and a reached-limit message can all arrive in slightly different records."
+        "How do I contribute to a Swift menu bar app?",
+        "For a contribution to this Swift menu bar app, a small fixture is a useful starting point. Capture a representative provider response with personal identifiers removed, then state the behavior you expect from the parser. A missing limit, an explicit zero and a reached-limit message can all arrive in slightly different records."
       ]
     ],
     "sources": [],
@@ -577,8 +577,8 @@
         "AI Usage Menu collects no usage data or analytics. Processing happens on this Mac. This website uses no cookies or analytics scripts in this build."
       ],
       [
-        "How does a Claude usage tracker without cookie access work?",
-        "A Claude usage tracker without cookie access can use the signed-in CLI that already displays your subscription information. The Claude reader starts that installed tool and reads its usage output. The app never asks you to export a browser session or put a secret in a settings field."
+        "How can a Claude usage tracker work without your cookie?",
+        "A Claude usage tracker that never touches your cookie can use the signed-in CLI that already displays your subscription information. The Claude reader starts that installed tool and reads its usage output. The app never asks you to export a browser session or put a secret in a settings field."
       ],
       [
         "Is it safe to paste Claude session cookie data into a tracker?",
@@ -586,7 +586,7 @@
       ],
       [
         "Claude usage tracker privacy during a refresh",
-        "Claude usage tracker privacy starts with following the process that performs each read. A refresh can involve both the tracker process and the installed Claude Code process. A network sample attributed to Claude Code belongs to the CLI, which can contact Anthropic when it produces its account readout. Our menu bar app Swift open source guide shows the provider interface and the test used to review changes to these reads."
+        "Claude usage tracker privacy starts with following the process that performs each read. A refresh can involve both the tracker process and the installed Claude Code process. A network sample attributed to Claude Code belongs to the CLI, which can contact Anthropic when it produces its account readout. Our open-source guide shows the provider interface and the test used to review changes to these reads."
       ],
       [
         "How the app handles a missing reading",
@@ -656,7 +656,7 @@
       ],
       [
         "What counts as a network request here?",
-        "The network column describes requests made by the tracker itself. A provider's own CLI can separately contact its service while printing current account information. That distinction matters when observing processes on a Mac. With update checks off, AI Usage Menu reads its provider interfaces without opening its own connection. A package manager downloading an app for installation is a separate step again. Check the project source for the version you run and review whether an update checker, pricing lookup or optional telemetry is enabled before interpreting a network trace. The Claude usage tracker GitHub project documents the readers and the test that checks where network APIs may appear."
+        "The network column describes requests made by the tracker itself. A provider's own CLI can separately contact its service while printing current account information. That distinction matters when observing processes on a Mac. With update checks off, AI Usage Menu reads its provider interfaces without opening its own connection. A package manager downloading an app for installation is a separate step again. Check the project source for the version you run and review whether an update checker, pricing lookup or optional telemetry is enabled before interpreting a network trace. The GitHub repository documents the readers and the test that checks where network APIs may appear."
       ],
       [
         "What do “free” and “signed” mean in the table?",
@@ -740,16 +740,16 @@
         "Open the app, review the detected providers and choose where your usage should appear. Launch at login, alerts and update checks are optional."
       ],
       [
-        "Which Claude usage app Mac setup do I need?",
-        "For a Claude usage app Mac setup, install Claude Code on the same Mac and verify that its sign-in uses the subscription you expect. Open the interactive client and inspect its usage screen before troubleshooting the menu bar. If that screen has no session or weekly windows because the account uses an API key, installing the tracker cannot add those allowances. Once you see provider windows, compare one label and reset time between the terminal and the tracker. The app uses the account already available to Claude Code."
+        "What do I need to track Claude usage on a Mac?",
+        "To track Claude usage on a Mac, install Claude Code on the same Mac and verify that its sign-in uses the subscription you expect. Open the interactive client and inspect its usage screen before troubleshooting the menu bar. If that screen has no session or weekly windows because the account uses an API key, installing the tracker cannot add those allowances. Once you see provider windows, compare one label and reset time between the terminal and the tracker. The app uses the account already available to Claude Code."
       ],
       [
-        "How does a Codex usage app Mac setup differ?",
-        "A Codex usage app Mac setup needs local Codex activity from a ChatGPT sign-in. A new installation may have the correct plan and still have no local rate-limit reading. Check the provider tab for a waiting message and the time of the last activity. Running Refresh looks for updated local data. It does not spend a prompt to produce a test reading. When both providers are connected, select one in Settings for a fixed menu bar reading or use Auto to follow the most constrained window."
+        "What changes for Codex?",
+        "Tracking Codex on a Mac needs local Codex activity from a ChatGPT sign-in. A new installation may have the correct plan and still have no local rate-limit reading. Check the provider tab for a waiting message and the time of the last activity. Running Refresh looks for updated local data. It does not spend a prompt to produce a test reading. When both providers are connected, select one in Settings for a fixed menu bar reading or use Auto to follow the most constrained window."
       ],
       [
-        "Download Claude usage tracker Mac builds and verify the release",
-        "When you download Claude usage tracker Mac builds, check that the release links point to the project's own distribution before opening the disk image. The download control on this page indicates whether a signed release is available. Source builds and published disk images are different artifacts. For an official binary, check the exact app bundle installed in Applications. If you renamed the app or installed it elsewhere, adjust the quoted path in the verification commands to match that location."
+        "Download the app and verify the release",
+        "When you download a build, check that the release links point to the project's own distribution before opening the disk image. The download control on this page indicates whether a signed release is available. Source builds and published disk images are different artifacts. For an official binary, check the exact app bundle installed in Applications. If you renamed the app or installed it elsewhere, adjust the quoted path in the verification commands to match that location."
       ],
       [
         "Choose the first reading you want to see",

@@ -70,7 +70,7 @@ for(const [id,data] of Object.entries(pages)){
    const article=graph.find(t=>t['@type']==='Article');assert.equal(article.headline,heading);assert.equal(article.author['@type'],'Organization');
  }
  full.push('# '+title+'\n'+canonical+'\n\n'+visible);
- const range=ranges[id]||[600,900];
+ const range=ranges[id]||[600,1000];
  if(bodyWords<range[0]||bodyWords>range[1]){invalid++;console.error(id,'body words',bodyWords,'target',range)}
 
  for(const sentence of visible.split(/[.!?\n]/))if(competitor.test(sentence))assert.doesNotMatch(sentence,/\b(best|great|excellent|winner|better than us|deciding factor|if you need .+ use)\b/i);

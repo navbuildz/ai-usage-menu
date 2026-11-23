@@ -76,3 +76,9 @@
 .compare td:first-child{display:block;font:700 1.1rem 'Inter Variable',sans-serif;padding:.4rem 0 .8rem}
 .compare td:first-child:before{display:none}.compare td:last-child{border:0}.compare td:before{color:var(--muted);font-size:.85rem}
 }
+
+/* Home: the three explainer sections sit side by side as cards instead of half-width text with an empty column. */
+.home-reads{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px;margin:56px 0}
+.home-reads .read-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px;margin:0}
+.home-reads .read-card h2{font-size:clamp(1.25rem,1.6vw,1.5rem);line-height:1.2;margin:0 0 12px}
+.home-reads .read-card .sectiontext{font-size:.95rem;margin:0;max-width:none}
