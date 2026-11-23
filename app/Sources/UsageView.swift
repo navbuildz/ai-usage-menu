@@ -75,8 +75,8 @@ struct UsageView: View {
                         ForEach(AppTheme.allCases, id: \.self) { theme in
                             Button { preferences.options.theme = theme } label: {
                                 Image(systemName: theme.symbol).font(.system(size: 11, weight: .medium)).frame(width: 22, height: 22)
-                                    .background(preferences.options.theme == theme ? Color("surface") : .clear, in: Circle())
-                                    .foregroundStyle(preferences.options.theme == theme ? Color("violet") : Color("textSecondary"))
+                                    .background(preferences.options.theme == theme ? Color("violet") : .clear, in: Circle())
+                                    .foregroundStyle(preferences.options.theme == theme ? Color.white : Color("textSecondary"))
                             }.help(theme.rawValue + " appearance").accessibilityLabel(theme.rawValue + " appearance")
                                 .accessibilityAddTraits(preferences.options.theme == theme ? .isSelected : [])
                         }

@@ -1,8 +1,10 @@
 import AppKit
+import CoreText
 
 struct DockSnapshot: Equatable {
     var indicator: Indicator
     var thresholds: Thresholds
+    var light = false
     var session: Double?
     var weekly: Double?
 
@@ -46,8 +48,9 @@ enum DockIconRenderer {
 
     private static func draw(_ snapshot: DockSnapshot, size: Int, context c: CGContext) {
         let bounds = CGRect(x: 0, y: 0, width: 100, height: 100)
+        let ink: NSColor = snapshot.light ? NSColor(srgbRed: 0.08, green: 0.09, blue: 0.16, alpha: 1) : .white
         let empty = snapshot.indicator == .absent
-        NSImage(named: empty ? "StaticIcon" : "DockBase")?.draw(in: bounds)
+        NSImage(named: (empty ? "StaticIcon" : "DockBase") + (snapshot.light ? "Light" : ""))?.draw(in: bounds)
         guard !empty else { return }
         let center = CGPoint(x: 50, y: 50)
         c.setLineCap(.round)
@@ -59,7 +62,7 @@ enum DockIconRenderer {
                 c.strokePath()
             }
             c.setLineWidth(7)
-            c.setStrokeColor((value == nil ? NSColor.gray : NSColor(named: "border")!).withAlphaComponent(0.70).cgColor)
+            c.setStrokeColor((value == nil ? NSColor.gray : NSColor(srgbRed: 0.21, green: 0.21, blue: 0.32, alpha: 1)).withAlphaComponent(snapshot.light ? 0.26 : 0.70).cgColor)
             stroke(0, 100)
             guard let value, value > 0 else { return }
             let end = snapshot.thresholds.color(value, sweep: true)
@@ -82,35 +85,30 @@ enum DockIconRenderer {
         // Rounded caps extend beyond the endpoints. Leave room for both at each break.
         segment(start: -50, length: 100, value: snapshot.session)
         segment(start: 70, length: 220, value: snapshot.weekly)
-        guard case let .value(percent, glyph) = snapshot.indicator else {
-            drawText("!", fontSize: 27, centerY: 50)
+        guard let percent = snapshot.indicator.percent else {
+            drawLabel("!", fontSize: 27, ink: ink, in: c)
             return
         }
-        let large = size >= 128
-        let digits = percent.usageNumber
-        drawText(digits + (large ? "%" : ""), fontSize: large ? 20 : 28, centerY: large ? 54 : 50)
-        if large, let image = NSImage(named: glyph) {
-            let rect = NSRect(x: 44, y: 32, width: 12, height: 12)
-            let white = NSImage(size: rect.size, flipped: false) { area in
-                image.draw(in: area)
-                NSColor.white.setFill()
-                area.fill(using: .sourceAtop)
-                return true
-            }
-            white.draw(in: rect)
-        }
+        let compact = size < 128
+        drawLabel(percent.usageNumber, fontSize: compact ? 27 : 20, ink: ink, in: c)
     }
 
-    private static func drawText(_ text: String, fontSize: Double, centerY: Double) {
+    private static func drawLabel(_ digits: String, fontSize: CGFloat, ink: NSColor, in context: CGContext) {
         let descriptor = NSFont.systemFont(ofSize: fontSize, weight: .bold).fontDescriptor.withDesign(.rounded)!
-        func attributes(_ size: Double) -> [NSAttributedString.Key: Any] {
-            [.font: NSFont(descriptor: descriptor, size: size)!, .foregroundColor: NSColor.white]
-        }
-        let label = text as NSString
-        var attrs = attributes(fontSize)
-        let width = label.size(withAttributes: attrs).width
-        if width > 49 { attrs = attributes(fontSize * 49 / width) }
-        let size = label.size(withAttributes: attrs)
-        label.draw(at: CGPoint(x: 50 - size.width / 2, y: centerY - size.height / 2), withAttributes: attrs)
+        let label = NSAttributedString(string: digits, attributes: [
+            .font: NSFont(descriptor: descriptor, size: fontSize)!,
+            .foregroundColor: ink
+        ])
+
+        let line = CTLineCreateWithAttributedString(label)
+        let glyphBounds = CTLineGetBoundsWithOptions(line, .useGlyphPathBounds)
+        let scale = min(1, 47 / glyphBounds.width)
+        context.saveGState()
+        context.translateBy(x: 50, y: 50)
+        context.scaleBy(x: scale, y: scale)
+        context.textMatrix = .identity
+        context.textPosition = CGPoint(x: -glyphBounds.midX, y: -glyphBounds.midY)
+        CTLineDraw(line, context)
+        context.restoreGState()
     }
 }

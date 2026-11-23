@@ -57,6 +57,7 @@ struct DisplayOptions: Equatable, Codable {
     var dockWindow = WindowChoice.session
     var menuProvider = "auto"
     var menuWindow = WindowChoice.session
+    var dockTheme = AppTheme.system
     var theme = AppTheme.system
     var refreshMinutes = 5
     var thresholds = Thresholds()
@@ -73,6 +74,7 @@ struct DisplayOptions: Equatable, Codable {
         dockWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .dockWindow) == .weekly ? .weekly : .session
         menuProvider = try fields.decodeIfPresent(String.self, forKey: .menuProvider) ?? "auto"
         menuWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .menuWindow) == .weekly ? .weekly : .session
+        dockTheme = try fields.decodeIfPresent(AppTheme.self, forKey: .dockTheme) ?? .system
         theme = try fields.decodeIfPresent(AppTheme.self, forKey: .theme) ?? .system
         refreshMinutes = try fields.decodeIfPresent(Int.self, forKey: .refreshMinutes) ?? 5
         thresholds = try fields.decodeIfPresent(Thresholds.self, forKey: .thresholds) ?? Thresholds()

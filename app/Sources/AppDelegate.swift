@@ -13,10 +13,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     private let store = UsageStore()
     let preferences = DisplayPreferences(defaults: ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil ? .standard : UserDefaults(suiteName: "ai.aiusagemenu.tests.display")!)
     var statusItemCount: Int { items.count }
-    private var items: [String: NSStatusItem] = [:]
-    private let popover = NSPopover()
+    private(set) var items: [String: NSStatusItem] = [:]
+    let popover = NSPopover()
     private let panelNavigation = Navigation()
     private let windowNavigation = Navigation()
+    private var sessionFrame: NSRect?
     private var window: NSWindow?
     private var settingsWindow: NSWindow?
     private var appearance: NSKeyValueObservation?
@@ -26,6 +27,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
 
     static func main() {
         let application = NSApplication.shared
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+            // One owner across Debug and Release, including simultaneous launches.
+            let support = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/AI Usage Menu")
+            try? FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
+            let lock = Darwin.open(support.appendingPathComponent("instance.lock").path, O_CREAT | O_RDWR | O_CLOEXEC, 0o600)
+            if lock >= 0 && flock(lock, LOCK_EX | LOCK_NB) != 0 {
+                Darwin.close(lock)
+                DistributedNotificationCenter.default().postNotificationName(.init("ai.aiusagemenu.reopen"), object: nil, userInfo: nil, deliverImmediately: true)
+                return
+            }
+        }
         let delegate = AppDelegate()
         application.delegate = delegate
         withExtendedLifetime(delegate) { application.run() }
@@ -36,11 +48,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(reopenExisting), name: .init("ai.aiusagemenu.reopen"), object: nil)
         installMenus()
         popover.behavior = .transient
         popover.delegate = self
         appearance = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
-            Task { @MainActor in self?.rendered = nil; self?.updateDisplays() }
+            Task { @MainActor in
+                guard let self else { return }
+                self.preferences.objectWillChange.send()
+                self.applyTheme()
+                self.updateDisplays()
+            }
         }
         preferences.changed = { [weak self] in self?.applyPreferences() }
         store.readingChanged = { [weak self] in self?.updateItems() }
@@ -57,9 +75,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         if NSApp.activationPolicy() != target { NSApp.setActivationPolicy(target) }
     }
 
+    private func applyTheme() {
+        let theme = preferences.options.theme.appearance
+        popover.appearance = theme ?? NSApp.effectiveAppearance
+        popover.contentViewController?.view.appearance = popover.appearance
+        window?.appearance = theme
+        settingsWindow?.appearance = theme
+    }
+
     private func applyPreferences() {
         applyActivation()
-        NSApp.appearance = preferences.options.theme.appearance
+        applyTheme()
         store.setInterval(minutes: preferences.options.refreshMinutes)
         store.setDisabled(preferences.options.disabled)
         if preferences.options.placement == .dock { popover.performClose(nil) }
@@ -73,11 +99,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             if rendered != nil { NSApp.dockTile.contentView = nil; rendered = nil }
             return
         }
-        let snapshot = DockSnapshot.resolve(providers: store.displayProviders, snapshots: store.snapshots, options: options, now: .now)
+        var snapshot = DockSnapshot.resolve(providers: store.displayProviders, snapshots: store.snapshots, options: options, now: .now)
+        snapshot.light = (options.dockTheme.appearance ?? NSApp.effectiveAppearance).bestMatch(from: [.aqua,.darkAqua]) == .aqua
         let tile = NSApp.dockTile
         guard rendered != snapshot else { return }
         rendered = snapshot
-        if snapshot.indicator == .absent { tile.contentView = nil }
+        if snapshot.indicator == .absent && !snapshot.light { tile.contentView = nil }
         else {
             let view = NSImageView(frame: .init(origin: .zero, size: tile.size))
             view.imageScaling = .scaleProportionallyUpOrDown
@@ -85,14 +112,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             tile.contentView = view
         }
         tile.display()
-    }
-
-    private func menuValue(_ item: String) -> Indicator {
-        let options = preferences.options
-        let candidates = store.displayProviders
-        let choice = item == "auto" ? options.menuProvider : item
-        let id = candidates.contains { $0.id == choice } ? choice : "auto"
-        return Indicator.select(providers: candidates, snapshots: store.snapshots, providerID: id, window: options.menuWindow, at: .now)
     }
 
     private func updateItems() {
@@ -110,19 +129,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             button.target = self
             button.action = #selector(openPanel(_:))
             let provider = store.providers.first { $0.id == key }
-            let value = menuValue(key)
-            let title = value.percent.flatMap { options.showPercent ? $0.usageNumber + "%" : nil } ?? (value == .warning ? "⚠" : "")
-            var ink = NSColor.labelColor
-            if let percent = value.percent { ink = options.thresholds.color(percent) }
-            button.attributedTitle = NSAttributedString(string: title, attributes: [.font: NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .semibold), .foregroundColor: separate ? ink : NSColor.labelColor])
-            let image = NSImage(named: provider?.glyph ?? "UsageTemplate")?.copy() as? NSImage
-            image?.size = .init(width: 18, height: 18)
-            image?.isTemplate = true
-            if let p = value.percent, !separate {
-                button.image = MenuGauge.image(percent: p, thresholds: options.thresholds, appearance: button.effectiveAppearance)
-            } else { button.image = image }
-            button.contentTintColor = separate && !options.showPercent && value.percent != nil ? ink : nil
-            button.imagePosition = title.isEmpty ? .imageOnly : .imageLeading
+            let value = store.menuValue(key, options: options)
+            let visual = MenuItemVisual(value: value, provider: provider, options: options, appearance: button.effectiveAppearance)
+            button.attributedTitle = NSAttributedString(string: visual.title, attributes: [.font: NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .semibold), .foregroundColor: visual.textColor])
+            button.image = visual.image
+            button.contentTintColor = visual.iconTint
+            button.imagePosition = visual.title.isEmpty ? .imageOnly : .imageLeading
             let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (value.percent.map { $0.usageNumber + " percent used" } ?? "Usage unavailable")
             button.setAccessibilityLabel(description)
             button.toolTip = description
@@ -154,9 +166,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         }
         panelID = id
         if id != "auto" { panelNavigation.select(id) }
-        else if case let .value(_, glyph) = menuValue("auto"), let winner = store.enabled.first(where: { $0.glyph == glyph }) { panelNavigation.select(winner.id) }
+        else if case let .value(_, glyph) = store.menuValue("auto", options: preferences.options), let winner = store.enabled.first(where: { $0.glyph == glyph }) { panelNavigation.select(winner.id) }
         store.opened()
         popover.contentViewController = usage(panelNavigation)
+        popover.contentViewController?.view.appearance = popover.appearance
         popover.contentSize = .init(width: 380, height: 535)
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
@@ -176,26 +189,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             w.title = "AI Usage Menu"
             w.isReleasedWhenClosed = false
             w.delegate = self
-            w.center()
-            w.setFrameAutosaveName("UsageWindow")
+            w.appearance = preferences.options.theme.appearance
+            w.isRestorable = false
             window = w
         }
         if window?.contentViewController == nil { window?.contentViewController = usage(windowNavigation) }
         window?.contentView?.wantsLayer = true
         window?.contentView?.layer?.cornerRadius = 18
         window?.contentView?.layer?.masksToBounds = true
+        if let window, !window.isVisible {
+            let screens = NSScreen.screens
+            let active = screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
+            let previousScreen = sessionFrame.flatMap { frame in
+                screens.filter { $0.visibleFrame.intersects(frame) }.max {
+                    $0.visibleFrame.intersection(frame).area < $1.visibleFrame.intersection(frame).area
+                }
+            }
+            let screen = previousScreen ?? active
+            if let area = screen?.visibleFrame {
+                let size = sessionFrame?.size ?? NSSize(width: 390, height: 525)
+                let width = min(size.width, area.width), height = min(size.height, area.height)
+                let origin = sessionFrame?.origin ?? NSPoint(x: area.midX - width/2, y: area.midY - height/2)
+                window.setFrame(.init(x: max(area.minX,min(origin.x,area.maxX-width)), y: max(area.minY,min(origin.y,area.maxY-height)), width: width,height: height), display: true)
+            }
+        }
         window?.makeKeyAndOrderFront(nil)
         return true
     }
 
     func windowWillClose(_ notification: Notification) {
-        if let w = notification.object as? NSWindow, w === window { w.contentViewController = nil }
+        if let w = notification.object as? NSWindow, w === window { sessionFrame = w.frame; w.contentViewController = nil }
     }
 
     @objc func showSettings() {
         popover.performClose(nil)
         if settingsWindow == nil {
             let w = NSWindow(contentViewController: NSHostingController(rootView: DisplaySettings(preferences: preferences, store: store)))
+            w.appearance = preferences.options.theme.appearance
+            w.titlebarAppearsTransparent = true
+            w.backgroundColor = NSColor(named: "background")
             w.title = "AI Usage Menu Settings"
             w.styleMask = [.titled,.closable]
             w.isReleasedWhenClosed = false
@@ -237,6 +269,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         return true
     }
 
+    @objc private func reopenExisting() {
+        NSApp.activate(ignoringOtherApps: true)
+        if preferences.options.placement == .menu, let button = items.values.first?.button {
+            if !popover.isShown { openPanel(button) }
+        } else { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: false) }
+    }
     @objc func refresh() { store.refreshAll() }
     @objc func typeFire() { NSWorkspace.shared.open(URL(string: "https://typefire.app")!) }
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
@@ -267,7 +305,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
 }
 
 @MainActor
-private enum MenuGauge {
+enum MenuGauge {
     static func image(percent: Double, thresholds: Thresholds, appearance: NSAppearance) -> NSImage {
         let tier = thresholds.tier(percent)
         let ink = thresholds.color(percent)
@@ -288,6 +326,38 @@ private enum MenuGauge {
             }
             c.restoreGState()
             return true
+        }
+    }
+}
+
+private extension CGRect { var area: CGFloat { isNull ? 0 : width * height } }
+
+extension UsageStore {
+    func menuValue(_ key: String, options: DisplayOptions) -> Indicator {
+        let choice = key == "auto" ? options.menuProvider : key
+        let id = displayProviders.contains { $0.id == choice } ? choice : "auto"
+        return Indicator.select(providers: displayProviders, snapshots: snapshots, providerID: id, window: options.menuWindow, at: .now)
+    }
+}
+
+@MainActor
+struct MenuItemVisual {
+    let title: String
+    let image: NSImage?
+    let textColor: NSColor
+    let iconTint: NSColor?
+
+    init(value: Indicator, provider: (any Provider)?, options: DisplayOptions, appearance: NSAppearance) {
+        title = value.percent.flatMap { options.showPercent ? $0.usageNumber + "%" : nil } ?? (value == .warning ? "⚠" : "")
+        let ink = value.percent.map { options.thresholds.color($0) }
+        textColor = provider != nil ? ink ?? .labelColor : .labelColor
+        iconTint = provider != nil && !options.showPercent ? ink : nil
+        if provider == nil, let percent = value.percent {
+            image = MenuGauge.image(percent: percent, thresholds: options.thresholds, appearance: appearance)
+        } else {
+            image = NSImage(named: provider?.glyph ?? "UsageTemplate")?.copy() as? NSImage
+            image?.size = .init(width: 18, height: 18)
+            image?.isTemplate = true
         }
     }
 }

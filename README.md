@@ -36,13 +36,15 @@ Open Settings with the gear or Cmd+comma. Choose Menu bar and Dock, Menu bar onl
 
 Menu bar and Dock preferences are independent. Each offers Auto or an explicit provider when multiple tools are available. Both default to the 5-hour number. In the Dock, the upper arc shows the 5-hour window and the lower arc shows overall weekly usage. The center selector changes only the number. Auto keeps both arcs on the provider with the highest current overall weekly or 5-hour reading. The menu bar’s Auto compares just its selected window. Claude’s model-specific limits remain visible in its usage cards.
 
+The menu bar and Dock previews show the current display choices. Dock appearance has its own System, Light and Dark setting. The live ring centers the selected number without a percent sign. The first usage window after launch opens in the center of the active display. Closing and reopening restores its position until quit.
+
 Select System, Light or Dark in the header or Settings. System follows macOS and is the default. Scheduled refresh defaults to five minutes. Settings also offers 2, 10, 15 and 30 minutes. Manual, wake and Codex file-change refreshes work independently.
 
 ## Phase 3 verification, November 22, 2026
 
 The hosted tests exercise all three placement settings live, the regular and accessory activation policies, status item counts, the Dock window and access to Settings. The selection tests cover an individual provider, a single enabled provider, both providers on Auto, and session and weekly filtering. The display settings persist across launches.
 
-The [Dock snapshots](handoff/screenshots/dock) cover 13 cases at 32, 128 and 1024 pixels, including custom thresholds and stale readings. The [window captures](handoff/screenshots/window) use the built views and fixture data in both appearances. The renderer also runs at 64 and 512 pixels. To deliberately regenerate reference captures, run `TEST_RUNNER_RECORD_DOCK=1 TEST_RUNNER_RECORD_PANEL=1 ./app/build.sh test`.
+The [Dock snapshots](handoff/screenshots/dock) cover 14 cases at 32, 128 and 1024 pixels, including custom thresholds and stale readings. The [window captures](handoff/screenshots/window) use the built views and fixture data in both appearances. The renderer also runs at 64 and 512 pixels. To deliberately regenerate reference captures, run `TEST_RUNNER_RECORD_DOCK=1 TEST_RUNNER_RECORD_PANEL=1 ./app/build.sh test`.
 
 Desktop checks on this Mac included the real provider tabs and a titled usage window with the Dock on the right, left and bottom, including bottom placement with auto-hide and magnification enabled. The original Dock configuration was restored. Individual Dock hover frames, Cmd-Tab artwork, the absence of a one-frame launch flash and notched-display overflow still need visual verification. Login-item startup requires Phase 4. The Release build targets Apple silicon and Intel. Tests ran on Apple silicon.
 

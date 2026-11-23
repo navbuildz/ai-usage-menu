@@ -50,6 +50,9 @@ final class DisplayTests: XCTestCase {
             ("no-providers",resolved(["codex":.init(asOf:now,state:.notInstalled)])),
             ("auto-both",resolved(["claude":snapshot(12,30),"codex":snapshot(72,57)]))
         ]
+        var light = resolved(["claude":snapshot(37,72)])
+        light.light = true
+        samples.append(("light-37", light))
         for (name, snapshot) in samples {
             for size in [32,128,1024] {
                 let image = DockIconRenderer.image(for: snapshot, size: size)
@@ -116,6 +119,15 @@ final class DisplayTests: XCTestCase {
         prefs.options.placement = .menu
         XCTAssertEqual(NSApp.activationPolicy(), .accessory)
         XCTAssertEqual(delegate.statusItemCount, 1)
+        let button = try XCTUnwrap(delegate.items["auto"]?.button)
+        button.performClick(nil)
+        XCTAssertTrue(delegate.popover.isShown)
+        for theme in [AppTheme.light, .dark] {
+            prefs.options.theme = theme
+            let content = try XCTUnwrap(delegate.popover.contentViewController?.view)
+            XCTAssertEqual(content.effectiveAppearance.bestMatch(from: [.aqua,.darkAqua]), theme.appearance?.name)
+        }
+        delegate.popover.performClose(nil)
         prefs.options.placement = .dock
         XCTAssertEqual(NSApp.activationPolicy(), .regular)
         XCTAssertEqual(delegate.statusItemCount, 0)
@@ -125,6 +137,20 @@ final class DisplayTests: XCTestCase {
         XCTAssertFalse(window.styleMask.contains(.titled))
         XCTAssertTrue(window.canBecomeKey)
         XCTAssertTrue(delegate.applicationDockMenu(NSApp)?.items.contains { $0.title == "Settings…" } == true)
+        let area = try XCTUnwrap(window.screen?.visibleFrame)
+        XCTAssertEqual(window.frame.midX, area.midX, accuracy: 2)
+        XCTAssertEqual(window.frame.midY, area.midY, accuracy: 2)
+        window.setFrameOrigin(.init(x: area.minX + 10, y: area.minY + 10))
+        let moved = window.frame
+        window.close()
+        XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
+        XCTAssertEqual(window.frame, moved)
+        for theme in [AppTheme.dark, .light, .system] {
+            prefs.options.theme = theme
+            let expected = (theme.appearance ?? NSApp.effectiveAppearance).bestMatch(from: [.aqua,.darkAqua])
+            XCTAssertEqual(delegate.popover.appearance?.bestMatch(from: [.aqua,.darkAqua]), expected)
+            XCTAssertEqual(window.effectiveAppearance.bestMatch(from: [.aqua,.darkAqua]), expected)
+        }
         delegate.showSettings()
         let settings = try XCTUnwrap(NSApp.windows.first { $0.title == "AI Usage Menu Settings" && $0.isVisible })
         settings.close()

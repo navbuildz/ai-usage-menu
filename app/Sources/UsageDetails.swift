@@ -15,8 +15,8 @@ struct BreakdownView: View {
                         Button("Last " + periods[i].span) { selection = i }
                             .buttonStyle(.plain).font(.caption.weight(.medium)).fixedSize()
                             .padding(.horizontal, 5).padding(.vertical, 4)
-                            .foregroundStyle(i == selection ? Color("violet") : Color("textSecondary"))
-                            .background(i == selection ? Color("violet").opacity(0.12) : .clear, in: Capsule())
+                            .foregroundStyle(i == selection ? Color.white : Color("textSecondary"))
+                            .background(i == selection ? Color("violet") : .clear, in: Capsule())
                             .accessibilityAddTraits(i == selection ? .isSelected : [])
                     }
                 }.padding(2).background(Color("surfaceRaised"), in: Capsule())
