@@ -19,6 +19,7 @@
 		32F50F5B83E9AA231B8F7110 /* claude-bedrock.txt in Resources */ = {isa = PBXBuildFile; fileRef = 20CCFB6492C8285788F58A65 /* claude-bedrock.txt */; };
 		33EE4EAABFB97B88D7DE9381 /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2261545334E0CE6AEBE3A2AA /* Provider.swift */; };
 		3B2EAFC88B199E2A8DA089BA /* BrandColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE0BA563B95E8FA84BCDB3C /* BrandColors.swift */; };
+		3E76E07F7DDB247AC95236A4 /* MenuBarVisuals.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E7E0EFD16437E5499B606C /* MenuBarVisuals.swift */; };
 		4B6AACC6F25DC99800DB33DF /* PanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E033F4C8F5BFEBFCB83E283 /* PanelTests.swift */; };
 		4B8E642EE62318430F52FA7B /* Sparkle-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */; };
 		5A042D8098F4AC6D44D083F5 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5404D2D55D03B1C0E3B74B7 /* AppServices.swift */; };
@@ -80,6 +81,7 @@
 		E8385CC8F27CC989ACC010A5 /* ScaffoldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaffoldTests.swift; sourceTree = "<group>"; };
 		EC6054EB2B77EED2CE0F1D9F /* ClaudeParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeParser.swift; sourceTree = "<group>"; };
 		F352865A811F107A2DECCF7D /* AIUsageMenu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AIUsageMenu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F5E7E0EFD16437E5499B606C /* MenuBarVisuals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarVisuals.swift; sourceTree = "<group>"; };
 		F9BE08B53C2705214D1B8611 /* CodexProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -170,6 +172,7 @@
 				C5E9FF5F1B8AD0C35F741511 /* DisplayModel.swift */,
 				85833BFB82AEF49C5BF217FB /* DisplaySettings.swift */,
 				5D5AB26B3512DD04D66BB5D0 /* DockIconRenderer.swift */,
+				F5E7E0EFD16437E5499B606C /* MenuBarVisuals.swift */,
 				8E57B5E91F1166FF30686F51 /* Onboarding.swift */,
 				2261545334E0CE6AEBE3A2AA /* Provider.swift */,
 				A30C1B4901C696AACBF74A96 /* UsageDetails.swift */,
@@ -323,6 +326,7 @@
 				C9CFBBA3B44DEEC7D37A23CA /* DisplayModel.swift in Sources */,
 				81BC81BA2CC9B43F6A4157D6 /* DisplaySettings.swift in Sources */,
 				204A99E3B615FD5ABCA7F125 /* DockIconRenderer.swift in Sources */,
+				3E76E07F7DDB247AC95236A4 /* MenuBarVisuals.swift in Sources */,
 				0D948D3E2FAFA550C3AA84FA /* Onboarding.swift in Sources */,
 				33EE4EAABFB97B88D7DE9381 /* Provider.swift in Sources */,
 				951EBBC34460FCD67463FB29 /* UpdateService.swift in Sources */,
