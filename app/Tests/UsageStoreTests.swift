@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import AI_Usage_Menu
 
@@ -21,6 +22,25 @@ private actor SampleProvider: Provider {
 }
 
 final class UsageStoreTests: XCTestCase {
+    @MainActor func testAlertThresholdsAndResetAreIndependentPerProviderAndCycle() {
+        let start = Date(timeIntervalSince1970: 1000)
+        var ledger: [String: Double] = [:]
+        func count(_ percent: Double, _ second: Double, _ end: Double, provider: String = "claude") -> Int {
+            let reset = start.addingTimeInterval(end)
+            let window = LimitWindow(label: "Session", usedPercent: percent, resetsAt: reset, windowMinutes: 300, source: provider)
+            return AppServices.notices(for: window, providerID: provider, reset: reset, now: start.addingTimeInterval(second),
+                                       thresholds: [75,90], resetsEnabled: true, ledger: &ledger).count
+        }
+        XCTAssertEqual(count(74, 0, 60), 0)
+        XCTAssertEqual(count(76, 1, 60), 1)
+        XCTAssertEqual(count(95, 2, 60), 1)
+        XCTAssertEqual(count(95, 3, 60), 0)
+        XCTAssertEqual(count(95, 3, 60, provider: "codex"), 2)
+        XCTAssertEqual(count(95, 60, 60), 1)
+        XCTAssertEqual(count(95, 61, 60), 0)
+        XCTAssertEqual(count(95, 62, 120), 2)
+    }
+
     @MainActor func testRefreshCoalescingAndFailedReadReplacesPriorValues() async throws {
         let claude = SampleProvider("claude",90), codex = SampleProvider("codex",20)
         let providers = [claude,codex]
@@ -47,6 +67,24 @@ final class UsageStoreTests: XCTestCase {
         store.stop()
     }
 
+    @MainActor func testWakeRefreshesEnabledProviders() async {
+        let enabled = SampleProvider("enabled", 20), disabled = SampleProvider("disabled", 50)
+        let store = UsageStore(providers: [enabled, disabled])
+        defer { store.stop() }
+        store.setDisabled([disabled.id])
+        let initial = expectation(description: "Launch refresh")
+        store.onChange = { initial.fulfill() }
+        store.start()
+        await fulfillment(of: [initial], timeout: 2)
+        let wake = expectation(description: "Wake refresh")
+        store.onChange = { wake.fulfill() }
+        NSWorkspace.shared.notificationCenter.post(name: NSWorkspace.didWakeNotification, object: nil)
+        await fulfillment(of: [wake], timeout: 2)
+        let enabledReads = await enabled.reads, disabledReads = await disabled.reads
+        XCTAssertEqual(enabledReads, 2)
+        XCTAssertEqual(disabledReads, 0)
+    }
+
     @MainActor func testCodexWatcherPicksUpAppendedEvent() async throws {
         let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let sessions = home.appendingPathComponent("sessions/2026/11/22")
@@ -60,7 +98,7 @@ final class UsageStoreTests: XCTestCase {
         store.onChange = { initial.fulfill(); store.onChange = nil }
         store.start()
         await fulfillment(of: [initial], timeout: 5)
-        XCTAssertEqual(store.snapshots["codex"]?.state, .noLimits)
+        XCTAssertEqual(store.snapshots["codex"]?.state, .nonSubscription)
 
         let appended = expectation(description: "Appended limits observed")
         store.onChange = {

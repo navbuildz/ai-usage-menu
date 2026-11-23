@@ -4,3 +4,5 @@ xcuserdata/
 *.xcuserstate
 /site/node_modules/
 /site/dist/
+
+/site/.astro/

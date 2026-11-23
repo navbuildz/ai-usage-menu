@@ -12,6 +12,7 @@ enum CodexParser {
         var balance: String?
     }
     private struct Limits: Decodable {
+        var limit_id: String?
         var primary: Window?
         var secondary: Window?
         var plan_type: String?
@@ -30,13 +31,14 @@ enum CodexParser {
 
     static func parse(_ line: Data) -> ProviderSnapshot? {
         guard let event = try? JSONDecoder().decode(Event.self, from: line),
-              event.type == "event_msg", event.payload.type == "token_count",
-              let limits = event.payload.rate_limits else { return nil }
+              event.type == "event_msg", event.payload.type == "token_count" else { return nil }
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let date = formatter.date(from: event.timestamp) ?? ISO8601DateFormatter().date(from: event.timestamp)
         guard let date else { return nil }
         var result = ProviderSnapshot(asOf: date, state: .ready)
+        guard let limits = event.payload.rate_limits else { result.state = .noLimits; return result }
+        if let id = limits.limit_id, id != "codex" { return nil }
         for window in [limits.primary, limits.secondary].compactMap({ $0 }) {
             let label: String
             switch window.window_minutes {
@@ -53,7 +55,7 @@ enum CodexParser {
             result.details.append(.init(label: "Credits", value: credits.unlimited == true ? "Unlimited" : credits.balance ?? "Available"))
         }
         if let reached = limits.rate_limit_reached_type { result.state = .limitReached(reached) }
-        else if result.limits.isEmpty { result.state = .noLimits }
+        else if result.limits.allSatisfy({ $0.usedPercent == nil }) { result.state = .noLimits; result.limits = [] }
         return result
     }
 }
@@ -64,10 +66,21 @@ struct CodexProvider: Provider {
     init(home: URL = ProcessInfo.processInfo.environment["CODEX_HOME"].map { URL(fileURLWithPath: $0) } ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".codex")) { self.home = home }
     var watchedDirectory: URL? { home.appendingPathComponent("sessions") }
     func isAvailable() async -> Bool { FileManager.default.fileExists(atPath: home.path) }
+    static func authMode(in file: URL) throws -> String? {
+        struct Mode: Decodable { let auth_mode: String? }
+        guard FileManager.default.fileExists(atPath: file.path) else { return nil }
+        return try JSONDecoder().decode(Mode.self, from: Data(contentsOf: file, options: .mappedIfSafe)).auth_mode
+    }
+
     func read() async -> ProviderSnapshot {
         guard await isAvailable() else { return .init(asOf: Date(), state: .notInstalled) }
+        let mode: String?
+        do { mode = try Self.authMode(in: home.appendingPathComponent("auth.json")) }
+        catch { return .init(asOf: Date(), state: .unreadable) }
+        if let mode, mode != "chatgpt" { return .init(asOf: Date(), state: .nonSubscription) }
+        let waiting = ProviderSnapshot(details: mode == "chatgpt" ? [.init(label: "Plan", value: "ChatGPT subscription")] : [], asOf: Date(), state: .noSessions)
         let root = home.appendingPathComponent("sessions")
-        guard FileManager.default.fileExists(atPath: root.path) else { return .init(asOf: Date(), state: .noSessions) }
+        guard FileManager.default.fileExists(atPath: root.path) else { return waiting }
         let keys: [URLResourceKey] = [.contentModificationDateKey, .isRegularFileKey, .isSymbolicLinkKey]
         var failed = false
         let walk = FileManager.default.enumerator(at: root, includingPropertiesForKeys: keys, options: [.skipsHiddenFiles], errorHandler: { _, _ in failed = true; return true })
@@ -80,8 +93,9 @@ struct CodexProvider: Provider {
                 if newest == nil || date > newest!.date || (date == newest!.date && url.path > newest!.url.path) { newest = (url,date) }
             }
             guard !failed, walk != nil else { return .init(asOf: Date(), state: .unreadable) }
-            guard let newest else { return .init(asOf: Date(), state: .noSessions) }
-            return try Self.latest(in: newest.url) ?? .init(asOf: Date(), state: .noLimits)
+            guard let newest else { return waiting }
+            if let snapshot = try Self.latest(in: newest.url), snapshot.state != .noLimits { return snapshot }
+            return mode == "chatgpt" ? waiting : .init(asOf: Date(), state: .nonSubscription)
         } catch { return .init(asOf: Date(), state: .unreadable) }
     }
 
@@ -104,7 +118,7 @@ struct CodexProvider: Provider {
                 }
                 guard complete else { return nil }
                 defer { suffix.removeAll(); skippingLongLine = false }
-                guard !skippingLongLine, suffix.range(of: Data("\"rate_limits\"".utf8)) != nil else { return nil }
+                guard !skippingLongLine, suffix.range(of: Data("\"token_count\"".utf8)) != nil else { return nil }
                 return CodexParser.parse(suffix)
             }
             while let newline = data[..<end].lastIndex(of: 10) {

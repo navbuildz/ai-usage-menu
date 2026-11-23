@@ -10,6 +10,8 @@ private final class UsageWindow: NSWindow {
 @main
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPopoverDelegate {
+    private let services = AppServices()
+    private var welcome: NSWindow?
     private let store = UsageStore()
     let preferences = DisplayPreferences(defaults: ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil ? .standard : UserDefaults(suiteName: "ai.aiusagemenu.tests.display")!)
     var statusItemCount: Int { items.count }
@@ -62,16 +64,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         }
         preferences.changed = { [weak self] in self?.applyPreferences() }
         store.readingChanged = { [weak self] in self?.updateItems() }
-        store.onChange = { [weak self] in self?.updateDisplays() }
+        store.onChange = { [weak self] in self?.updateDisplays(); if let self { self.services.evaluate(self.store) } }
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             self?.handle(event) == true ? nil : event
         }
         applyPreferences()
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil { store.start(minutes: preferences.options.refreshMinutes) }
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+            services.start()
+            store.start(minutes: preferences.options.refreshMinutes)
+            if !UserDefaults.standard.bool(forKey: "onboardingComplete") { showWelcome() }
+            else if preferences.options.placement == .hidden { showSettings() }
+        }
+    }
+
+    private func showWelcome() {
+        let view = Onboarding(store: store, services: services) { [weak self] in
+            UserDefaults.standard.set(true, forKey: "onboardingComplete")
+            self?.welcome?.close()
+            self?.welcome = nil
+            if self?.preferences.options.placement == .hidden { self?.showSettings() }
+        }
+        let w = NSWindow(contentViewController: NSHostingController(rootView: view))
+        w.title = "Welcome to AI Usage Menu"
+        w.styleMask = [.titled]
+        w.appearance = preferences.options.theme.appearance
+        w.isReleasedWhenClosed = false
+        w.center()
+        welcome = w
+        NSApp.activate(ignoringOtherApps: true)
+        w.makeKeyAndOrderFront(nil)
     }
 
     private func applyActivation() {
-        let target: NSApplication.ActivationPolicy = preferences.options.placement == .menu ? .accessory : .regular
+        let target: NSApplication.ActivationPolicy = preferences.options.placement.showsDock ? .regular : .accessory
         if NSApp.activationPolicy() != target { NSApp.setActivationPolicy(target) }
     }
 
@@ -88,14 +113,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         applyTheme()
         store.setInterval(minutes: preferences.options.refreshMinutes)
         store.setDisabled(preferences.options.disabled)
-        if preferences.options.placement == .dock { popover.performClose(nil) }
+        if !preferences.options.placement.showsMenu { popover.performClose(nil) }
         updateDisplays()
     }
 
     private func updateDisplays() {
         updateItems()
         let options = preferences.options
-        if options.placement == .menu {
+        if !options.placement.showsDock {
             if rendered != nil { NSApp.dockTile.contentView = nil; rendered = nil }
             return
         }
@@ -117,12 +142,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     private func updateItems() {
         let options = preferences.options
         let separate = options.separateItems && !store.displayProviders.isEmpty
-        let keys = options.placement == .dock ? [] : (separate ? store.displayProviders.map(\.id) : ["auto"])
-        for key in Array(items.keys) where !keys.contains(key) {
-            if panelID == key { popover.performClose(nil) }
-            if let item = items.removeValue(forKey: key) { NSStatusBar.system.removeStatusItem(item) }
+        let keys = !options.placement.showsMenu ? [] : (separate ? store.displayProviders.map(\.id) : ["auto"])
+        // AppKit inserts new status items on the left. Recreate the group when
+        // membership changes so enabling a provider restores the tab order.
+        if Set(items.keys) != Set(keys) {
+            if popover.isShown { popover.performClose(nil) }
+            for item in items.values { NSStatusBar.system.removeStatusItem(item) }
+            items.removeAll()
         }
-        for key in keys {
+        for key in keys.reversed() {
             let item = items[key] ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
             items[key] = item
             guard let button = item.button else { continue }
@@ -130,12 +158,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             button.action = #selector(openPanel(_:))
             let provider = store.providers.first { $0.id == key }
             let value = store.menuValue(key, options: options)
-            let visual = MenuItemVisual(value: value, provider: provider, options: options, appearance: button.effectiveAppearance)
-            button.attributedTitle = NSAttributedString(string: visual.title, attributes: [.font: NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .semibold), .foregroundColor: visual.textColor])
+            let pair = options.twoMenuNumbers && options.showPercent ? store.menuPair(key, options: options) : nil
+            let visual = MenuItemVisual(value: value, pair: pair, provider: provider, options: options, appearance: button.effectiveAppearance)
+            button.title = visual.title
+            button.font = .monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
             button.image = visual.image
             button.contentTintColor = visual.iconTint
             button.imagePosition = visual.title.isEmpty ? .imageOnly : .imageLeading
-            let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (value.percent.map { $0.usageNumber + " percent used" } ?? "Usage unavailable")
+            let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.usageNumber + " percent used" } ?? "Usage unavailable"))
             button.setAccessibilityLabel(description)
             button.toolTip = description
             button.wantsLayer = true
@@ -178,7 +208,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     func popoverDidClose(_ notification: Notification) { popover.contentViewController = nil; panelID = nil }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        guard preferences.options.placement != .menu else { return false }
+        if let welcome { welcome.makeKeyAndOrderFront(nil); return true }
+        if !preferences.options.placement.showsDock { showSettings(); return true }
         store.opened()
         if window == nil {
             let w = UsageWindow(contentRect: .init(x: 0, y: 0, width: 390, height: 525), styleMask: [.borderless,.resizable], backing: .buffered, defer: false)
@@ -198,23 +229,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         window?.contentView?.layer?.cornerRadius = 18
         window?.contentView?.layer?.masksToBounds = true
         if let window, !window.isVisible {
-            let screens = NSScreen.screens
-            let active = screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
-            let previousScreen = sessionFrame.flatMap { frame in
-                screens.filter { $0.visibleFrame.intersects(frame) }.max {
-                    $0.visibleFrame.intersection(frame).area < $1.visibleFrame.intersection(frame).area
-                }
-            }
-            let screen = previousScreen ?? active
-            if let area = screen?.visibleFrame {
-                let size = sessionFrame?.size ?? NSSize(width: 390, height: 525)
-                let width = min(size.width, area.width), height = min(size.height, area.height)
-                let origin = sessionFrame?.origin ?? NSPoint(x: area.midX - width/2, y: area.midY - height/2)
-                window.setFrame(.init(x: max(area.minX,min(origin.x,area.maxX-width)), y: max(area.minY,min(origin.y,area.maxY-height)), width: width,height: height), display: true)
-            }
+            position(window, previous: sessionFrame)
         }
         window?.makeKeyAndOrderFront(nil)
         return true
+    }
+
+    func applicationDidChangeScreenParameters(_ notification: Notification) {
+        if let window, window.isVisible { position(window, previous: window.frame) }
+    }
+
+    private func position(_ window: NSWindow, previous: NSRect?) {
+        let screens = NSScreen.screens
+        guard let active = screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) }) ?? NSScreen.main else { return }
+        let frame = Self.windowFrame(previous: previous, visibleFrames: screens.map(\.visibleFrame), active: active.visibleFrame)
+        if window.frame != frame { window.setFrame(frame, display: true) }
+    }
+
+    static func windowFrame(previous: NSRect?, visibleFrames: [NSRect], active: NSRect) -> NSRect {
+        let previousScreen = previous.flatMap { frame in
+            visibleFrames.filter { $0.intersects(frame) }.max {
+                $0.intersection(frame).area < $1.intersection(frame).area
+            }
+        }
+        let area = previousScreen ?? active
+        let size = previous?.size ?? NSSize(width: 390, height: 525)
+        let width = min(size.width, area.width), height = min(size.height, area.height)
+        let center = NSPoint(x: area.midX - width / 2, y: area.midY - height / 2)
+        let origin = previousScreen == nil ? center : previous?.origin ?? center
+        return NSRect(x: max(area.minX, min(origin.x, area.maxX - width)),
+                      y: max(area.minY, min(origin.y, area.maxY - height)), width: width, height: height)
     }
 
     func windowWillClose(_ notification: Notification) {
@@ -222,9 +266,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     }
 
     @objc func showSettings() {
+        if let welcome { welcome.makeKeyAndOrderFront(nil); return }
+        services.syncLogin()
         popover.performClose(nil)
         if settingsWindow == nil {
-            let w = NSWindow(contentViewController: NSHostingController(rootView: DisplaySettings(preferences: preferences, store: store)))
+            let w = NSWindow(contentViewController: NSHostingController(rootView: DisplaySettings(preferences: preferences, store: store, services: services)))
             w.appearance = preferences.options.theme.appearance
             w.titlebarAppearsTransparent = true
             w.backgroundColor = NSColor(named: "background")
@@ -271,14 +317,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
 
     @objc private func reopenExisting() {
         NSApp.activate(ignoringOtherApps: true)
-        if preferences.options.placement == .menu, let button = items.values.first?.button {
-            if !popover.isShown { openPanel(button) }
-        } else { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: false) }
+        _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: false)
     }
     @objc func refresh() { store.refreshAll() }
     @objc func typeFire() { NSWorkspace.shared.open(URL(string: "https://typefire.app")!) }
+    @objc private func pickDockProvider(_ sender: NSMenuItem) {
+        if let id = sender.representedObject as? String { preferences.options.dockProvider = id }
+    }
+
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         let menu = NSMenu()
+        let available = store.displayProviders
+        let selected = available.contains { $0.id == preferences.options.dockProvider } ? preferences.options.dockProvider : "auto"
+        for (id, title) in [("auto", "Auto")] + available.map({ ($0.id, $0.displayName) }) {
+            let item = menu.addItem(withTitle: title, action: #selector(pickDockProvider(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = id
+            item.state = id == selected ? .on : .off
+        }
+        menu.addItem(.separator())
         for (name, action) in [("Refresh", #selector(refresh)), ("Settings…", #selector(showSettings)), ("Quit", #selector(NSApplication.terminate(_:)))] {
             menu.addItem(withTitle: name, action: action, keyEquivalent: "").target = name == "Quit" ? NSApp : self
         }
@@ -336,7 +393,24 @@ extension UsageStore {
     func menuValue(_ key: String, options: DisplayOptions) -> Indicator {
         let choice = key == "auto" ? options.menuProvider : key
         let id = displayProviders.contains { $0.id == choice } ? choice : "auto"
+        if options.twoMenuNumbers && options.showPercent {
+            let pair = menuPair(key, options: options)
+            if case let .value(_, glyph) = pair.indicator, let peak = [pair.session, pair.weekly].compactMap({ $0 }).max() { return .value(peak, glyph) }
+            return pair.indicator
+        }
         return Indicator.select(providers: displayProviders, snapshots: snapshots, providerID: id, window: options.menuWindow, at: .now)
+    }
+
+    func menuPair(_ key: String, options: DisplayOptions) -> DockSnapshot {
+        var selection = options
+        selection.dockProvider = key == "auto" ? options.menuProvider : key
+        selection.dockWindow = .session
+        var pair = DockSnapshot.resolve(providers: displayProviders, snapshots: snapshots, options: selection, now: .now)
+        if pair.session == nil, pair.weekly != nil {
+            selection.dockWindow = .weekly
+            pair = DockSnapshot.resolve(providers: displayProviders, snapshots: snapshots, options: selection, now: .now)
+        }
+        return pair
     }
 }
 
@@ -344,20 +418,45 @@ extension UsageStore {
 struct MenuItemVisual {
     let title: String
     let image: NSImage?
-    let textColor: NSColor
     let iconTint: NSColor?
 
-    init(value: Indicator, provider: (any Provider)?, options: DisplayOptions, appearance: NSAppearance) {
-        title = value.percent.flatMap { options.showPercent ? $0.usageNumber + "%" : nil } ?? (value == .warning ? "⚠" : "")
+    var usageDescription: String?
+
+    init(value: Indicator, pair: DockSnapshot? = nil, provider: (any Provider)?, options: DisplayOptions, appearance: NSAppearance) {
+        let singleTitle = value.percent.flatMap { options.showPercent ? $0.usageNumber + "%" : nil } ?? (value == .warning ? "⚠" : "")
         let ink = value.percent.map { options.thresholds.color($0) }
-        textColor = provider != nil ? ink ?? .labelColor : .labelColor
         iconTint = provider != nil && !options.showPercent ? ink : nil
+        let symbol: NSImage?
         if provider == nil, let percent = value.percent {
-            image = MenuGauge.image(percent: percent, thresholds: options.thresholds, appearance: appearance)
+            symbol = MenuGauge.image(percent: percent, thresholds: options.thresholds, appearance: appearance)
         } else {
-            image = NSImage(named: provider?.glyph ?? "UsageTemplate")?.copy() as? NSImage
-            image?.size = .init(width: 18, height: 18)
-            image?.isTemplate = true
+            symbol = NSImage(named: provider?.glyph ?? "UsageTemplate")?.copy() as? NSImage
+            symbol?.size = .init(width: 18, height: 18)
+            symbol?.isTemplate = true
         }
+        guard let pair, pair.session != nil || pair.weekly != nil else {
+            title = singleTitle
+            image = symbol
+            return
+        }
+        let labels = [pair.session, pair.weekly].map { $0.map { $0.usageNumber + "%" } ?? "–" }
+        usageDescription = "5-hour " + labels[0] + ", weekly " + labels[1]
+        title = ""
+        let light = appearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua
+        let foreground: NSColor = light ? .black : .white
+        let strings = labels.enumerated().map { index, text in
+            NSAttributedString(string: text, attributes: [.font: NSFont.monospacedDigitSystemFont(ofSize: index == 0 ? 9 : 10, weight: .semibold), .foregroundColor: foreground])
+        }
+        let width = ceil(strings.map { $0.size().width }.max() ?? 0)
+        image = NSImage(size: NSSize(width: 21 + width, height: 22), flipped: false) { _ in
+            let rect = NSRect(x: 0, y: 2, width: 18, height: 18)
+            symbol?.draw(in: rect)
+            if symbol?.isTemplate == true { foreground.setFill(); rect.fill(using: .sourceAtop) }
+            for (index, string) in strings.enumerated() {
+                string.draw(at: NSPoint(x: 21 + (width - string.size().width) / 2, y: index == 0 ? 10 : -1))
+            }
+            return true
+        }
+        image?.isTemplate = provider != nil
     }
 }

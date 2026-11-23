@@ -56,7 +56,7 @@ actor ClaudeCodeProvider: Provider {
     private var lastOverride: String?
     private let workdir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/AI Usage Menu/claude-workdir")
 
-    private func resolve() -> URL? {
+    func resolve() -> URL? {
         let override = UserDefaults.standard.string(forKey: "claudePath")
         if override != lastOverride || cached.map({ !FileManager.default.isExecutableFile(atPath: $0.path) }) == true {
             cached = nil; version = nil; attemptedShell = false; lastOverride = override
@@ -83,7 +83,7 @@ actor ClaudeCodeProvider: Provider {
             struct Envelope: Decodable { let result: String }
             let body = (try? JSONDecoder().decode(Envelope.self, from: Data(output.stdout.utf8)))?.result ?? output.stdout
             var snapshot = ClaudeParser.parse(body.isEmpty ? output.stderr : body, now: Date())
-            if output.status != 0, snapshot.state != .signedOut, snapshot.state != .nonSubscription {
+            if output.status != 0, snapshot.state != .signedOut, !(snapshot.state == .nonSubscription && !body.isEmpty && output.stderr.isEmpty) {
                 return .init(asOf: Date(), state: .failed(output.stderr.isEmpty ? body : output.stderr))
             }
             if version == nil, let result = try? LocalCommand.run(binary, ["--version"], in: workdir), result.status == 0 {

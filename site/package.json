@@ -1,0 +1,21 @@
+{
+  "name": "ai-usage-menu-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build && node scripts/verify.mjs",
+    "preview": "node scripts/preview.mjs",
+    "audit": "node scripts/audit.mjs"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/source-sans-3": "^5.3.1",
+    "html-validate": "^11.21.1",
+    "lighthouse": "^13.6.0",
+    "node-html-parser": "^9.0.7",
+    "puppeteer-core": "^25.18.1"
+  }
+}

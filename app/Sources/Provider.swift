@@ -49,3 +49,12 @@ struct ProviderSnapshot {
     var state: ProviderState
     var rawText: String?
 }
+
+extension ProviderSnapshot {
+    var onboardingStatus: String {
+        if state == .nonSubscription { return "API key (no plan limits)" }
+        if state == .ready || details.contains(where: { $0.label == "Plan" }) { return "Plan: subscription" }
+        if case .limitReached = state { return "Plan: subscription" }
+        return state.detectionLabel
+    }
+}

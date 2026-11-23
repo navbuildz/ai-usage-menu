@@ -1,0 +1,7 @@
+---
+const {name,alt,width,height,hero=false}=Astro.props;
+const variants=hero?[['mobile','(max-width: 770px)'],['hero','all']]:[[name,'all']];
+const formats=['avif','webp','png'];
+const file=(stem,theme,ext)=>'/art/retina/'+stem+'-'+theme+'.'+ext;
+---
+<picture class="capture">{variants.map(([stem,viewport])=>['dark','light'].map(mode=>formats.map(ext=><source type={'image/'+ext} data-capture-theme={mode} data-viewport={viewport} media={viewport==='all'?'(prefers-color-scheme: '+mode+')':viewport+' and (prefers-color-scheme: '+mode+')'} srcset={file(stem,mode,ext)}/>)))}<img src={file(name,'light','png')} alt={alt} width={width} height={height} fetchpriority={hero?'high':'auto'} loading={hero?'eager':'lazy'} decoding="async"/></picture>

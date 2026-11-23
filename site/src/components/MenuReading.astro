@@ -1,0 +1,4 @@
+---
+const {value,theme='dark'}=Astro.props;
+---
+<span class="menu-reading"><img src={'/art/retina/menu-'+value+'-'+theme+'.png'} width="18" height="18" alt={'Gauge at '+value+' percent usage'} loading="lazy"/><b>{value}%</b></span>

@@ -1,0 +1,224 @@
+[
+  {
+    "id": "home",
+    "bodyWords": 1201,
+    "keywords": [
+      "claude usage tracker",
+      "ai usage tracker mac",
+      "claude usage menu bar",
+      "claude usage bar",
+      "track claude usage",
+      "ai coding usage monitor",
+      "claude and codex usage"
+    ],
+    "date": "2026-11-23",
+    "title": "Claude Usage Tracker for Mac, Free | AI Usage Menu",
+    "titleLength": 50,
+    "primary": "claude usage tracker",
+    "description": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills each usage window and when it resets.",
+    "descriptionLength": 155,
+    "first120": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills ea",
+    "heading": "Know your AI usage. Stay in control.",
+    "canonical": "https://aiusagemenu.com/",
+    "og": "https://aiusagemenu.com/art/og-home.png",
+    "types": [
+      "BreadcrumbList",
+      "SoftwareApplication",
+      "Organization",
+      "WebSite",
+      "FAQPage"
+    ]
+  },
+  {
+    "id": "claude-code-usage",
+    "bodyWords": 1447,
+    "keywords": [
+      "claude code usage",
+      "claude code usage limit",
+      "check claude code usage",
+      "claude code /usage command",
+      "claude code status line usage",
+      "claude code usage reset",
+      "claude code weekly limit",
+      "claude code max plan usage"
+    ],
+    "date": "2026-11-23",
+    "title": "Claude Code Usage Tracker for Mac | AI Usage Menu",
+    "titleLength": 49,
+    "primary": "claude code usage",
+    "description": "See your Claude Code usage live: session and weekly limits, reset times, and what's using them, right in your Mac menu bar. Free and nothing to paste.",
+    "descriptionLength": 150,
+    "first120": "See your Claude Code usage live: session and weekly limits, reset times, and what's using them, right in your Mac menu b",
+    "heading": "Claude Code usage, live in your menu bar",
+    "canonical": "https://aiusagemenu.com/claude-code-usage",
+    "og": "https://aiusagemenu.com/art/og-claude-code-usage.png",
+    "types": [
+      "BreadcrumbList",
+      "Article",
+      "FAQPage",
+      "HowTo"
+    ]
+  },
+  {
+    "id": "codex-usage",
+    "bodyWords": 1478,
+    "keywords": [
+      "codex usage",
+      "codex usage limit",
+      "codex weekly limit",
+      "codex 5 hour limit",
+      "check codex usage",
+      "codex /status",
+      "codex rate limit reset",
+      "chatgpt plus codex limits",
+      "chatgpt pro codex limits"
+    ],
+    "date": "2026-11-23",
+    "title": "Codex Usage and Limits on Mac, Free | AI Usage Menu",
+    "titleLength": 51,
+    "primary": "codex usage",
+    "description": "Watch your Codex usage limits from your Mac menu bar: the 5-hour window, the weekly cap and when each one resets. Free, open source, and no sign-in needed.",
+    "descriptionLength": 155,
+    "first120": "Watch your Codex usage limits from your Mac menu bar: the 5-hour window, the weekly cap and when each one resets. Free, ",
+    "heading": "Codex usage and limits, at a glance",
+    "canonical": "https://aiusagemenu.com/codex-usage",
+    "og": "https://aiusagemenu.com/art/og-codex-usage.png",
+    "types": [
+      "BreadcrumbList",
+      "Article",
+      "FAQPage",
+      "HowTo"
+    ]
+  },
+  {
+    "id": "claude-usage-limits",
+    "bodyWords": 1973,
+    "keywords": [
+      "claude usage limits",
+      "claude 5 hour limit",
+      "claude weekly limit",
+      "claude weekly limit reset time",
+      "claude usage limit reached",
+      "claude max usage limits",
+      "claude pro usage limits",
+      "claude team usage limits",
+      "why do i hit claude limits so fast",
+      "how to make claude usage last longer",
+      "claude opus weekly limit"
+    ],
+    "date": "2026-11-23",
+    "title": "Claude Usage Limits: 5-Hour and Weekly, Explained",
+    "titleLength": 49,
+    "primary": "claude usage limit",
+    "description": "Understand the Claude usage limit on your account, from the five-hour session to the weekly reset. Check Pro, Max and Team windows and read a worked example.",
+    "descriptionLength": 157,
+    "first120": "Understand the Claude usage limit on your account, from the five-hour session to the weekly reset. Check Pro, Max and Te",
+    "heading": "Claude usage limits, explained",
+    "canonical": "https://aiusagemenu.com/claude-usage-limits",
+    "og": "https://aiusagemenu.com/art/og-claude-usage-limits.png",
+    "types": [
+      "BreadcrumbList",
+      "Article",
+      "FAQPage",
+      "HowTo"
+    ]
+  },
+  {
+    "id": "open-source",
+    "bodyWords": 864,
+    "keywords": [
+      "open source claude usage tracker",
+      "claude usage tracker github",
+      "menu bar app swift open source"
+    ],
+    "date": "2026-11-23",
+    "title": "AI Usage Menu on GitHub: Open Source Swift Tracker (MIT)",
+    "titleLength": 56,
+    "primary": "open source claude usage tracker",
+    "description": "Explore the open source Claude usage tracker built in Swift for Mac. Read the provider code, inspect privacy tests, check its license and build it yourself.",
+    "descriptionLength": 156,
+    "first120": "Explore the open source Claude usage tracker built in Swift for Mac. Read the provider code, inspect privacy tests, chec",
+    "heading": "Open source, MIT. Read every line.",
+    "canonical": "https://aiusagemenu.com/open-source",
+    "og": "https://aiusagemenu.com/art/og-open-source.png",
+    "types": [
+      "BreadcrumbList",
+      "SoftwareSourceCode"
+    ]
+  },
+  {
+    "id": "privacy",
+    "bodyWords": 770,
+    "keywords": [
+      "claude usage tracker without cookie",
+      "is it safe to paste claude session cookie",
+      "claude usage tracker privacy"
+    ],
+    "date": "2026-11-23",
+    "title": "How AI Usage Menu Works: No Cookie, No Key | Privacy",
+    "titleLength": 52,
+    "primary": "claude usage without cookie",
+    "description": "Check Claude usage without cookie access or a pasted key. See which files AI Usage Menu reads on your Mac, when connections occur and how to verify a refresh.",
+    "descriptionLength": 158,
+    "first120": "Check Claude usage without cookie access or a pasted key. See which files AI Usage Menu reads on your Mac, when connecti",
+    "heading": "Nothing to paste. Nothing leaves your Mac.",
+    "canonical": "https://aiusagemenu.com/privacy",
+    "og": "https://aiusagemenu.com/art/og-privacy.png",
+    "types": [
+      "BreadcrumbList",
+      "WebPage"
+    ]
+  },
+  {
+    "id": "compare",
+    "bodyWords": 1178,
+    "keywords": [
+      "claude usage tracker comparison",
+      "claude usage tracker alternatives",
+      "ccusage alternative",
+      "codexbar alternative",
+      "claudeusagebar alternative",
+      "ai usage monitor alternative"
+    ],
+    "date": "2026-11-23",
+    "title": "Mac Usage Trackers for Claude and Codex, Compared",
+    "titleLength": 49,
+    "primary": "claude usage tracker comparison",
+    "description": "This Claude usage tracker comparison shows which Mac apps read local logs or provider APIs, display weekly limits, and offer a Dock gauge for Claude or Codex.",
+    "descriptionLength": 158,
+    "first120": "This Claude usage tracker comparison shows which Mac apps read local logs or provider APIs, display weekly limits, and o",
+    "heading": "Claude and Codex usage trackers, compared",
+    "canonical": "https://aiusagemenu.com/compare",
+    "og": "https://aiusagemenu.com/art/og-compare.png",
+    "types": [
+      "BreadcrumbList",
+      "ItemList",
+      "Article",
+      "FAQPage"
+    ]
+  },
+  {
+    "id": "download",
+    "bodyWords": 830,
+    "keywords": [
+      "download claude usage tracker mac",
+      "claude usage app mac",
+      "codex usage app mac"
+    ],
+    "date": "2026-11-23",
+    "title": "Download AI Usage Menu for Mac, Free",
+    "titleLength": 36,
+    "primary": "download AI Usage Menu",
+    "description": "Download AI Usage Menu for Mac to see Claude Code and Codex plan limits in the menu bar and Dock. Check requirements, install options and signature checks.",
+    "descriptionLength": 155,
+    "first120": "Download AI Usage Menu for Mac to see Claude Code and Codex plan limits in the menu bar and Dock. Check requirements, in",
+    "heading": "Download AI Usage Menu for Mac",
+    "canonical": "https://aiusagemenu.com/download",
+    "og": "https://aiusagemenu.com/art/og-download.png",
+    "types": [
+      "BreadcrumbList",
+      "SoftwareApplication",
+      "HowTo"
+    ]
+  }
+]

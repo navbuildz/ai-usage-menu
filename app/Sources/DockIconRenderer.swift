@@ -7,6 +7,7 @@ struct DockSnapshot: Equatable {
     var light = false
     var session: Double?
     var weekly: Double?
+    var twoNumbers = false
 
     static func resolve(providers: [any Provider], snapshots: [String: ProviderSnapshot], options: DisplayOptions, now: Date) -> Self {
         let available = providers.filter { snapshots[$0.id]?.state != .notInstalled && snapshots[$0.id] != nil }
@@ -24,7 +25,7 @@ struct DockSnapshot: Equatable {
             best = score
             let center = options.dockWindow == .weekly ? weekly : session
             result = Self(indicator: center.map { .value($0, provider.glyph) } ?? .warning,
-                          thresholds: options.thresholds, session: session, weekly: weekly)
+                          thresholds: options.thresholds, session: session, weekly: weekly, twoNumbers: options.twoDockNumbers)
         }
         return result
     }
@@ -48,7 +49,7 @@ enum DockIconRenderer {
 
     private static func draw(_ snapshot: DockSnapshot, size: Int, context c: CGContext) {
         let bounds = CGRect(x: 0, y: 0, width: 100, height: 100)
-        let ink: NSColor = snapshot.light ? NSColor(srgbRed: 0.08, green: 0.09, blue: 0.16, alpha: 1) : .white
+        let ink: NSColor = snapshot.light ? NSColor(white: 0.10, alpha: 1) : .white
         let empty = snapshot.indicator == .absent
         NSImage(named: (empty ? "StaticIcon" : "DockBase") + (snapshot.light ? "Light" : ""))?.draw(in: bounds)
         guard !empty else { return }
@@ -62,7 +63,16 @@ enum DockIconRenderer {
                 c.strokePath()
             }
             c.setLineWidth(7)
-            c.setStrokeColor((value == nil ? NSColor.gray : NSColor(srgbRed: 0.21, green: 0.21, blue: 0.32, alpha: 1)).withAlphaComponent(snapshot.light ? 0.26 : 0.70).cgColor)
+            if snapshot.light {
+                c.setStrokeColor(NSColor(white: value == nil ? 0.58 : 0.68, alpha: 1).cgColor)
+                stroke(0, 100)
+                if let value, value > 0 {
+                    c.setStrokeColor(NSColor(white: 0.18, alpha: 1).cgColor)
+                    stroke(0, value)
+                }
+                return
+            }
+            c.setStrokeColor((value == nil ? NSColor.gray : NSColor(srgbRed: 0.21, green: 0.21, blue: 0.32, alpha: 1)).withAlphaComponent(0.70).cgColor)
             stroke(0, 100)
             guard let value, value > 0 else { return }
             let end = snapshot.thresholds.color(value, sweep: true)
@@ -85,6 +95,11 @@ enum DockIconRenderer {
         // Rounded caps extend beyond the endpoints. Leave room for both at each break.
         segment(start: -50, length: 100, value: snapshot.session)
         segment(start: 70, length: 220, value: snapshot.weekly)
+        if snapshot.twoNumbers && (snapshot.session != nil || snapshot.weekly != nil) {
+            drawLabel(snapshot.session?.usageNumber ?? "–", fontSize: 17, ink: ink, y: 63, in: c)
+            drawLabel(snapshot.weekly?.usageNumber ?? "–", fontSize: 23, ink: ink, y: 40, in: c)
+            return
+        }
         guard let percent = snapshot.indicator.percent else {
             drawLabel("!", fontSize: 27, ink: ink, in: c)
             return
@@ -93,7 +108,7 @@ enum DockIconRenderer {
         drawLabel(percent.usageNumber, fontSize: compact ? 27 : 20, ink: ink, in: c)
     }
 
-    private static func drawLabel(_ digits: String, fontSize: CGFloat, ink: NSColor, in context: CGContext) {
+    private static func drawLabel(_ digits: String, fontSize: CGFloat, ink: NSColor, y: CGFloat = 50, in context: CGContext) {
         let descriptor = NSFont.systemFont(ofSize: fontSize, weight: .bold).fontDescriptor.withDesign(.rounded)!
         let label = NSAttributedString(string: digits, attributes: [
             .font: NSFont(descriptor: descriptor, size: fontSize)!,
@@ -104,7 +119,7 @@ enum DockIconRenderer {
         let glyphBounds = CTLineGetBoundsWithOptions(line, .useGlyphPathBounds)
         let scale = min(1, 47 / glyphBounds.width)
         context.saveGState()
-        context.translateBy(x: 50, y: 50)
+        context.translateBy(x: 50, y: y)
         context.scaleBy(x: scale, y: scale)
         context.textMatrix = .identity
         context.textPosition = CGPoint(x: -glyphBounds.midX, y: -glyphBounds.midY)

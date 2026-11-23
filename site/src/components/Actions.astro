@@ -1,0 +1,5 @@
+---
+import config from '../data/repo.json';
+import {repo,stats} from '../data/shared.mjs';
+---
+<div class="actions"><a class="primary" href="/download">Download free for Mac <span aria-hidden="true">↓</span></a><a class="secondary" href={config.owner==='OWNER'?'/open-source':repo}>Star on GitHub <span aria-hidden="true">☆</span>{stats && <small>{stats.stars}</small>}</a></div>

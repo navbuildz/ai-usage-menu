@@ -4,6 +4,22 @@ import XCTest
 @testable import AI_Usage_Menu
 
 final class DisplayTests: XCTestCase {
+    @MainActor func testWindowAcrossDisplaysAndAfterDisconnect() {
+        let main = NSRect(x: 0, y: 50, width: 1500, height: 900)
+        let left = NSRect(x: -1200, y: -200, width: 1200, height: 880)
+        let screens = [main, left]
+        let first = AppDelegate.windowFrame(previous: nil, visibleFrames: screens, active: left)
+        XCTAssertEqual(first.midX, left.midX)
+        XCTAssertEqual(first.midY, left.midY)
+        let moved = first.offsetBy(dx: -100, dy: 65)
+        XCTAssertEqual(AppDelegate.windowFrame(previous: moved, visibleFrames: screens, active: main), moved)
+        let recovered = AppDelegate.windowFrame(previous: moved, visibleFrames: [main], active: main)
+        XCTAssertEqual(recovered.midX, main.midX)
+        XCTAssertEqual(recovered.midY, main.midY)
+        let spanning = NSRect(x: -280, y: 10, width: 400, height: 600)
+        XCTAssertTrue(left.contains(AppDelegate.windowFrame(previous: spanning, visibleFrames: screens, active: main)))
+    }
+
     private let now = Date(timeIntervalSince1970: 1800000000)
     private let providers: [any Provider] = [ClaudeCodeProvider(), CodexProvider()]
     private var screenshotFolder: URL {
@@ -30,6 +46,30 @@ final class DisplayTests: XCTestCase {
         XCTAssertEqual(Indicator.select(providers: [], snapshots: readings, at: now),.absent)
     }
 
+    @MainActor func testDockMenuProviderSelectionAndMenuNumberPreferences() throws {
+        let delegate = try XCTUnwrap(NSApp.delegate as? AppDelegate)
+        let prefs = delegate.preferences
+        let saved = prefs.options
+        defer { prefs.options = saved }
+        prefs.options.disabled = []
+        prefs.options.dockProvider = "auto"
+        let menu = try XCTUnwrap(delegate.applicationDockMenu(NSApp))
+        XCTAssertEqual(menu.item(withTitle: "Auto")?.state, .on)
+        let codex = try XCTUnwrap(menu.item(withTitle: "Codex"))
+        menu.performActionForItem(at: menu.index(of: codex))
+        XCTAssertEqual(prefs.options.dockProvider, "codex")
+        XCTAssertEqual(delegate.applicationDockMenu(NSApp)?.item(withTitle: "Codex")?.state, .on)
+        var options = DisplayOptions()
+        options.twoMenuNumbers = true
+        let decoded = try JSONDecoder().decode(DisplayOptions.self, from: JSONEncoder().encode(options))
+        XCTAssertTrue(decoded.twoMenuNumbers)
+        XCTAssertFalse(decoded.twoDockNumbers)
+        let pair = DockSnapshot(indicator: .value(72, "provider-codex"), thresholds: options.thresholds, session: 13, weekly: 72)
+        let visual = MenuItemVisual(value: pair.indicator, pair: pair, provider: nil, options: options, appearance: NSAppearance(named: .aqua)!)
+        XCTAssertEqual(visual.usageDescription, "5-hour 13%, weekly 72%")
+        XCTAssertEqual(visual.image?.size.height, 22)
+    }
+
     @MainActor func testDockSnapshots() throws {
         let record = ProcessInfo.processInfo.environment["RECORD_DOCK"] == "1"
         if record { try FileManager.default.createDirectory(at: screenshotFolder, withIntermediateDirectories: true) }
@@ -40,6 +80,17 @@ final class DisplayTests: XCTestCase {
         }
         var samples: [(String, DockSnapshot)] = [0,12,30,57,72,94,100].map {
             ("usage-\($0)", resolved(["claude":snapshot(Double($0), 57)]))
+        }
+        if ProcessInfo.processInfo.environment["RECORD_SITE"] == "1" {
+            let folder = screenshotFolder.deletingLastPathComponent().appendingPathComponent("site-retina")
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            for frame in 0...18 {
+                let value = Double(frame) / 18
+                let state = resolved(["claude": snapshot(72 * value, 57 * value)])
+                let image = DockIconRenderer.image(for: state, size: 192)
+                let bitmap = try XCTUnwrap(image.representations.first as? NSBitmapImageRep)
+                try XCTUnwrap(bitmap.representation(using: .png, properties: [:])).write(to: folder.appendingPathComponent("dock-frame-\(frame).png"))
+            }
         }
         let custom = Thresholds(amber: 50, red: 70)
         samples += [
@@ -53,6 +104,15 @@ final class DisplayTests: XCTestCase {
         var light = resolved(["claude":snapshot(37,72)])
         light.light = true
         samples.append(("light-37", light))
+        var twoOptions = DisplayOptions()
+        twoOptions.twoDockNumbers = true
+        var dual = DockSnapshot.resolve(providers: providers, snapshots: ["claude": snapshot(9, 71)], options: twoOptions, now: now)
+        XCTAssertTrue(dual.twoNumbers)
+        XCTAssertEqual(dual.session, 9)
+        XCTAssertEqual(dual.weekly, 71)
+        samples.append(("two-numbers-dark", dual))
+        dual.light = true
+        samples.append(("two-numbers-light", dual))
         for (name, snapshot) in samples {
             for size in [32,128,1024] {
                 let image = DockIconRenderer.image(for: snapshot, size: size)
@@ -111,6 +171,22 @@ final class DisplayTests: XCTestCase {
         XCTAssertEqual([49,50,69,70].map(Thresholds(amber:50,red:70).tier),[1,2,2,3])
     }
 
+    @MainActor func testSettingsRemainsReachableWithCrowdedMenuBar() throws {
+        let delegate = try XCTUnwrap(NSApp.delegate as? AppDelegate)
+        let saved = delegate.preferences.options
+        let bar = NSStatusBar.system
+        let fillers = (0..<12).map { _ in bar.statusItem(withLength: 70) }
+        defer {
+            fillers.forEach { bar.removeStatusItem($0) }
+            delegate.preferences.options = saved
+        }
+        for item in fillers { item.button?.title = "•••" }
+        delegate.preferences.options.placement = .menu
+        XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
+        let settings = try XCTUnwrap(NSApp.windows.first { $0.title == "AI Usage Menu Settings" && $0.isVisible })
+        settings.close()
+    }
+
     @MainActor func testLivePlacementAndDockNavigation() throws {
         let delegate = try XCTUnwrap(NSApp.delegate as? AppDelegate)
         let prefs = delegate.preferences
@@ -158,7 +234,17 @@ final class DisplayTests: XCTestCase {
         prefs.options.placement = .both
         prefs.options.separateItems = true
         XCTAssertEqual(delegate.statusItemCount, 2)
-        prefs.options.placement = .menu
+        prefs.options.placement.showsDock = false
+        prefs.options.placement.showsMenu = false
+        XCTAssertEqual(prefs.options.placement, .hidden)
+        XCTAssertEqual(delegate.statusItemCount, 0)
         XCTAssertEqual(NSApp.activationPolicy(), .accessory)
+        XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
+        XCTAssertTrue(settings.isVisible)
+        settings.close()
+        prefs.options.placement.showsMenu = true
+        prefs.options.placement.showsDock = true
+        XCTAssertEqual(prefs.options.placement, .both)
+        XCTAssertEqual(DisplayOptions().placement, .both)
     }
 }

@@ -2,7 +2,16 @@ import AppKit
 import SwiftUI
 
 enum Placement: String, CaseIterable, Codable {
-    case both = "Menu bar and Dock", menu = "Menu bar only", dock = "Dock only"
+    case both = "Menu bar and Dock", menu = "Menu bar only", dock = "Dock only", hidden = "Both hidden"
+
+    var showsMenu: Bool {
+        get { self == .both || self == .menu }
+        set { self = newValue ? (showsDock ? .both : .menu) : (showsDock ? .dock : .hidden) }
+    }
+    var showsDock: Bool {
+        get { self == .both || self == .dock }
+        set { self = newValue ? (showsMenu ? .both : .dock) : (showsMenu ? .menu : .hidden) }
+    }
 }
 
 enum WindowChoice: String, CaseIterable, Codable {
@@ -54,6 +63,8 @@ struct DisplayOptions: Equatable, Codable {
     var separateItems = false
     var showPercent = true
     var dockProvider = "auto"
+    var twoMenuNumbers = false
+    var twoDockNumbers = false
     var dockWindow = WindowChoice.session
     var menuProvider = "auto"
     var menuWindow = WindowChoice.session
@@ -71,6 +82,8 @@ struct DisplayOptions: Equatable, Codable {
         separateItems = try fields.decodeIfPresent(Bool.self, forKey: .separateItems) ?? false
         showPercent = try fields.decodeIfPresent(Bool.self, forKey: .showPercent) ?? true
         dockProvider = try fields.decodeIfPresent(String.self, forKey: .dockProvider) ?? "auto"
+        twoMenuNumbers = try fields.decodeIfPresent(Bool.self, forKey: .twoMenuNumbers) ?? false
+        twoDockNumbers = try fields.decodeIfPresent(Bool.self, forKey: .twoDockNumbers) ?? false
         dockWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .dockWindow) == .weekly ? .weekly : .session
         menuProvider = try fields.decodeIfPresent(String.self, forKey: .menuProvider) ?? "auto"
         menuWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .menuWindow) == .weekly ? .weekly : .session

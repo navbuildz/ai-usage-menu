@@ -16,7 +16,7 @@ struct BreakdownView: View {
                             .buttonStyle(.plain).font(.caption.weight(.medium)).fixedSize()
                             .padding(.horizontal, 5).padding(.vertical, 4)
                             .foregroundStyle(i == selection ? Color.white : Color("textSecondary"))
-                            .background(i == selection ? Color("violet") : .clear, in: Capsule())
+                            .background { if i == selection { Capsule().fill(Color("violet")).overlay(Capsule().fill(.black.opacity(0.18))) } }
                             .accessibilityAddTraits(i == selection ? .isSelected : [])
                     }
                 }.padding(2).background(Color("surfaceRaised"), in: Capsule())
@@ -49,11 +49,18 @@ struct BreakdownView: View {
                 }.padding(.horizontal, 11).background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
                 ForEach(period.groups.keys.sorted(), id: \.self) { group in
                     Text("Top " + group).font(.caption.bold())
-                    FlowLayout {
+                    VStack(spacing: 10) {
                         ForEach(Array((period.groups[group] ?? []).enumerated()), id: \.offset) { _, item in
-                            Text("\(item.name) \(item.percent)%").font(.caption).padding(.horizontal, 7).padding(.vertical, 4).background(Color("surfaceRaised"), in: Capsule())
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack { Text(item.name); Spacer(); Text("\(item.percent)%").monospacedDigit().fontWeight(.semibold) }
+                                GeometryReader { geo in
+                                    Capsule().fill(Color("orchid").opacity(0.14)).overlay(alignment: .leading) {
+                                        Capsule().fill(Color("orchid")).frame(width: geo.size.width * CGFloat(item.percent) / 100)
+                                    }
+                                }.frame(height: 3)
+                            }.accessibilityElement(children: .combine)
                         }
-                    }
+                    }.font(.caption).padding(12).background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
                 }
             }
         }
@@ -64,29 +71,6 @@ struct BreakdownView: View {
         return "Trim " + (String(title.dropFirst(5)) as NSString).lastPathComponent
     }
 
-}
-
-private struct FlowLayout: Layout {
-    private func layout(_ children: Subviews, width: CGFloat) -> ([CGPoint], CGFloat) {
-        var points = [CGPoint](), x: CGFloat = 0, y: CGFloat = 0, height: CGFloat = 0
-        for child in children {
-            let size = child.sizeThatFits(.init(width: width, height: nil))
-            if x > 0 && x + size.width > width { x = 0; y += height + 4; height = 0 }
-            points.append(.init(x: x, y: y))
-            x += size.width + 5
-            height = max(height, size.height)
-        }
-        return (points, y + height)
-    }
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? 320
-        return .init(width: width, height: layout(subviews, width: width).1)
-    }
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        for (child, point) in zip(subviews, layout(subviews, width: bounds.width).0) {
-            child.place(at: .init(x: bounds.minX + point.x, y: bounds.minY + point.y), proposal: .init(width: min(bounds.width, child.sizeThatFits(.unspecified).width), height: nil))
-        }
-    }
 }
 
 struct ProviderMessage: View {
@@ -107,8 +91,13 @@ struct ProviderMessage: View {
                 Text("Open Terminal and run claude to sign in.")
                 Button("Copy command") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString("claude", forType: .string) }
             case .nonSubscription:
-                Text("Claude subscription required").font(.headline)
-                Text("Plan limits appear when Claude Code is signed in with a Claude subscription.")
+                Label("No plan limits to show", systemImage: "gauge.with.dots.needle.0percent").font(.headline)
+                Text(provider.id == "claude" ? "AI Usage Menu shows Claude Pro, Max and Team plan limits. This Claude Code is signed in with an API key or without a plan, so there are no session or weekly limits." : "Codex is signed in with an API key, so there are no plan limits.")
+                if let raw = snapshot.rawText {
+                    DisclosureGroup("Show what Claude Code printed", isExpanded: $details) {
+                        Text(raw).font(.caption.monospaced()).textSelection(.enabled)
+                    }
+                }
                 Button("Check again", action: retry)
             case .noSessions, .noLimits:
                 Text(snapshot.state == .noSessions ? "No Codex sessions yet" : "No usage reading yet").font(.headline)

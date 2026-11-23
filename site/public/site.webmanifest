@@ -1,0 +1,19 @@
+{
+  "name": "AI Usage Menu",
+  "short_name": "AI Usage",
+  "icons": [
+    {
+      "src": "favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0B0E20",
+  "background_color": "#0B0E20",
+  "display": "standalone"
+}

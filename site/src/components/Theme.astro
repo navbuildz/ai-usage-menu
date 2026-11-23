@@ -1,0 +1,4 @@
+---
+const modes=[['system','M3 4h18v13H3z M12 17v3 M8 20h8'],['light','M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M5 19l1.5-1.5 M17.5 6.5L19 5 M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0'],['dark','M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z']];
+---
+<div class="appearance" role="group" aria-label="Appearance">{modes.map(([mode,path])=><button type="button" data-mode={mode} title={mode[0].toUpperCase()+mode.slice(1)+' appearance'} aria-label={mode+' appearance'} aria-pressed={mode==='system'?'true':'false'}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d={path}/></svg></button>)}</div>

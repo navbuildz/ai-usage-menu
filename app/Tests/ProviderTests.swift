@@ -30,12 +30,42 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(s.limits.first?.resetsAt,ISO8601DateFormatter().date(from:"2027-01-01T22:00:00Z"))
         XCTAssertEqual(s.rawText,bad+"\nextra text")
         XCTAssertNil(s.breakdown)
-        for (text,state) in [("Please log in",ProviderState.signedOut),("Signed in with an API key",.nonSubscription),("Bedrock",.nonSubscription),("garbage",.unknownFormat)] {
+        for (text,state) in [("Please log in",ProviderState.signedOut),("Signed in with an API key",.nonSubscription),("Bedrock",.nonSubscription),("garbage",.nonSubscription),("You are currently using your subscription to power your Claude Code usage",.unknownFormat)] {
             let parsed = ClaudeParser.parse(text, now: now)
             XCTAssertEqual(parsed.state,state)
             XCTAssertTrue(parsed.limits.isEmpty)
             if state == .unknownFormat { XCTAssertEqual(parsed.rawText,text) }
         }
+    }
+
+    func testPlanCompatibilityFixtures() async throws {
+        // Illustrative Claude wording until a real API-key account can be observed.
+        let text = try fixture("claude-api-key-guessed","txt")
+        let claude = ClaudeParser.parse(text, now: now)
+        XCTAssertEqual(claude.state, .nonSubscription)
+        XCTAssertEqual(claude.rawText, text)
+        XCTAssertTrue(claude.limits.isEmpty)
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let sessions = home.appendingPathComponent("sessions")
+        try FileManager.default.createDirectory(at: sessions, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: home) }
+        let auth = home.appendingPathComponent("auth.json")
+        try fixture("auth-apikey","json").write(to: auth, atomically: true, encoding: .utf8)
+        let mode: String? = try CodexProvider.authMode(in: auth)
+        XCTAssertEqual(mode, "apikey")
+        let file = sessions.appendingPathComponent("rollout-test.jsonl")
+        try fixture("rate-limits","jsonl").write(to: file, atomically: true, encoding: .utf8)
+        let provider = CodexProvider(home: home)
+        let api = await provider.read()
+        XCTAssertEqual(api.state, .nonSubscription)
+        XCTAssertTrue(api.limits.isEmpty)
+        try Data(#"{"auth_mode":"chatgpt"}"#.utf8).write(to: auth)
+        let lines = try fixture("rate-limits","jsonl") + "\n" + fixture("null-limits","jsonl")
+        try lines.write(to: file, atomically: true, encoding: .utf8)
+        let waiting = await provider.read()
+        XCTAssertEqual(waiting.state, .noSessions)
+        XCTAssertEqual(waiting.onboardingStatus, "Plan: subscription")
+        XCTAssertTrue(waiting.limits.isEmpty)
     }
 
     func testResetMath() {
@@ -64,6 +94,15 @@ final class ProviderTests: XCTestCase {
         XCTAssertNil(reached.limits.first?.percent(at:now))
         XCTAssertEqual(reached.details.last?.value,"Unlimited")
         XCTAssertNil(CodexParser.parse(Data(text.replacingOccurrences(of: "token_count", with:"other").utf8)))
+    }
+
+    func testAuxiliaryQuotaDoesNotHideCodexWindows() throws {
+        let base = try fixture("rate-limits","jsonl")
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: file) }
+        let auxiliary = #"{"timestamp":"2026-11-23T10:00:00Z","type":"event_msg","payload":{"type":"token_count","rate_limits":{"limit_id":"premium","plan_type":"plus","primary":null,"secondary":null}}}"#
+        try (base + "\n" + auxiliary).write(to: file, atomically: true, encoding: .utf8)
+        XCTAssertEqual(try CodexProvider.latest(in: file)?.limits.count, 2)
     }
 
     func testLargeTail() throws {
@@ -95,7 +134,7 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(empty.state,.noSessions)
         try Data("unknown".utf8).write(to:folder.appendingPathComponent("rollout-test.jsonl"))
         let unknown = await provider.read()
-        XCTAssertEqual(unknown.state,.noLimits)
+        XCTAssertEqual(unknown.state,.nonSubscription)
     }
 
     func testChildIOAndTimeout() throws {

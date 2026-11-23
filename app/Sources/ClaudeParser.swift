@@ -48,7 +48,7 @@ enum ClaudeParser {
                 periods.append(.init(span: f[0], requests: requests, sessions: sessions))
             } else if let index, let f = fields(#"^(\d+)%\s+(.+?) · (.+)$"#, line), let percent = Int(f[0]), percent <= 100 {
                 periods[index].tips.append(.init(name: f[1], percent: percent, detail: f[2]))
-            } else if let index, let f = fields(#"^Top (skills|subagents|MCP servers): (.+)$"#, line) {
+            } else if let index, let f = fields(#"^Top ([^:]+): (.+)$"#, line) {
                 let items = f[1].components(separatedBy: ", ")
                 let values: [Contribution] = items.compactMap { item in
                     guard let pair = fields(#"^(.+) (\d+)%$"#, item), let pct = Int(pair[1]), pct <= 100 else { return nil }
@@ -63,9 +63,13 @@ enum ClaudeParser {
         }
         if result.limits.isEmpty {
             let lower = text.lowercased()
-            if ["api key","api-key","api_key","bedrock","vertex","foundry","api billing"].contains(where: lower.contains) { result.state = .nonSubscription }
-            else if ["log in","login","log into","sign in","not logged in","not signed in","signed out","logged out"].contains(where: lower.contains) { result.state = .signedOut }
-            else { result.state = .unknownFormat; result.rawText = text }
+            if ["log in","login","log into","sign in","not logged in","signed out","logged out"].contains(where: lower.contains) {
+                result.state = .signedOut
+            } else {
+                let header = "You are currently using your subscription to power your Claude Code usage"
+                result.state = text.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(header) ? .unknownFormat : .nonSubscription
+                result.rawText = text
+            }
         } else {
             result.details = [.init(label: "Plan", value: "Claude subscription")]
             if !unknown.isEmpty { result.rawText = unknown.joined(separator: "\n") }

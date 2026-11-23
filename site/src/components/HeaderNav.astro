@@ -1,0 +1,5 @@
+---
+const {id, mobile=false}=Astro.props;
+const pages=[['claude-code-usage','Claude Code'],['codex-usage','Codex'],['claude-usage-limits','Usage limits'],['compare','Compare'],['open-source','Open source']];
+---
+<nav aria-label={mobile?'Mobile navigation':'Main navigation'} class={mobile?'mobile-links':'desktop-links'}>{pages.map(([key,label])=><a href={'/'+key} aria-current={id===key?'page':undefined}>{label}</a>)}</nav>

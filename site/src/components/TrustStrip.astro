@@ -1,0 +1,8 @@
+---
+import lock from '../../../brand/05-ui-icons/svg/privacy.svg?raw';
+import check from '../../../brand/05-ui-icons/svg/check.svg?raw';
+import code from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
+import activity from '../../../brand/05-ui-icons/svg/activity.svg?raw';
+const items=[[lock,'No cookie or key'],[check,'Nothing leaves your Mac'],[code,'Open source, MIT'],[activity,'Zero tokens to check']];
+---
+<ul class="trust-strip">{items.map(([icon,label])=><li><span aria-hidden="true" set:html={icon}/>{label}</li>)}</ul>

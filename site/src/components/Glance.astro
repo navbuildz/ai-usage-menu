@@ -1,0 +1,5 @@
+---
+import MenuReading from './MenuReading.astro';
+const states=[[30,'Healthy'],[72,'Nearing the limit'],[94,'Near capacity']];
+---
+<div class="menuscapes">{['light','dark'].map(theme=><figure class={'menu-scene scene-'+theme}><figcaption>{theme==='dark'?'Dark':'Light'} menu bar</figcaption><div class="scene-desktop"><div class="scene-bar">{states.map(([value])=><MenuReading value={value} theme={theme}/>)}</div><div class="scene-labels">{states.map(([,label])=><span>{label}</span>)}</div></div></figure>)}</div>

@@ -1,0 +1,5 @@
+---
+import Layout from '../components/Layout.astro';
+import {labels,pathFor} from '../data/shared.mjs';
+---
+<Layout id="home" title="Page not found | AI Usage Menu" meta="Find the usage tracker, setup guide, and downloads." notFound><section class="block"><h1>Page not found</h1><nav class="related">{Object.entries(labels).map(([id,label])=><a href={pathFor(id)}>{label}</a>)}</nav></section></Layout>

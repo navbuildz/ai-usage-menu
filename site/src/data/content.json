@@ -1,0 +1,766 @@
+{
+  "home": {
+    "title": "Claude Usage Tracker for Mac, Free | AI Usage Menu",
+    "meta": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills each usage window and when it resets.",
+    "h1": "Know your AI usage. Stay in control.",
+    "answer": "AI Usage Menu is a free, open-source Mac app that shows your Claude Code and Codex plan usage in the menu bar and Dock: session and weekly limits, when each resets, and what is using them up. It reads what Claude Code and Codex already show on your Mac, so there is no cookie, password or API key to paste.",
+    "primary": "claude usage tracker",
+    "faqs": [
+      [
+        "How do I track my Claude usage on Mac?",
+        "Sign in to Claude Code with your subscription. Open AI Usage Menu and choose the Claude Code tab to see the reported windows and reset times."
+      ],
+      [
+        "Does it need my Claude password or cookie?",
+        "No. It uses your existing Claude Code installation and sign-in."
+      ],
+      [
+        "Is AI Usage Menu free?",
+        "Yes. The Mac app is free and licensed under MIT."
+      ],
+      [
+        "Does checking my usage use up my limit?",
+        "Checking opens a usage readout without sending a model prompt."
+      ],
+      [
+        "Does it work with an API key?",
+        "No. AI Usage Menu shows plan limits: the 5-hour and weekly windows of Claude Pro, Max and Team and of ChatGPT plans for Codex. API-key accounts pay per token and have no such limits, so there is nothing to show."
+      ],
+      [
+        "Does it work on Intel Macs?",
+        "Yes. The app supports Intel and Apple silicon Macs running macOS 13 or later."
+      ],
+      [
+        "Is it safe?",
+        "Usage is processed locally. The app never asks for a password, browser cookie or API key. Its provider readers are available for inspection."
+      ],
+      [
+        "How does the Claude usage menu bar work?",
+        "The Claude usage menu bar item puts a reading beside the clock. Choose one item for the most constrained reading across providers, or separate the providers into two items. Click either one to open its details. The Claude usage bar can show just the gauge if you prefer to keep the menu short; adding a percentage makes it easier to distinguish two readings in the same color range."
+      ],
+      [
+        "How do I track Claude usage while working in another app?",
+        "To track Claude usage alongside Codex, select the provider whose work you are doing now. Claude and Codex usage come from different accounts and have independent reset clocks. A Claude session approaching its limit says nothing about how much Codex capacity remains. The same pair of provider tabs is available in the Mac window and from the menu bar. The Claude usage app Mac setup guide covers a first-time installation; the Codex usage app Mac instructions cover a machine with a new ChatGPT sign-in."
+      ],
+      [
+        "Can the Claude usage bar show both windows?",
+        "The Claude usage bar can display two numbers for the same provider. The top value is session usage and the bottom value is weekly usage. The popup puts the window names and reset times next to those figures."
+      ],
+      [
+        "Can I see Claude and Codex usage at the same time?",
+        "Choose one menu bar item per provider to keep Claude and Codex usage visible together. The percentages belong to separate accounts. Open each item to see which window is closest to its limit."
+      ]
+    ],
+    "steps": [
+      "Install AI Usage Menu in Applications.",
+      "Open the app and review the providers it finds on your Mac.",
+      "Choose your menu bar and Dock views, then glance at either for the current reading."
+    ],
+    "sections": [
+      [
+        "Your limits, at a glance",
+        "Each window has its own percentage and reset time. Read the session, weekly and available model-specific limits together to see which one will fill first. Check Claude Code usage against the terminal, or check Codex usage against its last local activity."
+      ],
+      [
+        "See what's eating your limit",
+        "Inspect local activity over the last 24 hours or seven days. See long-running sessions, repeated context and subagent activity alongside the requests they affect."
+      ],
+      [
+        "A Dock icon that fills as you go",
+        "Read two windows in one ring. The short upper arc follows the session and the longer lower arc follows the week. Choose one or two numbers in Settings. The Claude usage limits guide explains what happens to each arc after a reset."
+      ],
+      [
+        "Claude Code and Codex, side by side",
+        "Switch provider tabs to see their respective limits, plan details and reset times. The menu bar can show one item per provider."
+      ],
+      [
+        "Free, and open source",
+        "The Swift app is MIT-licensed. Its provider readers, parsers and tests document exactly how the numbers reach your screen."
+      ],
+      [
+        "What makes a Claude usage tracker useful between tasks?",
+        "A Claude usage tracker helps you answer a small, practical question before starting a large job: which window has the least room left? A long session may leave very little space for the next edit even though the weekly allowance looks comfortable. The reverse happens too. Open Claude Code usage to match a percentage to its reset time. If you want to understand why two times differ, the Claude usage limits guide walks through a session and a weekly reset on the same calendar. The Claude Code weekly limit and the Claude Opus weekly limit have separate explanations for the two kinds of weekly reading."
+      ],
+      [
+        "An AI coding usage monitor for a shared desktop",
+        "An AI coding usage monitor should tell you whose reading you are looking at. A Claude tab and a Codex tab sit next to each other, each with its own timestamp. Leave the menu bar set to the session that matters while keeping both windows visible in the Dock. On a Mac with only one connected provider, that provider supplies the readings. Open the Codex usage guide for the difference between the time of your last local activity and the time you clicked Refresh. Check ChatGPT Plus Codex limits or ChatGPT Pro Codex limits when the Codex tab shows a different plan from the one you expected."
+      ],
+      [
+        "Which AI usage tracker Mac view should I choose?",
+        "The AI usage tracker Mac users see in the Dock can show two windows at once. The short upper arc represents the five-hour session and the longer arc represents the week. In Settings, choose a single number if you want fewer details, or choose two numbers to read both without opening the window. For an uncluttered desktop, leave only the menu bar enabled. Your choice of provider and window for the Dock is independent of the choices for the menu bar. If the short and long arcs are unfamiliar, start with the Claude 5 hour limit or the Codex weekly limit, depending on the selected provider."
+      ]
+    ],
+    "sources": [
+      [
+        "Anthropic: How do usage and length limits work?",
+        "https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work"
+      ],
+      [
+        "OpenAI: Using Codex with your ChatGPT plan",
+        "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan"
+      ]
+    ],
+    "keywords": [
+      "claude usage tracker",
+      "ai usage tracker mac",
+      "claude usage menu bar",
+      "claude usage bar",
+      "track claude usage",
+      "ai coding usage monitor",
+      "claude and codex usage"
+    ]
+  },
+  "claude-code-usage": {
+    "title": "Claude Code Usage Tracker for Mac | AI Usage Menu",
+    "meta": "See your Claude Code usage live: session and weekly limits, reset times, and what's using them, right in your Mac menu bar. Free and nothing to paste.",
+    "h1": "Claude Code usage, live in your menu bar",
+    "answer": "Claude Code shows your plan usage with its /usage command: your 5-hour session, your weekly limit across all models, and a weekly limit for some models. AI Usage Menu reads that same output on your Mac and keeps it in your menu bar and Dock, with reset countdowns and the breakdown of what is using it.",
+    "primary": "claude code usage",
+    "faqs": [
+      [
+        "How do I check Claude Code usage on two Macs?",
+        "Check Claude Code usage using the same account on both Macs, then refresh each app close together in time. The plan figures come from the subscription. The local activity analysis covers sessions available on the particular Mac, so its list of contributors can differ even when the plan percentages agree."
+      ],
+      [
+        "Which Claude Code usage limit am I about to reach?",
+        "The Claude Code usage limit closest to full has the smallest share remaining. Read the affected row before deciding when you can resume. Near-full weekly usage can be more consequential for tomorrow's work than a near-full session that ends in a few minutes."
+      ],
+      [
+        "How do I see Claude Code Max plan usage?",
+        "Claude Code Max plan usage appears when the CLI is signed in with the Max subscription and reports its limits. Use the plan details and actual window rows from that account. The Max name alone cannot tell you how much allowance remains today or which model has drawn on it. Compare Claude Max usage limits, Claude Pro usage limits and Claude Team usage limits when planning a change of subscription."
+      ],
+      [
+        "Why does the local activity breakdown exceed 100%?",
+        "One recorded request can fall into several groups, such as a long-running session and a session with subagent activity. The percentages describe overlapping groups of local activity. Adding them together would count the same requests more than once. The guide covers why do I hit Claude limits so fast and how to make Claude usage last longer using examples of different workloads."
+      ],
+      [
+        "Does opening /usage send a model prompt?",
+        "Opening the usage display requests account information. AI Usage Menu does not send your source files or a prompt to generate that display. Claude Code itself can contact Anthropic to obtain the provider reading."
+      ],
+      [
+        "Can the tracker reset Claude Code for me?",
+        "The tracker shows the reset information that Claude Code returns. Refresh requests another reading. It neither changes the plan nor spends a reset credit. When the provider offers account actions in its own interface, manage those actions there."
+      ],
+      [
+        "What if the terminal and the widget disagree?",
+        "Compare the account, window label, refresh time and direction of the percentage. A weekly figure marked “used” cannot be compared directly with a five-hour value marked “left.” Open the same provider tab in the widget and compare the absolute reset timestamps as a second check."
+      ],
+      [
+        "Where can I compare different ways to read my limits?",
+        "The Claude usage tracker comparison lists how each tool gets its data, whether a credential must be supplied, and where the result appears. Use the usage-source column to distinguish a native CLI reading from a direct provider request."
+      ],
+      [
+        "Does it work with an API key?",
+        "No. AI Usage Menu shows plan limits: the 5-hour and weekly windows of Claude Pro, Max and Team and of ChatGPT plans for Codex. API-key accounts pay per token and have no such limits, so there is nothing to show."
+      ]
+    ],
+    "steps": [
+      "Open Claude Code on your Mac using your Claude subscription.",
+      "Type /usage to read the session, weekly and any model-specific windows.",
+      "Open AI Usage Menu and select Claude Code to keep the readings visible."
+    ],
+    "sections": [
+      [
+        "What /usage shows",
+        "The output lists the share used in each reported window and when it resets. A model-specific weekly line appears only when Claude reports one."
+      ],
+      [
+        "The same numbers in the app",
+        "Match the session and weekly readings to the terminal output. The app adds a reset countdown beside the reported time."
+      ],
+      [
+        "What's contributing",
+        "Look for sessions active across many hours, overlapping tasks in a single conversation, subagent model choices and large context files. The shares estimate local activity and can overlap."
+      ],
+      [
+        "Status line vs menu bar",
+        "A Claude Code status line lives inside a terminal session. The Mac menu bar keeps the reading visible when you switch to another application."
+      ],
+      [
+        "Set up Claude Code",
+        "Install Claude Code and sign in with your Claude Pro, Max or Team subscription. AI Usage Menu uses that existing installation."
+      ],
+      [
+        "Check Claude Code usage before a long coding session",
+        "To check Claude Code usage, open the interactive Claude Code client and enter /usage in its prompt. Read the plan identification first. If it identifies a subscription, match each window label to the percentage and timestamp on that same row. An overall weekly value and a model-specific weekly value can both appear. They describe different allowances. Keep the label with the number when comparing it to the Mac app, particularly if two weekly rows share a reset date. If the account uses an API key, there is no subscription window to compare."
+      ],
+      [
+        "What the Claude Code /usage command tells you",
+        "The Claude Code /usage command prints the subscription reading available to the signed-in CLI. It is a slash command inside Claude Code. Typing it into a shell asks the shell to find a file named usage at the root of the disk. Once you have the right prompt, compare the output with the app while they are close in time. A small difference after a coding task can reflect newer activity. A missing model-specific row means that the CLI did not provide that breakdown for the reading. For credential details, see how a Claude usage tracker without cookie access obtains the same information."
+      ],
+      [
+        "Worked example of a Claude Code usage reset",
+        "A Claude Code usage reset applies to the row whose clock has expired. Suppose a Tuesday reading at 11:40 AM says the session resets at 1:15 PM and the week resets Friday at 8:00 AM, all in your local time. You have one hour and 35 minutes until the session reset. Refresh after 1:15 PM and read both rows again. The Friday reset is still two days away. Starting a new conversation at noon would give you a fresh context for your code, but it would not move either account deadline."
+      ],
+      [
+        "What is included in the Claude Code weekly limit?",
+        "The Claude Code weekly limit describes use over the longer subscription window displayed by Claude. Open the weekly all-models line first to see the broad reading. If Claude supplies another row for a particular model, compare its remaining share separately. A smaller percentage remaining there can explain why switching back to that model matters even when the overall week has room. AI Usage Menu cannot infer a missing model allowance from a transcript or from the all-models percentage. It displays the model label only when the provider prints it."
+      ],
+      [
+        "How to interpret Claude Code status line usage",
+        "Claude Code status line usage appears inside the terminal where the status line is configured. The Mac menu bar can show a provider and window while your editor, browser or issue tracker is in front. Check that both surfaces refer to the same window, account and measure: percent used and percent remaining move in opposite directions. For example, a terminal showing 30% remaining agrees with a menu bar showing 70% used. The app window shows both forms so you can make that comparison without mental arithmetic. Explore the Claude usage menu bar for display choices or the Claude usage bar example to see the gauge at three levels."
+      ],
+      [
+        "Limit reached? What to do now",
+        "The window at its limit identifies which reset time matters for the next task. First open the provider tab and note the name of the affected window. Next read its absolute reset time in addition to the countdown. Finally, check /usage again after that time to confirm a fresh reading. If your weekly allowance is exhausted, a five-hour session reset can arrive without restoring weekly room. Use the explanation of Claude usage limits for the calendar example, or open Codex usage if you have a separately connected ChatGPT account. The Claude usage limit reached checklist includes a worked example of the Claude weekly limit reset time."
+      ]
+    ],
+    "sources": [
+      [
+        "Anthropic: How do usage and length limits work?",
+        "https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work"
+      ],
+      [
+        "Anthropic: What is the Max plan?",
+        "https://support.claude.com/en/articles/11049741-what-is-the-max-plan"
+      ],
+      [
+        "Anthropic: What is the Team plan?",
+        "https://support.claude.com/en/articles/9266767-what-is-the-team-plan"
+      ],
+      [
+        "Anthropic: Claude Code status line",
+        "https://code.claude.com/docs/en/statusline"
+      ]
+    ],
+    "keywords": [
+      "claude code usage",
+      "claude code usage limit",
+      "check claude code usage",
+      "claude code /usage command",
+      "claude code status line usage",
+      "claude code usage reset",
+      "claude code weekly limit",
+      "claude code max plan usage"
+    ]
+  },
+  "codex-usage": {
+    "title": "Codex Usage and Limits on Mac, Free | AI Usage Menu",
+    "meta": "Watch your Codex usage limits from your Mac menu bar: the 5-hour window, the weekly cap and when each one resets. Free, open source, and no sign-in needed.",
+    "h1": "Codex usage and limits, at a glance",
+    "answer": "Codex on a ChatGPT plan has a 5-hour usage window and a weekly limit. Codex writes both into its own session logs on your Mac, with the time each resets. AI Usage Menu reads those logs and shows the two limits in your menu bar and Dock, with no sign-in and nothing sent anywhere.",
+    "primary": "codex usage",
+    "faqs": [
+      [
+        "How do I read the Codex 5 hour limit?",
+        "The Codex 5 hour limit is the short-window row when Codex reports a window of that duration. Its percentage indicates how much of that window was used. Read the adjacent reset time to see when the constraint changes. A weekly row underneath can show a very different percentage."
+      ],
+      [
+        "Why is my Codex usage limit missing?",
+        "A Codex usage limit can be missing if the client has not written a usable rate-limit record for that ChatGPT account. Open Codex with the intended sign-in, then check the app after ordinary activity. Signing in with an API key gives a different result because there is no subscription window."
+      ],
+      [
+        "Why is my old reading gray?",
+        "The app marks stale data so a historical figure cannot masquerade as a current allowance. Open the provider tab and inspect the last activity time. If the account view has a newer reading, use that for an immediate decision while waiting for an updated local event."
+      ],
+      [
+        "Can I change which number the Dock shows?",
+        "Choose Codex in the Dock settings, then choose one number or two. A single number can represent the five-hour or weekly window. With two numbers, the smaller upper number corresponds to the session arc and the larger lower number corresponds to the weekly arc. The home overview shows Claude and Codex usage together in the Dock and explains how to track Claude usage while your editor is frontmost."
+      ],
+      [
+        "Can a weekly reset be inferred from Monday morning?",
+        "Use the reset timestamp attached to your own weekly reading. A weekday convention or another developer's screenshot does not establish your deadline. When comparing across time zones, convert both times to the same zone before deciding which allowance will recover first. If you also use Claude, the Claude weekly limit guide explains how to read that separate account window."
+      ],
+      [
+        "Why do I see a different percentage in the menu bar?",
+        "A menu item set to Auto can be showing a different provider. Its selected window can also differ from the one you are checking in the app. Select Codex and the desired window in Settings, then compare percent used with percent used."
+      ],
+      [
+        "Is a local cost estimate the same as a remaining allowance?",
+        "A dollar estimate derived from token counts answers a billing question. A usage window reports how much of a provider allowance has been used. The Claude usage tracker comparison identifies which data source supplies each tool's readout. See the ccusage alternative question for a worked distinction between these two kinds of output."
+      ],
+      [
+        "Does refreshing the tracker run a Codex task?",
+        "The refresh reads existing local records without issuing a new model request. Work done in a different client may not be reflected in this Mac's newest event, so repeated refreshes can legitimately show exactly the same timestamp."
+      ],
+      [
+        "Does it work with an API key?",
+        "No. AI Usage Menu shows plan limits: the 5-hour and weekly windows of Claude Pro, Max and Team and of ChatGPT plans for Codex. API-key accounts pay per token and have no such limits, so there is nothing to show."
+      ]
+    ],
+    "steps": [
+      "Sign in to Codex with your ChatGPT account.",
+      "Run /status in Codex to check the current account limits.",
+      "Open the Codex tab in AI Usage Menu to see the latest locally recorded reading."
+    ],
+    "sections": [
+      [
+        "Two windows, two reset times",
+        "Read the five-hour and weekly windows separately. Plan type and credit information appear when Codex supplies them. A reset in one window does not replenish the other."
+      ],
+      [
+        "How to check Codex usage yourself",
+        "Use /status inside a Codex CLI session or open your Codex usage dashboard. Account limits depend on the plan and the work you run."
+      ],
+      [
+        "Inside the Codex tab",
+        "The app reads the limits recorded by Codex locally. The as-of time belongs to the reading in the session log. Refreshing the app does not create new Codex activity."
+      ],
+      [
+        "Using Claude Code too?",
+        "Switch to the Claude Code tab for its own subscription limits. Each provider retains its own windows and timestamps."
+      ],
+      [
+        "Check Codex usage against the time of your last task",
+        "To check Codex usage on this Mac, open the Codex tab and read its “as of” time before acting on the percentage. The app looks for a usable reading that Codex wrote to a local session log. Clicking Refresh makes it look again. Refresh does not start a Codex task or write new account activity. If the displayed event was recorded several hours ago, it may predate work done elsewhere. Open your Codex client or account usage dashboard for the provider view, then compare the window and time."
+      ],
+      [
+        "What does Codex /status show?",
+        "Codex /status opens the current session's status in the interactive CLI. If you are already at the Codex prompt, enter just the slash command. The CLI documentation identifies status as a way to inspect the current session, including its model and usage details. A status readout and a local log entry serve different purposes: opening a status view does not guarantee a fresh rate-limit event on disk. Use the recorded timestamp in AI Usage Menu to tell when its numbers were last available."
+      ],
+      [
+        "Worked example of a Codex rate limit reset",
+        "A Codex rate limit reset has meaning only alongside its window label. Imagine a Thursday reading at 2:10 PM that says your short window resets at 4:00 PM and the weekly one resets on Sunday at 9:00 AM. The short window has one hour and 50 minutes left on its clock. Suppose it shows 90% used while the week shows 44% used. At 4:05 PM, look for a new provider reading before relying on the session percentage. Sunday remains the next weekly reset in this example."
+      ],
+      [
+        "What the Codex weekly limit measures",
+        "The Codex weekly limit is the longer allowance in a usage reading that includes a weekly window. It can remain close to full through several five-hour resets. Look at its own time and percentage rather than extrapolating from the short window. If the weekly reading says 80% used and the session says 25% used, the percentages have different denominators. You cannot add them or convert the difference into a number of tasks. OpenAI says the model and complexity of the work affect how much allowance a task uses."
+      ],
+      [
+        "How do ChatGPT Plus Codex limits appear?",
+        "ChatGPT Plus Codex limits are supplied by OpenAI for the account signed in to Codex. AI Usage Menu can show a plan label when it appears in the saved limits. The label is useful for checking that you opened the expected account. It cannot establish today's remaining allowance by itself. A plan name with no usable local reading can produce a waiting state; it should never produce an invented zero. More recent Codex activity can provide the missing local record."
+      ],
+      [
+        "How do ChatGPT Pro Codex limits appear?",
+        "ChatGPT Pro Codex limits use the allowance associated with that account. Use the provider's actual window readings to plan work, even if another developer also uses Pro. A code review and a short explanation do not have equal workloads merely because each was one request. OpenAI's account documentation is the place to check plan inclusion or changes. The tracker interprets percentages and reset times already supplied by the client, without converting them into a fixed number of remaining messages."
+      ],
+      [
+        "Limit reached? What to do now",
+        "An exhausted Codex usage limit calls for checking the affected window and its reset time. First confirm the Codex tab is selected. Next open its dated reading, find the row nearest 100%, and check whether it describes the session or week. If the provider reports a limit-reached event without a numeric breakdown, keep that distinction when reading the alert. After the stated reset, check again for new activity before assuming the allowance is current. Claude Code usage belongs to a separate subscription; its Claude usage limits do not refresh when Codex resets."
+      ]
+    ],
+    "sources": [
+      [
+        "OpenAI: Using Codex with your ChatGPT plan",
+        "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan"
+      ],
+      [
+        "OpenAI: Understanding ChatGPT and Codex usage limits",
+        "https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits"
+      ],
+      [
+        "OpenAI: Codex CLI slash commands",
+        "https://developers.openai.com/codex/cli/slash-commands"
+      ]
+    ],
+    "keywords": [
+      "codex usage",
+      "codex usage limit",
+      "codex weekly limit",
+      "codex 5 hour limit",
+      "check codex usage",
+      "codex /status",
+      "codex rate limit reset",
+      "chatgpt plus codex limits",
+      "chatgpt pro codex limits"
+    ]
+  },
+  "claude-usage-limits": {
+    "title": "Claude Usage Limits: 5-Hour and Weekly, Explained",
+    "meta": "Understand the Claude usage limit on your account, from the five-hour session to the weekly reset. Check Pro, Max and Team windows and read a worked example.",
+    "h1": "Claude usage limits, explained",
+    "answer": "Claude's paid plans have two usage limits: a rolling 5-hour session limit and a 7-day weekly limit, and some models also have their own weekly limit. Each resets on its own clock. You can check yours with /usage in Claude Code, in Claude's settings, or live in your Mac menu bar with AI Usage Menu.",
+    "primary": "claude usage limit",
+    "faqs": [
+      [
+        "When will my Claude weekly limit reset?",
+        "Your Claude weekly limit follows the timestamp shown in the weekly row for this account. Compare the absolute date with the countdown. A screenshot taken a day earlier can show the right reset date and an out-of-date amount of time remaining."
+      ],
+      [
+        "Why did my session reset while the weekly bar stayed high?",
+        "The session and week track different periods. The end of a short window can replenish short-window capacity while leaving most of the longer period's activity inside the current week. Read the weekly percentage again after its own deadline. The Claude Code usage reset example follows the same pair of rows across an afternoon."
+      ],
+      [
+        "Does a new conversation reset my Claude subscription?",
+        "Starting a new conversation changes the conversational context. The subscription's reset time is controlled by the provider. Verify the effect by opening the account reading after starting the new conversation and comparing the same window."
+      ],
+      [
+        "How can a specific model run out before my weekly total?",
+        "A model-specific row can describe its own allowance. Treat a 95% model reading and a 50% all-models weekly reading as two separate constraints. Only draw that conclusion when the provider explicitly displays both rows."
+      ],
+      [
+        "Does the limit indicator measure tokens in my current chat?",
+        "The subscription percentage describes provider-account usage. A context indicator measures the space occupied within a particular conversation. Anthropic explains both types of limits in its help article; reaching one doesn't establish that the other is also exhausted."
+      ],
+      [
+        "Can the app tell me which request consumed the last percentage point?",
+        "The local analysis groups activity on this Mac and the provider supplies an account-level percentage. These inputs have different scopes. Their timestamps can suggest what was happening, but they do not assign an exact fraction of allowance to a single request."
+      ],
+      [
+        "How do I compare readings from two providers?",
+        "Open the Claude Code usage and Codex usage guides to match each provider's source to its timestamp. Keep each provider's windows separate. A reset for the Claude subscription cannot replenish the allowance attached to a ChatGPT account. The Claude Code /usage command and Codex /status have different outputs. Compare them while signed in to the accounts actually used for the work."
+      ],
+      [
+        "Where can I check how other tools obtain these readings?",
+        "The Claude usage tracker comparison separates direct provider requests, CLI output and local usage logs. Start with the source column, then compare the displayed quantity. A token estimate and a weekly subscription percentage describe different things."
+      ]
+    ],
+    "steps": [
+      "Open Settings in Claude and choose Usage for your account view.",
+      "In Claude Code, enter /usage for a terminal readout.",
+      "Open the Claude Code tab in AI Usage Menu to see the windows on your Mac."
+    ],
+    "sections": [
+      [
+        "How the two limits work",
+        "The five-hour window covers a session. A separate weekly allowance spans sessions. A new session can begin while a weekly allowance is already nearly full."
+      ],
+      [
+        "Per-model weekly limits",
+        "Claude can report an additional weekly allowance for a particular model. Read its own percentage and reset time alongside the all-models weekly reading."
+      ],
+      [
+        "When each one resets",
+        "For example, if a five-hour window starts Monday at 9 AM Pacific, its reset is Monday at 2 PM Pacific. If the weekly readout says Saturday at 7 AM Pacific, Monday's session reset leaves that weekly clock alone."
+      ],
+      [
+        "Pro, Max and Team",
+        "Pro includes subscription usage. Anthropic describes Max as offering more usage than Pro and distinguishes Standard and Premium Team seats. Use your account's limits for your plan and seat."
+      ],
+      [
+        "Why you hit the limit faster than expected",
+        "Long conversations can carry earlier context into later requests. Review long-running sessions, start fresh when switching tasks, check subagent models and trim oversized context files."
+      ],
+      [
+        "Does checking cost usage?",
+        "Reading the usage display is an account check. It does not send a prompt to a model."
+      ],
+      [
+        "What do Claude usage limits tell me before I start?",
+        "Claude usage limits show the share of an account allowance used during a particular window. They answer a different question from how much of a single conversation's context is full. The account limit describes capacity for work over time. The conversation length limit concerns what can fit in the current conversation. A fresh conversation may help with length or with irrelevant context carried into a new task. It does not reset the account's usage windows. Before starting a large change, look for the row with the least room remaining and note when that row resets. That gives you a concrete decision time without guessing how many requests a project might take."
+      ],
+      [
+        "How the Claude 5 hour limit changes your afternoon",
+        "The Claude 5 hour limit resets on the session schedule shown by the provider. Imagine that at 12:10 PM on Monday the session says 88% used, with a 2:00 PM reset. That leaves 12% in the reported window and one hour and 50 minutes on its clock. A teammate may have a different timestamp. Even on the same plan, another account's timestamp does not tell you when yours will reset. If you pause work, time can pass while the percentage stays the same. A percentage is a measure of usage and a countdown is a measure of time. Neither one can substitute for the other. The Codex 5 hour limit uses a different provider reading, so check its own time when switching tools."
+      ],
+      [
+        "How the Claude weekly limit reset time changes the week",
+        "The Claude weekly limit reset time comes from the weekly row on your account. Suppose that on Thursday at 4:30 PM your weekly reading says 96% used and resets on Saturday at 7:00 AM. That is one day, 14 hours and 30 minutes from the reading. A short session that resets later on Thursday still leaves the weekly window in force. On Friday morning, look at the date as well as the weekday to avoid mistaking a stale screenshot for the current week. On Saturday, check for a fresh provider reading after 7:00 AM. If Claude reports both an all-models week and a model-specific week, read the reset on each row rather than assuming they match."
+      ],
+      [
+        "What does a Claude Opus weekly limit mean?",
+        "A Claude Opus weekly limit describes a model-specific window when Claude explicitly includes that model in the usage report. The model-specific share and the overall weekly share measure different pools. For example, a model window at 90% and an all-models week at 57% do not add up to 147% of your account. Keep the two readings separate when discussing a long-running task. If that model row is absent, the tracker cannot determine a model-specific allowance or its reset from the combined weekly percentage. Check the names Claude actually reports for your sign-in, since the names visible in somebody else's screenshot may not be present on your account."
+      ],
+      [
+        "How Claude Pro usage limits affect a task",
+        "Claude Pro usage limits apply to the Pro subscription used by the signed-in client. Use the plan label to confirm the account, then use the displayed session and weekly rows to make a decision. If the short window is nearly full and due to reset soon, it may make sense to review a change yourself while waiting. If the weekly row is nearly full, several short-window resets may pass before the longer constraint changes. Anthropic's help page explains that workload affects usage. A percentage alone cannot tell you how many more questions, edits or reviews are available, even if yesterday's tasks used a similar model."
+      ],
+      [
+        "How Claude Max usage limits appear in the tracker",
+        "Claude Max usage limits describe the allowances on that subscription, and Anthropic documents Max as offering more usage than Pro. A relative change in capacity is different from a guaranteed number of prompts for a particular codebase. If you change plans while the window is open, check that Claude Code is using the expected subscription and obtain a fresh reading. Save the existing account label and timestamp when diagnosing a discrepancy so you can distinguish an older plan reading from a new one. For a task involving several model choices, check individual rows where available as well as the all-models week. Read the Claude Code Max plan usage instructions to confirm which subscription powers the local CLI."
+      ],
+      [
+        "What to check about Claude Team usage limits",
+        "Claude Team usage limits depend on the subscription and seat used to sign in. Anthropic's Team documentation describes different seat types. If two colleagues see different amounts remaining, compare the account label, seat and time of reading before comparing percentages. Their activity and open windows can differ. AI Usage Menu reads the subscription attached to the local Claude Code sign-in. The activity analysis summarizes work visible on that Mac. It does not provide a workspace administrator's billing ledger, a per-person breakdown for the whole team or a way to reassign a teammate's available allowance."
+      ],
+      [
+        "Claude usage limit reached? What to do now",
+        "A “Claude usage limit reached” message is a reason to identify the affected allowance before retrying. First read the current session, all-models week and any named weekly windows. Next match the provider's message to the row at or near its limit and record the absolute reset date. If the provider offers account-specific actions, review the terms in its own interface. Refreshing the tracker does not redeem anything or change the subscription. Finally, check the same row after the displayed reset. A short task that can wait for the session clock may need a much longer delay when the weekly row is the one that ran out."
+      ],
+      [
+        "Why do I hit Claude limits so fast?",
+        "“Why do I hit Claude limits so fast?” is often easier to answer by comparing the work performed than by counting prompts. A small follow-up in a long conversation can carry context from earlier turns. Files, model choice and the complexity of a request can affect usage. In the local contributing view, compare the last 24 hours with the last seven days. A session that appears in several groups may account for repeated context as well as subagent activity. Treat those groups as clues about your workflow. Their overlap makes them unsuitable for adding into a precise account total. Check the Claude Code usage limit in the client, then compare Claude Code status line usage with the app display."
+      ],
+      [
+        "How to make Claude usage last longer",
+        "Learning how to make Claude usage last longer starts with choosing the context needed for the next task. Keep a related follow-up in a conversation when the existing material is useful. For a different task, start with the specific files and constraints it needs. Review frequently included instructions for repeated material and choose a model appropriate to the difficulty of the work. Compare the pattern over several similar tasks before attributing a change to a single choice. AI Usage Menu shows observed local activity alongside provider limits; it cannot calculate the exact allowance a hypothetical shorter conversation would have used."
+      ]
+    ],
+    "sources": [
+      [
+        "Anthropic: How do usage and length limits work?",
+        "https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work"
+      ],
+      [
+        "Anthropic: What is the Max plan?",
+        "https://support.claude.com/en/articles/11049741-what-is-the-max-plan"
+      ],
+      [
+        "Anthropic: What is the Team plan?",
+        "https://support.claude.com/en/articles/9266767-what-is-the-team-plan"
+      ]
+    ],
+    "keywords": [
+      "claude usage limits",
+      "claude 5 hour limit",
+      "claude weekly limit",
+      "claude weekly limit reset time",
+      "claude usage limit reached",
+      "claude max usage limits",
+      "claude pro usage limits",
+      "claude team usage limits",
+      "why do i hit claude limits so fast",
+      "how to make claude usage last longer",
+      "claude opus weekly limit"
+    ]
+  },
+  "open-source": {
+    "title": "AI Usage Menu on GitHub: Open Source Swift Tracker (MIT)",
+    "meta": "Explore the open source Claude usage tracker built in Swift for Mac. Read the provider code, inspect privacy tests, check its license and build it yourself.",
+    "h1": "Open source, MIT. Read every line.",
+    "answer": "AI Usage Menu is free software under the MIT license. The Swift provider readers, build script and parser tests show how the app gets each reading onto your Mac. Inspect the code that touches your data, build the app yourself or contribute support for another provider.",
+    "primary": "open source claude usage tracker",
+    "faqs": [],
+    "steps": [],
+    "sections": [
+      [
+        "Read the code that touches your data",
+        "Follow a provider reading from its local source to the parser. Inspect the files behind Claude Code, Codex and the local activity breakdown."
+      ],
+      [
+        "Install three ways",
+        "Choose the Mac disk image, install the Homebrew cask or build the Swift project from source. Release links become available when published."
+      ],
+      [
+        "How to add a provider",
+        "Implement the provider interface, map its output to usage windows and add fixtures covering a successful reading, a missing reading and an error. Follow the contribution guide for review. Use the AI coding usage monitor overview to see how a new reader will appear in the window. The AI usage tracker Mac display guide explains which readings can appear together."
+      ],
+      [
+        "Changelog",
+        "Release notes are drawn from GitHub Releases at build time."
+      ],
+      [
+        "Contributing and security",
+        "Read the contributing guide and code of conduct before submitting changes. Use the security policy to report a vulnerability privately."
+      ],
+      [
+        "License",
+        "The MIT license permits use, modification and redistribution with its copyright and license notice. For a release binary, use the download Claude usage tracker Mac page to check distribution and verification details."
+      ],
+      [
+        "What can I inspect in an open source Claude usage tracker?",
+        "In an open source Claude usage tracker, the provider interface and parsing tests tell you more than a screenshot alone. Begin with the Claude reader to see how a local command becomes a usage snapshot. Then follow the parser into a test fixture containing the labels, fractions and reset times it expects."
+      ],
+      [
+        "Where will the Claude usage tracker GitHub release live?",
+        "The Claude usage tracker GitHub project is the source for release notes, licenses and published binaries once available. The site reads public repository information at build time. When those details are unavailable, it displays the license and leaves the statistics out."
+      ],
+      [
+        "How does a menu bar app Swift open source contribution work?",
+        "For a menu bar app Swift open source contribution, a small fixture is a useful starting point. Capture a representative provider response with personal identifiers removed, then state the behavior you expect from the parser. A missing limit, an explicit zero and a reached-limit message can all arrive in slightly different records."
+      ]
+    ],
+    "sources": [],
+    "keywords": [
+      "open source claude usage tracker",
+      "claude usage tracker github",
+      "menu bar app swift open source"
+    ]
+  },
+  "privacy": {
+    "title": "How AI Usage Menu Works: No Cookie, No Key | Privacy",
+    "meta": "Check Claude usage without cookie access or a pasted key. See which files AI Usage Menu reads on your Mac, when connections occur and how to verify a refresh.",
+    "h1": "Nothing to paste. Nothing leaves your Mac.",
+    "answer": "AI Usage Menu runs Claude Code's own /usage command and reads Codex's own session logs on your Mac. It never asks for a cookie, password or API key, reads no browser data, has no analytics, and makes no network connections of its own; the only optional connection is an update check you turn on.",
+    "primary": "claude usage without cookie",
+    "faqs": [],
+    "steps": [],
+    "sections": [
+      [
+        "How a reading reaches your screen",
+        "Claude Code prints /usage. Codex writes rate-limit data into its own local session logs. The app turns those readings into the window, menu bar and Dock display."
+      ],
+      [
+        "What the app reads and writes",
+        "The Codex reader checks session logs under ~/.codex/sessions and reads only the auth_mode value from ~/.codex/auth.json, never a key or token. The activity breakdown uses local Claude Code session metadata. The app stores local settings and uses its own working directory for Claude Code."
+      ],
+      [
+        "Verify it yourself",
+        "Inspect the provider readers, then sample the running app with lsof -nP -a -i -p PID using its process ID. A socket sample covers only that instant. A firewall monitor can observe the whole refresh."
+      ],
+      [
+        "What Claude Code itself does",
+        "Claude Code may contact Anthropic when it retrieves subscription usage. That request belongs to Claude Code. Optional app update checks contact the update service."
+      ],
+      [
+        "Privacy policy",
+        "AI Usage Menu collects no usage data or analytics. Processing happens on this Mac. This website uses no cookies or analytics scripts in this build."
+      ],
+      [
+        "How does a Claude usage tracker without cookie access work?",
+        "A Claude usage tracker without cookie access can use the signed-in CLI that already displays your subscription information. The Claude reader starts that installed tool and reads its usage output. The app never asks you to export a browser session or put a secret in a settings field."
+      ],
+      [
+        "Is it safe to paste Claude session cookie data into a tracker?",
+        "“Is it safe to paste Claude session cookie data?” is a question you can avoid entirely with this app. The settings provide no place to paste a cookie. If you are evaluating a tool that asks for one, check its own instructions, which service it contacts, and how it stores or deletes the credential."
+      ],
+      [
+        "Claude usage tracker privacy during a refresh",
+        "Claude usage tracker privacy starts with following the process that performs each read. A refresh can involve both the tracker process and the installed Claude Code process. A network sample attributed to Claude Code belongs to the CLI, which can contact Anthropic when it produces its account readout. Our menu bar app Swift open source guide shows the provider interface and the test used to review changes to these reads."
+      ],
+      [
+        "How the app handles a missing reading",
+        "A missing limit is shown as unavailable. The app cannot manufacture a weekly percentage from a plan name, an authentication mode or the presence of a session folder. A ChatGPT sign-in without local Codex rate limits can therefore show a waiting state. For a missing Codex usage limit, first check the recorded activity time. When a reading exists but its date has passed, use the Codex rate limit reset example."
+      ]
+    ],
+    "sources": [],
+    "keywords": [
+      "claude usage tracker without cookie",
+      "is it safe to paste claude session cookie",
+      "claude usage tracker privacy"
+    ]
+  },
+  "compare": {
+    "title": "Mac Usage Trackers for Claude and Codex, Compared",
+    "meta": "This Claude usage tracker comparison shows which Mac apps read local logs or provider APIs, display weekly limits, and offer a Dock gauge for Claude or Codex.",
+    "h1": "Claude and Codex usage trackers, compared",
+    "answer": "Mac usage trackers for Claude and Codex differ most in how they get your data: some ask you to paste a cookie or session key, sign in, or add an API key. AI Usage Menu reads only what Claude Code and Codex already show on your Mac, and it is free and open source.",
+    "primary": "claude usage tracker comparison",
+    "faqs": [
+      [
+        "Which Claude usage tracker doesn't need a cookie?",
+        "AI Usage Menu reads Claude Code's /usage output through your existing installation. See “Is it safe to paste Claude session cookie data?” for how to evaluate the request before choosing a tracker."
+      ],
+      [
+        "Is there a free Claude usage tracker for Mac?",
+        "Yes. AI Usage Menu is a free MIT-licensed app for macOS 13 and later."
+      ],
+      [
+        "What's the difference between ccusage and a menu bar app?",
+        "ccusage reports token and cost information from local logs in the terminal. AI Usage Menu displays subscription windows, reset times and current percentages in the Mac menu bar and Dock."
+      ],
+      [
+        "Is AI Usage Menu a ccusage alternative for checking a weekly allowance?",
+        "As a ccusage alternative for this particular question, AI Usage Menu shows the weekly percentage supplied by the provider. The ccusage documentation describes token and cost reporting from local logs, including usage grouped into five-hour blocks. The same workload can have a token total and a subscription percentage, but they use different units."
+      ],
+      [
+        "How does a CodexBar alternative read Codex on this Mac?",
+        "AI Usage Menu is a CodexBar alternative that reads the rate-limit records already written by Codex. CodexBar documents several provider-specific sources, including OAuth and cookies. Compare the selected provider and source when evaluating a setup; a statement about one provider's credentials need not apply to another."
+      ],
+      [
+        "Is there a ClaudeUsageBar alternative that uses my existing CLI sign-in?",
+        "AI Usage Menu is a ClaudeUsageBar alternative that uses Claude Code's subscription sign-in to request its /usage display. ClaudeUsageBar's setup describes a browser session cookie used to fetch the account's usage. AI Usage Menu has no browser-cookie entry field."
+      ],
+      [
+        "What does an AI Usage Monitor alternative use for refreshes?",
+        "As an AI Usage Monitor alternative, AI Usage Menu reads local provider output for Claude and Codex. AI Usage Monitor's installation page lists direct provider API polling and an unsigned release. Its published provider list includes Gemini, Cerebras, Kimi, Minimax, Z.AI, OpenCode Go and Command Code as well as Claude and Codex."
+      ]
+    ],
+    "steps": [],
+    "sections": [
+      [
+        "What AI Usage Menu gives you",
+        "AI Usage Menu makes no network requests to retrieve usage. It reads Claude Code's /usage output and Codex's local session logs. Its Dock gauge shows the session and the week on one ring. Its local activity breakdown identifies patterns in Claude sessions on this Mac."
+      ],
+      [
+        "Moving from another tracker",
+        "Quit the previous tracker. If you gave it a session cookie, review the corresponding account's signed-in sessions and revoke it if you wish. Install AI Usage Menu and open it with your existing provider sign-ins."
+      ],
+      [
+        "How to read this Claude usage tracker comparison",
+        "This Claude usage tracker comparison distinguishes a subscription allowance from a local accounting report. A subscription percentage answers how much room the provider says remains in a window. Token counts and estimated costs describe work a client recorded. A dollar estimate can be informative even when it cannot tell you the time your weekly limit resets. Read the usage-source column first. Then check which measurement the free edition displays, particularly when the listing separates a free download from a paid upgrade."
+      ],
+      [
+        "How to evaluate Claude usage tracker alternatives",
+        "Compare Claude usage tracker alternatives against the account, credential and surface you actually intend to use. A menu bar icon follows you from an editor to a browser. A terminal report stays with the shell. A Dock gauge is visible when the Dock is visible and can display both the short window and the week. In the table, “Not listed” means the cited project documentation does not describe that feature. It records what a reader can verify, rather than assuming that an undocumented feature is present or absent. Inspect Claude usage tracker privacy for the exact auth field consumed by AI Usage Menu. The open source Claude usage tracker page links to the underlying provider readers."
+      ],
+      [
+        "What counts as a network request here?",
+        "The network column describes requests made by the tracker itself. A provider's own CLI can separately contact its service while printing current account information. That distinction matters when observing processes on a Mac. With update checks off, AI Usage Menu reads its provider interfaces without opening its own connection. A package manager downloading an app for installation is a separate step again. Check the project source for the version you run and review whether an update checker, pricing lookup or optional telemetry is enabled before interpreting a network trace. The Claude usage tracker GitHub project documents the readers and the test that checks where network APIs may appear."
+      ],
+      [
+        "What do “free” and “signed” mean in the table?",
+        "Free describes the cost of the tracking software, not whether a provider subscription includes unlimited usage. A free tier may have a narrower provider list than a paid tier of the same product. A public source repository provides code to inspect. Code signing and notarization concern a particular distributed Mac binary, so a source license alone establishes neither. The signing column uses the published status of the release when documented. A release that has yet to ship is identified separately from one whose installation guide explicitly says it is unsigned."
+      ]
+    ],
+    "sources": [
+      [
+        "ClaudeUsageBar product documentation",
+        "https://www.claudeusagebar.com/"
+      ],
+      [
+        "CodexBar product documentation",
+        "https://codexbar.app/"
+      ],
+      [
+        "ccusage documentation",
+        "https://ccusage.com/"
+      ],
+      [
+        "ClaudeUsageBar repository and license",
+        "https://github.com/Artzainnn/ClaudeUsageBar"
+      ],
+      [
+        "CodexBar repository and provider documentation",
+        "https://github.com/steipete/CodexBar"
+      ],
+      [
+        "ccusage offline mode, telemetry and license",
+        "https://github.com/ccusage/ccusage"
+      ],
+      [
+        "AI Usage Bar plans and features",
+        "https://www.aiusagebar.com/"
+      ],
+      [
+        "AI Usage Bar provider requests and privacy policy",
+        "https://www.aiusagebar.com/privacy"
+      ],
+      [
+        "AI Usage Monitor features and installation",
+        "https://aiusagemonitor.com/"
+      ],
+      [
+        "AI Usage Monitor provider readers and license",
+        "https://github.com/EzzatOmar/ai-usage-monitor"
+      ]
+    ],
+    "keywords": [
+      "claude usage tracker comparison",
+      "claude usage tracker alternatives",
+      "ccusage alternative",
+      "codexbar alternative",
+      "claudeusagebar alternative",
+      "ai usage monitor alternative"
+    ]
+  },
+  "download": {
+    "title": "Download AI Usage Menu for Mac, Free",
+    "meta": "Download AI Usage Menu for Mac to see Claude Code and Codex plan limits in the menu bar and Dock. Check requirements, install options and signature checks.",
+    "h1": "Download AI Usage Menu for Mac",
+    "answer": "AI Usage Menu is a free Mac app for Apple silicon and Intel Macs running macOS 13 or later. It picks up plan limits from the Claude Code and Codex installations you already use. Choose the menu bar, Dock or both during setup.",
+    "primary": "download AI Usage Menu",
+    "faqs": [],
+    "steps": [
+      "Download the disk image and open it.",
+      "Drag AI Usage Menu into Applications, then open it from there.",
+      "Review your detected providers and choose the menu bar, Dock or both."
+    ],
+    "sections": [
+      [
+        "Requirements",
+        "Works with Claude Pro, Max and Team plans and ChatGPT plans for Codex. API-key accounts have no plan limits to show."
+      ],
+      [
+        "Verify the download",
+        "After copying the app to Applications, use the signature and Gatekeeper checks below to inspect the downloaded release."
+      ],
+      [
+        "First run",
+        "Open the app, review the detected providers and choose where your usage should appear. Launch at login, alerts and update checks are optional."
+      ],
+      [
+        "Which Claude usage app Mac setup do I need?",
+        "For a Claude usage app Mac setup, install Claude Code on the same Mac and verify that its sign-in uses the subscription you expect. Open the interactive client and inspect its usage screen before troubleshooting the menu bar. If that screen has no session or weekly windows because the account uses an API key, installing the tracker cannot add those allowances. Once you see provider windows, compare one label and reset time between the terminal and the tracker. The app uses the account already available to Claude Code."
+      ],
+      [
+        "How does a Codex usage app Mac setup differ?",
+        "A Codex usage app Mac setup needs local Codex activity from a ChatGPT sign-in. A new installation may have the correct plan and still have no local rate-limit reading. Check the provider tab for a waiting message and the time of the last activity. Running Refresh looks for updated local data. It does not spend a prompt to produce a test reading. When both providers are connected, select one in Settings for a fixed menu bar reading or use Auto to follow the most constrained window."
+      ],
+      [
+        "Download Claude usage tracker Mac builds and verify the release",
+        "When you download Claude usage tracker Mac builds, check that the release links point to the project's own distribution before opening the disk image. The download control on this page indicates whether a signed release is available. Source builds and published disk images are different artifacts. For an official binary, check the exact app bundle installed in Applications. If you renamed the app or installed it elsewhere, adjust the quoted path in the verification commands to match that location."
+      ],
+      [
+        "Choose the first reading you want to see",
+        "To follow a short coding session, set the menu bar to that provider's five-hour window. To plan work across several days, use the weekly display. The Dock can retain a separate choice, which lets you keep a session percentage near the clock while seeing progress through the week in the Dock. Open the main window to confirm both choices against the labeled rows. Closing that window leaves the app running. Use Quit when you want to end monitoring for the session. Review Claude usage tracker alternatives if you are moving from another app. The comparison includes a CodexBar alternative, a ClaudeUsageBar alternative and an AI Usage Monitor alternative that use the data sources shown in the table."
+      ]
+    ],
+    "sources": [],
+    "keywords": [
+      "download claude usage tracker mac",
+      "claude usage app mac",
+      "codex usage app mac"
+    ]
+  }
+}

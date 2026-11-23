@@ -97,7 +97,7 @@ struct UsageView: View {
                                     .frame(maxWidth: .infinity).padding(.vertical, 8)
                                     .foregroundStyle(selected ? Color.white : Color("text"))
                                     .background {
-                                        if selected { LinearGradient(colors: [Color("violet"),Color(red: 0.75,green: 0.365,blue: 1)], startPoint: .leading, endPoint: .trailing) }
+                                        if selected { LinearGradient(colors: [Color("violet"),Color(red: 0.75,green: 0.365,blue: 1)], startPoint: .leading, endPoint: .trailing).overlay(Color.black.opacity(0.18)) }
                                     }.clipShape(RoundedRectangle(cornerRadius: 9))
                             }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
                         }
@@ -110,11 +110,12 @@ struct UsageView: View {
                                 Text("Limit reached").font(.headline).foregroundStyle(Color("text"))
                             }
                             if !snapshot.limits.isEmpty {
-                                LazyVGrid(columns: [GridItem(.flexible()),GridItem(.flexible())], spacing: 8) {
+                                VStack(spacing: 0) {
                                     ForEach(snapshot.limits.indices, id: \.self) { i in
-                                        LimitCard(limit: snapshot.limits[i], provider: provider.displayName, now: tick.date, asOf: snapshot.asOf, thresholds: preferences.options.thresholds)
+                                        if i > 0 { Divider().opacity(0.45).padding(.horizontal, 16) }
+                                        LimitRow(limit: snapshot.limits[i], provider: provider.displayName, now: tick.date, thresholds: preferences.options.thresholds)
                                     }
-                                }
+                                }.background(Color("surface"), in: RoundedRectangle(cornerRadius: 17))
                             } else {
                                 ProviderMessage(snapshot: snapshot, provider: provider, allMissing: store.enabled.allSatisfy { store.snapshots[$0.id]?.state == .notInstalled }) { store.refresh(provider) }
                             }
@@ -127,8 +128,8 @@ struct UsageView: View {
                             if provider.id == "codex" && !snapshot.limits.isEmpty {
                                 Text("As of \(relative(snapshot.asOf, tick.date)) (last Codex activity)").font(.caption).foregroundStyle(Color("textSecondary")).help(snapshot.asOf.formatted())
                             }
-                            if let raw = snapshot.rawText {
-                                Text("Couldn't read this, showing it as Claude Code printed it").font(.caption.bold())
+                            if let raw = snapshot.rawText, snapshot.state != .nonSubscription {
+                                Text(snapshot.state == .ready ? "More from Claude Code" : "What Claude Code printed").font(.caption.bold())
                                 Text(raw).font(.caption.monospaced()).textSelection(.enabled)
                             }
                             if let periods = snapshot.breakdown, !periods.isEmpty {
@@ -159,7 +160,7 @@ struct UsageView: View {
             HStack(spacing: 4) {
                 Text(version ? "CLI version" : row.label).foregroundStyle(Color("textSecondary"))
                 Text(version ? row.value.replacingOccurrences(of: " (Claude Code)", with: "") : row.value).fontWeight(.medium)
-            }.font(.caption).fixedSize(horizontal: true, vertical: false)
+            }.font(.caption).fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -169,9 +170,7 @@ private struct RefreshGlyph: View {
     var running: Bool
     var body: some View {
         if running {
-            TimelineView(.animation(minimumInterval: 1.0 / 24)) { tick in
-                KitIcon(name: "refresh").rotationEffect(.degrees(tick.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.2) * 300))
-            }
+            ProgressView().controlSize(.small).frame(width: 16, height: 16)
         } else {
             KitIcon(name: "refresh")
         }
@@ -188,46 +187,46 @@ private struct HeaderDragArea: NSViewRepresentable {
     func updateNSView(_ view: Handle, context: Context) {}
 }
 
-private struct LimitCard: View {
+private struct LimitRow: View {
     let limit: LimitWindow
     let provider: String
     let now: Date
-    let asOf: Date
     let thresholds: Thresholds
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         let percent = limit.percent(at: now)
-        let tint = percent.map { thresholds.color($0) } ?? .secondaryLabelColor
-        let ink: NSColor = scheme == .light ? (tint.blended(withFraction: 0.55, of: NSColor.black) ?? tint) : tint
-        let percentageLabel = percent.map { $0.usageNumber + " percent used" } ?? "Usage unavailable"
-        let resetLabel = limit.resetsAt.map { ", resets " + $0.formatted() } ?? ""
-        let spoken = [provider, limit.title, percentageLabel + resetLabel].joined(separator: ", ")
-        VStack(alignment: .leading, spacing: 6) {
-            Text(limit.title).font(.caption.weight(.semibold))
-            if let percent {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(percent.usageNumber + "%").font(.system(size: 26, weight: .bold, design: .rounded)).foregroundStyle(Color(nsColor: ink))
-                    Text((100 - percent).usageNumber + "% left").font(.caption2).foregroundStyle(Color("textSecondary"))
-                }.minimumScaleFactor(0.75)
-            }
-            GeometryReader { geo in
-                Capsule().fill(Color("border").opacity(0.5)).overlay(alignment: .leading) {
-                    Capsule().fill(Color(nsColor: tint)).frame(width: geo.size.width * (percent ?? 0) / 100)
+        let tint = percent.map { Color(nsColor: thresholds.color($0)) } ?? Color("textSecondary")
+        let fraction = min(1, max(0, (percent ?? 0) / 100))
+        let reset = limit.resetsAt.map { date in
+            date <= now ? "Reset since the last read" : "Resets in " + countdown(date, now)
+        } ?? "Reset time unavailable"
+        HStack(spacing: 14) {
+            ZStack {
+                Circle().stroke(tint.opacity(0.17), lineWidth: 4)
+                if fraction > 0 {
+                    Circle().trim(from: 0, to: fraction).stroke(tint, style: StrokeStyle(lineWidth: 4, lineCap: .round)).rotationEffect(.degrees(-90))
                 }
-            }.frame(height: 6)
-            if let reset = limit.resetsAt, reset <= now {
-                Text(provider == "Codex" ? "Reset since your last Codex session" : "Reset since the last read")
-            } else if let date = limit.resetsAt {
-                Text("Resets in " + countdown(date, now))
-                Text(Calendar.current.isDateInToday(date) ? "Today " + date.formatted(date: .omitted, time: .shortened) : date.formatted(.dateTime.month(.abbreviated).day().hour().minute()))
-            } else { Text("Reset time unavailable") }
-            if percent == nil && (limit.resetsAt ?? .distantFuture) > now { Text("Usage unavailable") }
-            if provider == "Codex" { Text("As of " + relative(asOf, now)) }
-        }.font(.caption).monospacedDigit().foregroundStyle(Color("textSecondary")).frame(maxWidth: .infinity, alignment: .leading).padding(11)
-            .background(Color("surface"), in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color("border"), lineWidth: 0.7))
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: percent)
-            .accessibilityElement(children: .combine).accessibilityLabel(spoken)
+                Text(percent.map { $0.usageNumber + "%" } ?? "–")
+                    .font(.system(size: 16, weight: .bold, design: .rounded)).monospacedDigit()
+                    .lineLimit(1).minimumScaleFactor(0.75).padding(.horizontal, 5)
+            }.frame(width: 52, height: 52)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(limit.title).font(.headline)
+                Text(reset).font(.caption).foregroundStyle(Color("textSecondary"))
+                if let date = limit.resetsAt, date > now {
+                    Text(date.formatted(.dateTime.month(.abbreviated).day().hour().minute()))
+                        .font(.caption2).foregroundStyle(Color("textSecondary"))
+                }
+            }
+            Spacer(minLength: 3)
+            VStack(alignment: .trailing, spacing: 2) {
+                if let percent {
+                    Text((100 - percent).usageNumber + "% left").font(.caption.weight(.medium)).foregroundStyle(Color("textSecondary"))
+                } else { Text("Unavailable").font(.caption).foregroundStyle(Color("textSecondary")) }
+            }.monospacedDigit()
+        }.padding(.horizontal, 16).padding(.vertical, 12)
+            .foregroundStyle(Color("text"))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel([provider, limit.title, percent.map { $0.usageNumber + " percent used" } ?? "Usage unavailable", reset].joined(separator: ", "))
     }
 }

@@ -18,6 +18,9 @@ final class PanelTests: XCTestCase {
         let folder = root.appendingPathComponent("handoff/screenshots/window")
         let record = ProcessInfo.processInfo.environment["RECORD_PANEL"] == "1"
         if record { try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true) }
+        let siteCapture = ProcessInfo.processInfo.environment["RECORD_SITE"] == "1"
+        let siteFolder = root.appendingPathComponent("handoff/screenshots/site-retina")
+        if siteCapture { try FileManager.default.createDirectory(at: siteFolder, withIntermediateDirectories: true) }
         let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "subscription", withExtension: "txt"))
         let text = try String(contentsOf: fixture, encoding: .utf8)
         let now = Date()
@@ -39,6 +42,13 @@ final class PanelTests: XCTestCase {
         for (name, id, state) in [("signed-out","claude",ProviderState.signedOut),("api-key","claude",.nonSubscription),("timeout","claude",.timedOut),("no-sessions","codex",.noSessions),("no-limits","codex",.noLimits),("unreadable","codex",.unreadable),("failed","claude",.failed("Fixture diagnostic"))] {
             cases.append((name,id,.init(asOf:now,state:state)))
         }
+        var codex = ProviderSnapshot(asOf: now.addingTimeInterval(-10800), state: .ready)
+        codex.details = [.init(label: "Plan", value: "Plus")]
+        codex.limits = [
+            .init(label: "Session", usedPercent: 72, resetsAt: now.addingTimeInterval(5400), windowMinutes: 300, source: "Last Codex activity"),
+            .init(label: "Weekly", usedPercent: 57, resetsAt: now.addingTimeInterval(345600), windowMinutes: 10080, source: "Last Codex activity")
+        ]
+        cases.append(("codex-plan", "codex", codex))
         cases.append(("unknown","claude",.init(asOf:now,state:.unknownFormat,rawText:"Unrecognized fixture output")))
         let preferences = DisplayPreferences(defaults: UserDefaults(suiteName:"ai.aiusagemenu.tests.panel")!)
         for (name,id,snapshot) in cases {
@@ -55,13 +65,88 @@ final class PanelTests: XCTestCase {
             for (suffix,theme) in [("dark",ColorScheme.dark),("light",ColorScheme.light)] {
                 let view = UsageView(store:store,preferences:preferences,navigation:navigation,settings:{})
                     .environment(\.colorScheme,theme).frame(width:380,height:name == "breakdown" ? 1150 : 535)
+                if siteCapture && ["normal", "breakdown", "codex-plan"].contains(name) {
+                    try captureRetina(view, to: siteFolder.appendingPathComponent(name+"-"+suffix+"@2x.png"), theme: theme)
+                    if name == "normal" {
+                        let hero = UsageView(store: store, preferences: preferences, navigation: navigation, settings: {})
+                            .environment(\.colorScheme, theme).frame(width: 550, height: 430)
+                        try captureRetina(hero, to: siteFolder.appendingPathComponent("hero-"+suffix+"@2x.png"), theme: theme)
+                    }
+                }
                 try capture(view, name:name+"-"+suffix, folder:folder, record:record, theme:theme)
                 if name == "normal" {
-                    try capture(DisplaySettings(preferences:preferences,store:store).environment(\.colorScheme,theme),name:"settings-"+suffix,folder:folder,record:record,theme:theme)
+                    if record {
+                        let delegate = try XCTUnwrap(NSApp.delegate as? AppDelegate)
+                        let saved = delegate.preferences.options
+                        defer { delegate.preferences.options = saved }
+                        delegate.preferences.options.placement = .both
+                        XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
+                        let window = try XCTUnwrap(NSApp.windows.first { $0.title == "AI Usage Menu" && $0.isVisible })
+                        let controller = try XCTUnwrap(window.contentViewController)
+                        controller.view = NSHostingView(rootView: UsageView(store: store, preferences: preferences, navigation: navigation, settings: {}).environment(\.colorScheme, theme))
+                        window.appearance = NSAppearance(named: theme == .dark ? .darkAqua : .aqua)
+                        window.setContentSize(.init(width: 390, height: 525))
+                        let content = controller.view
+                        content.wantsLayer = true
+                        content.layer?.cornerRadius = 18
+                        content.layer?.masksToBounds = true
+                        content.layoutSubtreeIfNeeded()
+                        content.displayIfNeeded()
+                        let bitmap = try XCTUnwrap(content.bitmapImageRepForCachingDisplay(in: content.bounds))
+                        content.cacheDisplay(in: content.bounds, to: bitmap)
+                        try XCTUnwrap(bitmap.representation(using: .png, properties: [:])).write(to: folder.appendingPathComponent("hero-"+suffix+".png"))
+                        window.close()
+                    }
+                    try capture(Onboarding(store: store, services: AppServices(), finish: {}).environment(\.colorScheme,theme), name:"onboarding-"+suffix, folder:folder, record:record, theme:theme)
+                    for pane in SettingsPane.allCases {
+                        let settings = DisplaySettings(preferences:preferences,store:store,pane:pane).environment(\.colorScheme,theme)
+                        let prefix = pane == .general ? "settings" : "settings-" + String(describing: pane)
+                        try capture(settings,name:prefix+"-"+suffix,folder:folder,record:record,theme:theme)
+                    }
                 }
             }
             store.stop()
         }
+    }
+
+    @MainActor func testMenuGaugeInBothMenuBarAppearances() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let folder = root.appendingPathComponent("handoff/screenshots/icon")
+        let record = ProcessInfo.processInfo.environment["RECORD_PANEL"] == "1"
+        if record { try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true) }
+        for (theme, name) in [(NSAppearance.Name.aqua, "light"), (.darkAqua, "dark")] {
+            let appearance = try XCTUnwrap(NSAppearance(named: theme))
+            for percent in [30, 72, 94] {
+                let icon = MenuGauge.image(percent: Double(percent), thresholds: Thresholds(), appearance: appearance)
+                XCTAssertEqual(icon.size, NSSize(width: 18, height: 18))
+                if record {
+                    let image = NSImage(size: NSSize(width: 32, height: 24), flipped: false) { rect in
+                        (theme == .aqua ? NSColor.white : NSColor.black).setFill()
+                        rect.fill()
+                        icon.draw(in: NSRect(x: 7, y: 3, width: 18, height: 18))
+                        return true
+                    }
+                    let data = try XCTUnwrap(image.tiffRepresentation)
+                    let bitmap = try XCTUnwrap(NSBitmapImageRep(data: data))
+                    try XCTUnwrap(bitmap.representation(using: .png, properties: [:])).write(to: folder.appendingPathComponent("menu-\(percent)-\(name).png"))
+                }
+            }
+        }
+    }
+
+    @MainActor private func captureRetina<V: View>(_ view: V, to url: URL, theme: ColorScheme) throws {
+        let host = NSHostingView(rootView: view)
+        let size = host.fittingSize
+        let window = NSWindow(contentRect: .init(origin: .zero, size: size), styleMask: .borderless, backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: theme == .dark ? .darkAqua : .aqua)
+        window.contentView = host
+        window.layoutIfNeeded()
+        host.displayIfNeeded()
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * 2), pixelsHigh: Int(size.height * 2), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0))
+        bitmap.size = size
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+        try png.write(to: url)
     }
 
     @MainActor private func capture<V: View>(_ root: V, name: String, folder: URL, record: Bool, theme: ColorScheme) throws {
