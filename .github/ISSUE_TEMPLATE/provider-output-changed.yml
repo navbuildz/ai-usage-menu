@@ -1,0 +1,11 @@
+name: Provider output changed
+description: The app says Claude Code or Codex changed its usage output
+body:
+  - type: textarea
+    attributes:
+      label: Details from the app
+      description: In the app, click Copy details and paste here. Home paths and emails are already removed; check for anything else personal before posting.
+      render: text
+    validations: { required: true }
+  - type: input
+    attributes: { label: Claude Code or Codex version, placeholder: "claude --version" }

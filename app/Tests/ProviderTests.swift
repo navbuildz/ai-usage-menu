@@ -151,10 +151,22 @@ final class ProviderTests: XCTestCase {
     func testNoNetworkCodeOutsideUpdater() throws {
         let dir = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Sources")
         let files = try XCTUnwrap(FileManager.default.enumerator(at:dir,includingPropertiesForKeys:nil))
-        for case let file as URL in files where file.pathExtension == "swift" && !file.pathComponents.contains("Updater") {
-            let code = try String(contentsOf:file,encoding:.utf8)
-            XCTAssertNil(code.range(of:#"\b(URLSession\w*|NWConnection\w*|CFStream\w*|CF(Read|Write)StreamCreatePairWithSocket\w*|socket|connect|getaddrinfo)\b|import\s+(Network|CFNetwork)\b"#,options:.regularExpression),file.lastPathComponent)
+        let pattern = #"\b(URLSession\w*|NWConnection\w*|CFStream\w*|CF(Read|Write)StreamCreatePairWithSocket\w*|socket|connect|getaddrinfo|WKWebView|NSURLConnection)\b|import\s+(Network|CFNetwork|WebKit)\b"#
+        // Comments may mention these words (the provider headers do), so strip them first.
+        func code(_ text: String) -> String {
+            text.replacingOccurrences(of: #"/\*[\s\S]*?\*/"#, with: "", options: .regularExpression)
+                .replacingOccurrences(of: #"//[^\n]*"#, with: "", options: .regularExpression)
         }
+        // Prove the check can fail: a planted violation must match.
+        XCTAssertNotNil(code("import WebKit\nlet s = URLSession.shared // fine").range(of: pattern, options: .regularExpression))
+        XCTAssertNil(code("// URLSession in a comment is fine").range(of: pattern, options: .regularExpression))
+        var checked = 0
+        for case let file as URL in files where file.pathExtension == "swift" && !file.pathComponents.contains("Updater") {
+            let text = code(try String(contentsOf:file,encoding:.utf8))
+            checked += 1
+            XCTAssertNil(text.range(of: pattern, options: .regularExpression), file.lastPathComponent)
+        }
+        XCTAssertGreaterThan(checked, 8, "the scan must actually see the source files")
     }
 
     func testLiveProviders() async throws {

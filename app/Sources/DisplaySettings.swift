@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SettingsPane: String, CaseIterable {
-    case general = "General", menu = "Menu bar", dock = "Dock icon", behavior = "Automation", about = "About"
+    case general = "General", menu = "Menu bar", dock = "Dock icon", behavior = "Alerts", about = "About"
     var symbol: String {
         switch self { case .behavior: "bell"; case .about: "info.circle"; case .general: "slider.horizontal.3"; case .menu: "menubar.rectangle"; case .dock: "dock.rectangle" }
     }
@@ -21,6 +21,7 @@ struct DisplaySettings: View {
     @State private var testResult = ""
     @State private var testing = false
     @State var pane: SettingsPane = .general
+    @State private var showAcknowledgements = false
 
     init(preferences: DisplayPreferences, store: UsageStore, services: AppServices = AppServices(), pane: SettingsPane = .general) {
         self.preferences = preferences
@@ -34,7 +35,7 @@ struct DisplaySettings: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 7) {
                     Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 32, height: 32).accessibilityHidden(true)
-                    Text("AI Usage").font(.headline)
+                    Text("AI Usage Menu").font(.headline).lineLimit(2)
                 }.padding(.horizontal, 6).padding(.bottom, 22)
                 ForEach(SettingsPane.allCases, id: \.self) { item in
                     Button { pane = item } label: {
@@ -65,7 +66,7 @@ struct DisplaySettings: View {
                             }
                             row("Notify when a limit resets") { Toggle("Reset alerts", isOn: $resets).labelsHidden() }
                         }
-                        Button("Check for Updates…") { services.checkUpdates() }.padding(.top)
+                        Button("Check for Updates…") { services.checkUpdates() }.buttonStyle(SecondaryButtonStyle()).padding(.top)
                     case .about:
                         VStack(alignment: .leading, spacing: 16) {
                             HStack(spacing: 12) {
@@ -87,11 +88,15 @@ struct DisplaySettings: View {
                                     KitIcon(name: "external-link", size: 14)
                                 }.padding(12).background(Color("surfaceRaised"), in: RoundedRectangle(cornerRadius: 12))
                             }.buttonStyle(.plain)
-                            HStack {
+                            HStack(spacing: 14) {
                                 Text("MIT License · BaseThread LLC").foregroundStyle(Color("textSecondary"))
                                 Spacer()
-                                Link("Source code", destination: URL(string: "https://github.com/OWNER/aiusagemenu")!)
+                                Button("Acknowledgements") { showAcknowledgements = true }.buttonStyle(.link)
+                                if !AppLinks.repository.absoluteString.contains("/OWNER/") {
+                                    Link("Source code", destination: AppLinks.repository)
+                                }
                             }.font(.caption)
+                            .sheet(isPresented: $showAcknowledgements) { Acknowledgements() }
                         }
                     case .general: general
                     case .menu, .dock: displayPane
@@ -277,5 +282,28 @@ struct DisplaySettings: View {
             }.frame(minHeight: 39)
             Divider().opacity(0.32)
         }
+    }
+}
+
+enum AppLinks {
+    /// Filled in by TF ENG when the GitHub repository is public; links stay hidden until then.
+    static let repository = URL(string: "https://github.com/OWNER/aiusagemenu")!
+}
+
+/// Third-party licenses that ship inside the app (Sparkle).
+private struct Acknowledgements: View {
+    @Environment(\.dismiss) private var dismiss
+    private var sparkle: String {
+        Bundle.main.url(forResource: "Sparkle-LICENSE", withExtension: "txt").flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? "Sparkle license not found."
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Acknowledgements").font(.title2.bold())
+            Text("AI Usage Menu includes Sparkle (sparkle-project.org), used only for update checks you turn on.")
+                .foregroundStyle(Color("textSecondary")).fixedSize(horizontal: false, vertical: true)
+            ScrollView { Text(sparkle).font(.caption.monospaced()).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }
+                .padding(10).background(Color("surface"), in: RoundedRectangle(cornerRadius: 10))
+            HStack { Spacer(); Button("Done") { dismiss() }.buttonStyle(PrimaryButtonStyle()).keyboardShortcut(.defaultAction) }
+        }.padding(22).frame(width: 520, height: 440).background(Color("background"))
     }
 }

@@ -1,3 +1,11 @@
+// Claude Code provider: the code that touches your Claude data.
+// Reads:  nothing from disk except the claude binary's location.
+// Runs:   your own `claude -p /usage` (and `claude --version` once), from
+//         ~/Library/Application Support/AI Usage Menu/claude-workdir, with no MCP servers,
+//         no user settings, hooks or plugins, and Claude Code's update check and telemetry off.
+// Writes: nothing itself. Claude Code may update its own files under ~/.claude.
+// Sends:  nothing itself. Claude Code contacts Anthropic to fetch your usage, as /usage does.
+
 import Foundation
 import Darwin
 

@@ -1,3 +1,10 @@
+// Codex provider: the code that touches your Codex data.
+// Reads:  the auth_mode field of ~/.codex/auth.json (no other field is decoded), and the last
+//         rate-limit event at the end of the newest ~/.codex/sessions rollout file.
+// Runs:   nothing.
+// Writes: nothing.
+// Sends:  nothing.
+
 import Foundation
 
 enum CodexParser {

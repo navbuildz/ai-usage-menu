@@ -1,0 +1,18 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate the Xcode project
+        run: brew install xcodegen && cd app && xcodegen generate
+      - name: Test
+        run: ./app/build.sh test
+      - name: Universal Release build (unsigned)
+        run: ./app/build.sh build
+      - name: No em dashes in user-facing text
+        run: "! grep -rn $'\\xe2\\x80\\x94' app/Sources README.md CONTRIBUTING.md SECURITY.md"

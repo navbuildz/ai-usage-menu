@@ -20,6 +20,7 @@
 		33EE4EAABFB97B88D7DE9381 /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2261545334E0CE6AEBE3A2AA /* Provider.swift */; };
 		3B2EAFC88B199E2A8DA089BA /* BrandColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE0BA563B95E8FA84BCDB3C /* BrandColors.swift */; };
 		4B6AACC6F25DC99800DB33DF /* PanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E033F4C8F5BFEBFCB83E283 /* PanelTests.swift */; };
+		4B8E642EE62318430F52FA7B /* Sparkle-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */; };
 		5A042D8098F4AC6D44D083F5 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5404D2D55D03B1C0E3B74B7 /* AppServices.swift */; };
 		755906CDDE8E06C5A89831FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A390712ABFAD3DCFD18B23 /* AppDelegate.swift */; };
 		785BD15300C21AC99DC84304 /* auth-apikey.json in Resources */ = {isa = PBXBuildFile; fileRef = A2E1308D85A1649464AA3743 /* auth-apikey.json */; };
@@ -59,6 +60,7 @@
 		572023DFA93649A7C5C05D16 /* UsageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageStoreTests.swift; sourceTree = "<group>"; };
 		5CDF24D377F5A46B5B49325F /* ClaudeCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeProvider.swift; sourceTree = "<group>"; };
 		5D5AB26B3512DD04D66BB5D0 /* DockIconRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockIconRenderer.swift; sourceTree = "<group>"; };
+		8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Sparkle-LICENSE.txt"; sourceTree = "<group>"; };
 		85833BFB82AEF49C5BF217FB /* DisplaySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettings.swift; sourceTree = "<group>"; };
 		8E57B5E91F1166FF30686F51 /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
 		90A390712ABFAD3DCFD18B23 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -128,6 +130,14 @@
 			path = Fixtures;
 			sourceTree = "<group>";
 		};
+		52E5A4AE8F327707F962C71B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		55DC3BEA90F9521F8D2A0209 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,6 +152,7 @@
 			children = (
 				E6643CCF7FEED79E2F9521BB /* Assets.xcassets */,
 				EBC1DAE4964EF457531F9AFC /* 08-design-tokens */,
+				52E5A4AE8F327707F962C71B /* Resources */,
 				8821A94C7F5F7DDDF08C7037 /* Sources */,
 				15B0EFE4982D909CE56F2195 /* Tests */,
 				55DC3BEA90F9521F8D2A0209 /* Products */,
@@ -279,6 +290,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E912F5B77ABE3224CC971C29 /* Assets.xcassets in Resources */,
+				4B8E642EE62318430F52FA7B /* Sparkle-LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -31,6 +31,7 @@ targets:
     sources:
       - Sources
       - Assets.xcassets
+      - Resources
       - ../brand/08-design-tokens/BrandColors.swift
     settings:
       base:

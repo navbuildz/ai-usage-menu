@@ -107,4 +107,42 @@ final class HardeningTests: XCTestCase {
                                           in: URL(fileURLWithPath: "/"), extraEnvironment: ClaudeCodeProvider.quietEnvironment)
         XCTAssertEqual(output.stdout, "1/1")
     }
+
+    // [D3] Pace: projection from the share of the window that has passed.
+    func testPace() {
+        let now = date("2026-11-23T20:00:00Z")
+        func session(_ percent: Double, resetIn minutes: Double) -> LimitWindow {
+            LimitWindow(label: "Current session", usedPercent: percent, resetsAt: now.addingTimeInterval(minutes * 60), windowMinutes: nil, source: "test")
+        }
+        // 2.5 h of 5 h passed at 80%: full in 37.5 min, long before the reset in 150 min.
+        guard case .fullIn(let seconds)? = Pace.evaluate(session(80, resetIn: 150), at: now) else { return XCTFail("expected fullIn") }
+        XCTAssertEqual(seconds, 37.5 * 60, accuracy: 1)
+        // 2.5 h passed at 40%: would reach 80% by the reset, so on track.
+        XCTAssertEqual(Pace.evaluate(session(40, resetIn: 150), at: now), .onTrack)
+        // First tenth of the window, low usage, full and unknown length: no projection.
+        XCTAssertNil(Pace.evaluate(session(30, resetIn: 290), at: now))
+        XCTAssertNil(Pace.evaluate(session(3, resetIn: 100), at: now))
+        XCTAssertNil(Pace.evaluate(session(100, resetIn: 100), at: now))
+        XCTAssertNil(Pace.evaluate(LimitWindow(label: "New budget", usedPercent: 50, resetsAt: now.addingTimeInterval(600), windowMinutes: nil, source: "t"), at: now))
+        XCTAssertEqual(Pace.elapsedFraction(session(10, resetIn: 150), at: now) ?? -1, 0.5, accuracy: 0.001)
+    }
+
+    // [A6] Only Codex readings go stale, after 30 minutes.
+    func testStaleness() {
+        let now = date("2026-11-23T20:00:00Z")
+        let old = ProviderSnapshot(asOf: now.addingTimeInterval(-31 * 60), state: .ready)
+        XCTAssertTrue(old.isStale(providerID: "codex", at: now))
+        XCTAssertFalse(old.isStale(providerID: "claude", at: now))
+        XCTAssertFalse(ProviderSnapshot(asOf: now.addingTimeInterval(-29 * 60), state: .ready).isStale(providerID: "codex", at: now))
+    }
+
+    // [D7] Diagnostics never carry the home path or an email address.
+    func testDiagnosticsRedaction() {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let text = "Trim \(home)/notes/INDEX.md for someone@example.com"
+        let redacted = Diagnostics.redact(text)
+        XCTAssertFalse(redacted.contains(home))
+        XCTAssertFalse(redacted.contains("someone@example.com"))
+        XCTAssertTrue(redacted.contains("~/notes/INDEX.md"))
+    }
 }

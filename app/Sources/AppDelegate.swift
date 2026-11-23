@@ -78,7 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     }
 
     private func showWelcome() {
-        let view = Onboarding(store: store, services: services) { [weak self] in
+        let view = Onboarding(store: store, services: services, preferences: preferences) { [weak self] in
             UserDefaults.standard.set(true, forKey: "onboardingComplete")
             self?.welcome?.close()
             self?.welcome = nil
@@ -166,8 +166,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             button.contentTintColor = visual.iconTint
             button.imagePosition = visual.title.isEmpty ? .imageOnly : .imageLeading
             let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.compactUsage + " percent used" } ?? "Usage unavailable"))
-            button.setAccessibilityLabel(description)
-            button.toolTip = description
+            let shownID = provider?.id ?? (value.percent != nil ? store.enabled.first { $0.glyph == { if case let .value(_, g) = value { return g }; return "" }() }?.id : nil)
+            let stale = shownID.flatMap { id in store.snapshots[id].map { $0.isStale(providerID: id, at: .now) } } ?? false
+            button.alphaValue = stale ? 0.55 : 1
+            let staleNote = stale ? ", from the last Codex session" : ""
+            button.setAccessibilityLabel(description + staleNote)
+            button.toolTip = description + staleNote
             button.wantsLayer = true
             let pulse = key == "auto" ? !store.active.isEmpty : store.active.contains(key)
             if pulse && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
@@ -181,10 +185,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     }
 
     private func usage(_ navigation: Navigation) -> NSHostingController<UsageView> {
-        NSHostingController(rootView: UsageView(store: store, preferences: preferences, navigation: navigation, settings: { [weak self] in self?.showSettings() }, close: { [weak self] in
+        let inPopover = navigation === panelNavigation
+        let controller = NSHostingController(rootView: UsageView(store: store, preferences: preferences, navigation: navigation, settings: { [weak self] in self?.showSettings() }, close: { [weak self] in
             guard let self else { return }
             if navigation === panelNavigation { popover.performClose(nil) } else { window?.close() }
-        }))
+        }, fitsContent: inPopover))
+        // The popover follows the view's size, so short tabs and messages leave no empty block.
+        if inPopover { controller.sizingOptions = [.preferredContentSize] }
+        return controller
     }
 
     @objc private func openPanel(_ sender: NSStatusBarButton) {
@@ -200,7 +208,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         store.opened()
         popover.contentViewController = usage(panelNavigation)
         popover.contentViewController?.view.appearance = popover.appearance
-        popover.contentSize = .init(width: 380, height: 535)
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
     }
