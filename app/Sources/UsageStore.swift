@@ -41,6 +41,8 @@ final class UsageStore: NSObject, ObservableObject {
     func start(minutes: Int = 5) {
         setInterval(minutes: minutes)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(refreshAll), name: NSWorkspace.didWakeNotification, object: nil)
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(didLock), name: .init("com.apple.screenIsLocked"), object: nil)
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(didUnlock), name: .init("com.apple.screenIsUnlocked"), object: nil)
         for provider in providers {
             if let directory = provider.watchedDirectory { watch(directory) }
         }
@@ -49,6 +51,7 @@ final class UsageStore: NSObject, ObservableObject {
 
     func stop() {
         NSWorkspace.shared.notificationCenter.removeObserver(self)
+        DistributedNotificationCenter.default().removeObserver(self)
         timer?.invalidate(); expiry?.invalidate()
         watcherTimers.values.forEach { $0.invalidate() }
         for stream in streams {
@@ -61,25 +64,68 @@ final class UsageStore: NSObject, ObservableObject {
         let interval = [2,5,10,15,30].contains(minutes) ? minutes : 5
         guard timer?.timeInterval != Double(interval * 60) || timer?.isValid != true else { return }
         timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: Double(interval * 60), target: self, selector: #selector(refreshAll), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: Double(interval * 60), target: self, selector: #selector(scheduledRefresh), userInfo: nil, repeats: true)
+    }
+
+    // MARK: Battery and lock
+
+    /// Each Claude read starts Claude Code (about 430 MB and 3 s of CPU, measured 2026-11-23),
+    /// so scheduled reads pause while the screen is locked and slow down in Low Power Mode.
+    static let lowPowerMinutes = 15
+    @Published private(set) var screenLocked = false
+    private var missedWhileLocked = false
+    var lowPower: Bool { ProcessInfo.processInfo.isLowPowerModeEnabled }
+
+    @objc private func scheduledRefresh() {
+        if screenLocked { missedWhileLocked = true; return }
+        let now = Date()
+        for provider in providers {
+            let last = lastRead[provider.id] ?? .distantPast
+            if lowPower, provider.id == "claude", now.timeIntervalSince(last) < Double(Self.lowPowerMinutes * 60) - 5 { continue }
+            refresh(provider)
+        }
+    }
+
+    @objc private func didLock() { screenLocked = true }
+    @objc private func didUnlock() {
+        screenLocked = false
+        if missedWhileLocked { missedWhileLocked = false; refreshAll() }
     }
 
     @objc func refreshAll() { providers.forEach { refresh($0) } }
     func opened(at now: Date = Date()) {
         for provider in providers where now.timeIntervalSince(lastRead[provider.id] ?? .distantPast) > 60 { refresh(provider) }
     }
+    /// Starts a read unless one for this provider is already running (single flight).
     func refresh(_ provider: any Provider) {
-        guard !disabled.contains(provider.id), active.insert(provider.id).inserted else { return }
+        guard begin(provider) else { return }
+        Task { _ = await finish(provider) }
+    }
+
+    /// Reads one provider through the same single-flight guard and returns the result.
+    /// Returns nil when the provider is disabled or a read is already in progress.
+    @discardableResult
+    func read(_ provider: any Provider) async -> ProviderSnapshot? {
+        guard begin(provider) else { return nil }
+        return await finish(provider)
+    }
+
+    /// Marks the provider as reading, synchronously, so a second call in the same turn is refused.
+    private func begin(_ provider: any Provider) -> Bool {
+        guard !disabled.contains(provider.id), active.insert(provider.id).inserted else { return false }
         readingChanged?()
-        Task {
-            let snapshot = await provider.read()
-            if !disabled.contains(provider.id) { snapshots[provider.id] = snapshot }
-            lastRead[provider.id] = Date()
-            active.remove(provider.id)
-            readingChanged?()
-            scheduleExpiry()
-            onChange?()
-        }
+        return true
+    }
+
+    private func finish(_ provider: any Provider) async -> ProviderSnapshot {
+        let snapshot = await provider.read()
+        if !disabled.contains(provider.id) { snapshots[provider.id] = snapshot }
+        lastRead[provider.id] = Date()
+        active.remove(provider.id)
+        readingChanged?()
+        scheduleExpiry()
+        onChange?()
+        return snapshot
     }
 
     @objc private func expire() {
@@ -107,11 +153,21 @@ final class UsageStore: NSObject, ObservableObject {
         else { FSEventStreamInvalidate(stream); FSEventStreamRelease(stream) }
     }
 
+    /// Minimum gap between two file-triggered reads of one provider. Codex appends to its
+    /// session log constantly while it works, so without this the app would re-read every second.
+    static let watcherInterval: TimeInterval = 5
+    private var lastWatcherRead: [String: Date] = [:]
+
     private func filesChanged() {
         for provider in providers where provider.watchedDirectory != nil && watcherTimers[provider.id] == nil {
-            watcherTimers[provider.id] = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            // Debounce 0.5 s, and keep at least watcherInterval since the last file-triggered read.
+            // A change during the wait is picked up by the read that ends it (trailing read).
+            let since = Date().timeIntervalSince(lastWatcherRead[provider.id] ?? .distantPast)
+            let delay = max(0.5, Self.watcherInterval - since)
+            watcherTimers[provider.id] = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
                 MainActor.assumeIsolated {
                     self?.watcherTimers.removeValue(forKey: provider.id)
+                    self?.lastWatcherRead[provider.id] = Date()
                     self?.refresh(provider)
                 }
             }

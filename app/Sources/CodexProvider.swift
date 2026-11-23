@@ -77,26 +77,53 @@ struct CodexProvider: Provider {
         let mode: String?
         do { mode = try Self.authMode(in: home.appendingPathComponent("auth.json")) }
         catch { return .init(asOf: Date(), state: .unreadable) }
+        // auth.json can be absent when Codex keeps its sign-in in the keychain, so a missing
+        // mode is not "signed out" or "API key": we still read the sessions and let them decide.
         if let mode, mode != "chatgpt" { return .init(asOf: Date(), state: .nonSubscription) }
         let waiting = ProviderSnapshot(details: mode == "chatgpt" ? [.init(label: "Plan", value: "ChatGPT subscription")] : [], asOf: Date(), state: .noSessions)
         let root = home.appendingPathComponent("sessions")
         guard FileManager.default.fileExists(atPath: root.path) else { return waiting }
-        let keys: [URLResourceKey] = [.contentModificationDateKey, .isRegularFileKey, .isSymbolicLinkKey]
-        var failed = false
-        let walk = FileManager.default.enumerator(at: root, includingPropertiesForKeys: keys, options: [.skipsHiddenFiles], errorHandler: { _, _ in failed = true; return true })
-        var newest: (url: URL, date: Date)?
         do {
-            while let url = walk?.nextObject() as? URL {
-                guard url.pathExtension == "jsonl", url.lastPathComponent.hasPrefix("rollout-") else { continue }
-                let values = try url.resourceValues(forKeys: Set(keys))
-                guard values.isRegularFile == true, values.isSymbolicLink != true, let date = values.contentModificationDate else { continue }
-                if newest == nil || date > newest!.date || (date == newest!.date && url.path > newest!.url.path) { newest = (url,date) }
-            }
-            guard !failed, walk != nil else { return .init(asOf: Date(), state: .unreadable) }
-            guard let newest else { return waiting }
-            if let snapshot = try Self.latest(in: newest.url), snapshot.state != .noLimits { return snapshot }
-            return mode == "chatgpt" ? waiting : .init(asOf: Date(), state: .nonSubscription)
+            guard let newest = try Self.newestRollout(in: root) else { return waiting }
+            if let snapshot = try Self.latest(in: newest), snapshot.state != .noLimits { return snapshot }
+            return waiting
         } catch { return .init(asOf: Date(), state: .unreadable) }
+    }
+
+    /// Finds the most recently modified rollout file without walking the whole history.
+    /// Codex stores sessions as sessions/YYYY/MM/DD/rollout-*.jsonl, so we look in the newest
+    /// date folder that has any rollout file. Older Codex versions wrote rollouts directly
+    /// into sessions/, so those are compared too.
+    static func newestRollout(in root: URL) throws -> URL? {
+        let manager = FileManager.default
+        func children(_ folder: URL) throws -> [URL] {
+            try manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
+        }
+        func numberedFolders(_ folder: URL) throws -> [URL] {
+            try children(folder)
+                .filter { Int($0.lastPathComponent) != nil && (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true }
+                .sorted { Int($0.lastPathComponent)! > Int($1.lastPathComponent)! }
+        }
+        var candidates = try rollouts(in: try children(root))
+        search: for year in try numberedFolders(root) {
+            for month in try numberedFolders(year) {
+                for day in try numberedFolders(month) {
+                    let found = try rollouts(in: try children(day))
+                    if !found.isEmpty { candidates += found; break search }
+                }
+            }
+        }
+        return candidates.max { $0.date < $1.date || ($0.date == $1.date && $0.url.path < $1.url.path) }?.url
+    }
+
+    private static func rollouts(in urls: [URL]) throws -> [(url: URL, date: Date)] {
+        let keys: Set<URLResourceKey> = [.contentModificationDateKey, .isRegularFileKey, .isSymbolicLinkKey]
+        return try urls.compactMap { url in
+            guard url.pathExtension == "jsonl", url.lastPathComponent.hasPrefix("rollout-") else { return nil }
+            let values = try url.resourceValues(forKeys: keys)
+            guard values.isRegularFile == true, values.isSymbolicLink != true, let date = values.contentModificationDate else { return nil }
+            return (url, date)
+        }
     }
 
     static func latest(in file: URL) throws -> ProviderSnapshot? {

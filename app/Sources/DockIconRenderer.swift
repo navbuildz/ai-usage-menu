@@ -96,8 +96,8 @@ enum DockIconRenderer {
         segment(start: -50, length: 100, value: snapshot.session)
         segment(start: 70, length: 220, value: snapshot.weekly)
         if snapshot.twoNumbers && (snapshot.session != nil || snapshot.weekly != nil) {
-            drawLabel(snapshot.session?.usageNumber ?? "–", fontSize: 17, ink: ink, y: 63, in: c)
-            drawLabel(snapshot.weekly?.usageNumber ?? "–", fontSize: 23, ink: ink, y: 40, in: c)
+            drawLabel(snapshot.session?.compactUsage ?? "–", fontSize: 17, ink: ink, y: 63, in: c)
+            drawLabel(snapshot.weekly?.compactUsage ?? "–", fontSize: 23, ink: ink, y: 40, in: c)
             return
         }
         guard let percent = snapshot.indicator.percent else {
@@ -105,7 +105,7 @@ enum DockIconRenderer {
             return
         }
         let compact = size < 128
-        drawLabel(percent.usageNumber, fontSize: compact ? 27 : 20, ink: ink, in: c)
+        drawLabel(percent.compactUsage, fontSize: compact ? 27 : 20, ink: ink, in: c)
     }
 
     private static func drawLabel(_ digits: String, fontSize: CGFloat, ink: NSColor, y: CGFloat = 50, in context: CGContext) {

@@ -30,7 +30,7 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(s.limits.first?.resetsAt,ISO8601DateFormatter().date(from:"2027-01-01T22:00:00Z"))
         XCTAssertEqual(s.rawText,bad+"\nextra text")
         XCTAssertNil(s.breakdown)
-        for (text,state) in [("Please log in",ProviderState.signedOut),("Signed in with an API key",.nonSubscription),("Bedrock",.nonSubscription),("garbage",.nonSubscription),("You are currently using your subscription to power your Claude Code usage",.unknownFormat)] {
+        for (text,state) in [("Please log in",ProviderState.signedOut),("Signed in with an API key",.unknownFormat),("Bedrock",.unknownFormat),("garbage",.unknownFormat),("Error: connect ETIMEDOUT",.unknownFormat),("You are currently using your subscription to power your Claude Code usage",.unknownFormat)] {
             let parsed = ClaudeParser.parse(text, now: now)
             XCTAssertEqual(parsed.state,state)
             XCTAssertTrue(parsed.limits.isEmpty)
@@ -39,12 +39,14 @@ final class ProviderTests: XCTestCase {
     }
 
     func testPlanCompatibilityFixtures() async throws {
-        // Illustrative Claude wording until a real API-key account can be observed.
-        let text = try fixture("claude-api-key-guessed","txt")
-        let claude = ClaudeParser.parse(text, now: now)
-        XCTAssertEqual(claude.state, .nonSubscription)
-        XCTAssertEqual(claude.rawText, text)
-        XCTAssertTrue(claude.limits.isEmpty)
+        // Real /usage output captured 2026-11-23 from Claude Code 2.1.330 with API-key and Bedrock auth.
+        for name in ["claude-api-key", "claude-bedrock"] {
+            let text = try fixture(name, "txt")
+            let claude = ClaudeParser.parse(text, now: now)
+            XCTAssertEqual(claude.state, .nonSubscription, name)
+            XCTAssertEqual(claude.rawText, text)
+            XCTAssertTrue(claude.limits.isEmpty)
+        }
         let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let sessions = home.appendingPathComponent("sessions")
         try FileManager.default.createDirectory(at: sessions, withIntermediateDirectories: true)
@@ -134,7 +136,7 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(empty.state,.noSessions)
         try Data("unknown".utf8).write(to:folder.appendingPathComponent("rollout-test.jsonl"))
         let unknown = await provider.read()
-        XCTAssertEqual(unknown.state,.nonSubscription)
+        XCTAssertEqual(unknown.state,.noSessions, "unreadable sessions without auth.json never mean 'API key'")
     }
 
     func testChildIOAndTimeout() throws {

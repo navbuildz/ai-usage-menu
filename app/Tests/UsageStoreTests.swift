@@ -98,7 +98,7 @@ final class UsageStoreTests: XCTestCase {
         store.onChange = { initial.fulfill(); store.onChange = nil }
         store.start()
         await fulfillment(of: [initial], timeout: 5)
-        XCTAssertEqual(store.snapshots["codex"]?.state, .nonSubscription)
+        XCTAssertEqual(store.snapshots["codex"]?.state, .noSessions)
 
         let appended = expectation(description: "Appended limits observed")
         store.onChange = {

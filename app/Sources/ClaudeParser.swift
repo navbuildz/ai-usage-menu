@@ -30,6 +30,14 @@ enum ClaudeParser {
         return nil
     }
 
+    /// True when the text is Claude Code's cost summary ("Estimated cost:" plus a "Usage:" line).
+    static func isCostSummary(_ text: String) -> Bool {
+        let lines = text.components(separatedBy: .newlines).map { $0.trimmingCharacters(in: .whitespaces) }
+        let hasCost = lines.contains { $0.hasPrefix("Estimated cost:") || $0.hasPrefix("Total cost:") }
+        let hasUsage = lines.contains { $0.hasPrefix("Usage:") }
+        return hasCost && hasUsage
+    }
+
     static func parse(_ text: String, now: Date) -> ProviderSnapshot {
         var result = ProviderSnapshot(asOf: now, state: .ready)
         var periods: [BreakdownPeriod] = []
@@ -66,8 +74,11 @@ enum ClaudeParser {
             if ["log in","login","log into","sign in","not logged in","signed out","logged out"].contains(where: lower.contains) {
                 result.state = .signedOut
             } else {
-                let header = "You are currently using your subscription to power your Claude Code usage"
-                result.state = text.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(header) ? .unknownFormat : .nonSubscription
+                // Only call it "no plan" when Claude Code printed its pay-per-token cost summary,
+                // which is what /usage shows for API-key, Bedrock and Vertex sign-ins.
+                // Anything else (an error, a changed format, an update notice) is unknownFormat,
+                // so a paying user is never told they have no plan.
+                result.state = isCostSummary(text) ? .nonSubscription : .unknownFormat
                 result.rawText = text
             }
         } else {

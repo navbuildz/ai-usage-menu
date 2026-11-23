@@ -10,11 +10,14 @@ struct CommandOutput {
 // Drain both pipes while the child runs, including when a verbose CLI fills stderr.
 enum LocalCommand {
     enum Failure: Error { case timedOut, oversized }
-    static func run(_ binary: URL, _ arguments: [String], in directory: URL, timeout: TimeInterval = 20) throws -> CommandOutput {
+    static func run(_ binary: URL, _ arguments: [String], in directory: URL, timeout: TimeInterval = 20, extraEnvironment: [String: String] = [:]) throws -> CommandOutput {
         let process = Process(), output = Pipe(), errors = Pipe()
         process.executableURL = binary
         process.arguments = arguments
         process.currentDirectoryURL = directory
+        if !extraEnvironment.isEmpty {
+            process.environment = ProcessInfo.processInfo.environment.merging(extraEnvironment) { _, new in new }
+        }
         process.standardInput = FileHandle.nullDevice
         process.standardOutput = output
         process.standardError = errors
@@ -46,6 +49,15 @@ enum LocalCommand {
         }
         return .init(status: process.terminationStatus, stdout: String(decoding: buffers[0], as: UTF8.self), stderr: String(decoding: buffers[1], as: UTF8.self))
     }
+    /// Runs the command on a utility dispatch thread so a slow child (up to the timeout)
+    /// never occupies a thread from Swift's small cooperative pool.
+    static func runOffPool(_ binary: URL, _ arguments: [String], in directory: URL, timeout: TimeInterval = 20, extraEnvironment: [String: String] = [:]) async throws -> CommandOutput {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async {
+                continuation.resume(with: Result { try run(binary, arguments, in: directory, timeout: timeout, extraEnvironment: extraEnvironment) })
+            }
+        }
+    }
 }
 
 actor ClaudeCodeProvider: Provider {
@@ -54,9 +66,12 @@ actor ClaudeCodeProvider: Provider {
     private var version: String?
     private var attemptedShell = false
     private var lastOverride: String?
+    /// Measured 2026-11-23 (Claude Code 2.1.330): /usage returns the same windows with these set,
+    /// in about 3 s instead of 4.5 s, and Claude Code skips its update check and telemetry.
+    static let quietEnvironment = ["DISABLE_AUTOUPDATER": "1", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"]
     private let workdir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/AI Usage Menu/claude-workdir")
 
-    func resolve() -> URL? {
+    func resolve() async -> URL? {
         let override = UserDefaults.standard.string(forKey: "claudePath")
         if override != lastOverride || cached.map({ !FileManager.default.isExecutableFile(atPath: $0.path) }) == true {
             cached = nil; version = nil; attemptedShell = false; lastOverride = override
@@ -68,25 +83,26 @@ actor ClaudeCodeProvider: Provider {
             cached = URL(fileURLWithPath: found)
         } else if !attemptedShell {
             attemptedShell = true
-            if let shell = try? LocalCommand.run(URL(fileURLWithPath: "/bin/zsh"), ["-lc","command -v claude"], in: URL(fileURLWithPath: "/")),
+            // The login shell runs the user's profile, so it gets a short timeout and runs once per launch.
+            if let shell = try? await LocalCommand.runOffPool(URL(fileURLWithPath: "/bin/zsh"), ["-lc","command -v claude"], in: URL(fileURLWithPath: "/"), timeout: 5),
                let path = shell.stdout.split(separator: "\n").last.map(String.init), path.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: path) { cached = URL(fileURLWithPath: path) }
         }
         return cached
     }
 
-    func isAvailable() -> Bool { resolve() != nil }
-    func read() -> ProviderSnapshot {
-        guard let binary = resolve() else { return .init(asOf: Date(), state: .notInstalled) }
+    func isAvailable() async -> Bool { await resolve() != nil }
+    func read() async -> ProviderSnapshot {
+        guard let binary = await resolve() else { return .init(asOf: Date(), state: .notInstalled) }
         do {
             try FileManager.default.createDirectory(at: workdir, withIntermediateDirectories: true)
-            let output = try LocalCommand.run(binary, ["-p","/usage","--output-format","json","--no-session-persistence","--strict-mcp-config","--mcp-config",#"{"mcpServers":{}}"#,"--setting-sources","project,local"], in: workdir)
+            let output = try await LocalCommand.runOffPool(binary, ["-p","/usage","--output-format","json","--no-session-persistence","--strict-mcp-config","--mcp-config",#"{"mcpServers":{}}"#,"--setting-sources","project,local"], in: workdir, extraEnvironment: Self.quietEnvironment)
             struct Envelope: Decodable { let result: String }
             let body = (try? JSONDecoder().decode(Envelope.self, from: Data(output.stdout.utf8)))?.result ?? output.stdout
             var snapshot = ClaudeParser.parse(body.isEmpty ? output.stderr : body, now: Date())
             if output.status != 0, snapshot.state != .signedOut, !(snapshot.state == .nonSubscription && !body.isEmpty && output.stderr.isEmpty) {
                 return .init(asOf: Date(), state: .failed(output.stderr.isEmpty ? body : output.stderr))
             }
-            if version == nil, let result = try? LocalCommand.run(binary, ["--version"], in: workdir), result.status == 0 {
+            if version == nil, let result = try? await LocalCommand.runOffPool(binary, ["--version"], in: workdir, timeout: 5), result.status == 0 {
                 version = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             if let version { snapshot.details.append(.init(label: "Claude Code", value: version)) }

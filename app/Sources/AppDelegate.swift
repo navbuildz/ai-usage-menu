@@ -64,7 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         }
         preferences.changed = { [weak self] in self?.applyPreferences() }
         store.readingChanged = { [weak self] in self?.updateItems() }
-        store.onChange = { [weak self] in self?.updateDisplays(); if let self { self.services.evaluate(self.store) } }
+        store.onChange = { [weak self] in self?.updateDisplays(); if let self { self.services.evaluate(self.store, health: self.preferences.options.thresholds) } }
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             self?.handle(event) == true ? nil : event
         }
@@ -165,7 +165,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             button.image = visual.image
             button.contentTintColor = visual.iconTint
             button.imagePosition = visual.title.isEmpty ? .imageOnly : .imageLeading
-            let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.usageNumber + " percent used" } ?? "Usage unavailable"))
+            let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.compactUsage + " percent used" } ?? "Usage unavailable"))
             button.setAccessibilityLabel(description)
             button.toolTip = description
             button.wantsLayer = true
@@ -353,6 +353,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         menu.addItem(withTitle: "From the makers of TypeFire", action: #selector(typeFire), keyEquivalent: "").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit AI Usage Menu", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q").target = NSApp
+        // Standard Edit and Window menus so Cmd+C, Cmd+A and Cmd+W work in every window.
+        // Their items have no target, so they go to whichever window or text view is focused.
+        let edit = NSMenu(title: "Edit")
+        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let editItem = NSMenuItem()
+        editItem.submenu = edit
+        main.addItem(editItem)
+        let window = NSMenu(title: "Window")
+        window.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        window.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        let windowItem = NSMenuItem()
+        windowItem.submenu = window
+        main.addItem(windowItem)
+        NSApp.windowsMenu = window
         NSApp.mainMenu = main
     }
     func applicationWillTerminate(_ notification: Notification) {
@@ -423,7 +438,7 @@ struct MenuItemVisual {
     var usageDescription: String?
 
     init(value: Indicator, pair: DockSnapshot? = nil, provider: (any Provider)?, options: DisplayOptions, appearance: NSAppearance) {
-        let singleTitle = value.percent.flatMap { options.showPercent ? $0.usageNumber + "%" : nil } ?? (value == .warning ? "⚠" : "")
+        let singleTitle = value.percent.flatMap { options.showPercent ? $0.compactUsage + "%" : nil } ?? (value == .warning ? "⚠" : "")
         let ink = value.percent.map { options.thresholds.color($0) }
         iconTint = provider != nil && !options.showPercent ? ink : nil
         let symbol: NSImage?
@@ -439,7 +454,7 @@ struct MenuItemVisual {
             image = symbol
             return
         }
-        let labels = [pair.session, pair.weekly].map { $0.map { $0.usageNumber + "%" } ?? "–" }
+        let labels = [pair.session, pair.weekly].map { $0.map { $0.compactUsage + "%" } ?? "–" }
         usageDescription = "5-hour " + labels[0] + ", weekly " + labels[1]
         title = ""
         let light = appearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua

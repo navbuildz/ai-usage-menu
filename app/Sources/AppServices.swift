@@ -85,7 +85,15 @@ final class AppServices: NSObject, ObservableObject, UNUserNotificationCenterDel
 
     func checkUpdates() { updates.check() }
 
-    func evaluate(_ store: UsageStore) {
+    /// Alert levels: the health thresholds (amber, red) unless the user chose custom levels,
+    /// so the colors and the notifications always agree by default.
+    nonisolated static func alertLevels(defaults: UserDefaults, health: Thresholds) -> [Int] {
+        guard defaults.bool(forKey: "customAlertLevels") else { return [health.amber, health.red] }
+        return [defaults.object(forKey: "notifyLow") as? Int ?? health.amber,
+                defaults.object(forKey: "notifyHigh") as? Int ?? health.red]
+    }
+
+    func evaluate(_ store: UsageStore, health: Thresholds = Thresholds()) {
         guard alerts else { return }
         let defaults = UserDefaults.standard
         var ledger = defaults.dictionary(forKey: "usageAlertCycles") as? [String: Double] ?? [:]
@@ -99,8 +107,7 @@ final class AppServices: NSObject, ObservableObject, UNUserNotificationCenterDel
             }
             for limit in snapshot.limits {
                 guard let reset = limit.resetsAt else { continue }
-                let thresholds = [defaults.object(forKey: "notifyLow") as? Int ?? 75,
-                                  defaults.object(forKey: "notifyHigh") as? Int ?? 90]
+                let thresholds = Self.alertLevels(defaults: defaults, health: health)
                 let notices = Self.notices(for: limit, providerID: provider.id, reset: reset, now: now,
                                            thresholds: thresholds, resetsEnabled: defaults.bool(forKey: "notifyResets"), ledger: &ledger)
                 for notice in notices { post(notice.id, provider.displayName, notice.body) }

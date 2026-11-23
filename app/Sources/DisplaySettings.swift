@@ -16,6 +16,7 @@ struct DisplaySettings: View {
     @AppStorage("notifyLow") private var low = 75
     @AppStorage("notifyHigh") private var high = 90
     @AppStorage("notifyResets") private var resets = false
+    @AppStorage("customAlertLevels") private var customAlerts = false
     @State private var detectedPath = ""
     @State private var testResult = ""
     @State private var testing = false
@@ -53,8 +54,15 @@ struct DisplaySettings: View {
                     case .behavior:
                         ServiceChoices(services: services)
                         if services.alerts {
-                            threshold("First alert", value: $low, range: 1...(high - 1))
-                            threshold("Second alert", value: $high, range: (low + 1)...100)
+                            row("Alert at the amber and red levels") {
+                                Text("\(preferences.options.thresholds.amber)% and \(preferences.options.thresholds.red)%")
+                                    .monospacedDigit().foregroundStyle(Color("textSecondary"))
+                            }.opacity(customAlerts ? 0.45 : 1)
+                            row("Use different alert levels") { Toggle("Use different alert levels", isOn: $customAlerts).labelsHidden() }
+                            if customAlerts {
+                                threshold("First alert", value: $low, range: 1...(high - 1))
+                                threshold("Second alert", value: $high, range: (low + 1)...100)
+                            }
                             row("Notify when a limit resets") { Toggle("Reset alerts", isOn: $resets).labelsHidden() }
                         }
                         Button("Check for Updates…") { services.checkUpdates() }.padding(.top)
@@ -134,8 +142,12 @@ struct DisplaySettings: View {
                     Button(testing ? "Testing…" : "Test") {
                         testing = true
                         Task {
-                            let result = await claude.read()
-                            testResult = result.state == .ready ? "Read succeeded: " + String(result.limits.count) + " usage windows." : result.state.detectionLabel
+                            // Goes through the store so it never runs alongside a scheduled read.
+                            if let result = await store.read(claude) {
+                                testResult = result.state == .ready ? "Read succeeded: " + String(result.limits.count) + " usage windows." : result.state.detectionLabel
+                            } else {
+                                testResult = "A read is already running. Try again in a moment."
+                            }
                             testing = false
                         }
                     }.disabled(testing)

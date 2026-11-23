@@ -138,4 +138,10 @@ enum Indicator: Equatable {
 
 extension Double {
     var usageNumber: String { formatted(.number.precision(.fractionLength(0...2))) }
+    /// Whole number for the menu bar and Dock, where there is no room for decimals.
+    /// Never rounds up to 100 unless the window is actually full.
+    var compactUsage: String {
+        let whole = Int(rounded())
+        return String(self < 100 ? min(99, whole) : whole)
+    }
 }
