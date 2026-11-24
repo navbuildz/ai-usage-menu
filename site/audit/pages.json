@@ -1,7 +1,7 @@
 [
   {
     "id": "home",
-    "bodyWords": 1095,
+    "bodyWords": 1098,
     "keywords": [
       "claude usage tracker",
       "ai usage tracker mac",
@@ -18,7 +18,7 @@
     "description": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills each usage window and when it resets.",
     "descriptionLength": 155,
     "first120": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills ea",
-    "heading": "Your Claude Code and Codex limits, in your menu bar.",
+    "heading": "Your Claude Code and Codex limits, in your menu bar and your Dock.",
     "canonical": "https://aiusagemenu.com/",
     "og": "https://aiusagemenu.com/art/og-home.png",
     "types": [

@@ -133,7 +133,7 @@ main{display:block}
 }
 
 /* ---------- Hero ---------- */
-.hero{position:relative;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,5vw,72px);align-items:center;padding:clamp(40px,6vw,84px) 0 clamp(48px,7vw,96px)}
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,72px);align-items:center;padding:clamp(40px,6vw,84px) 0 clamp(48px,7vw,96px)}
 .hero-copy{display:grid;gap:22px;justify-items:start}
 .hero-copy h1{max-width:12em}
 .hero .lead{max-width:33em}
@@ -677,4 +677,6 @@ html[data-theme=dark] .band,html[data-theme=dark] .cta{background:#11142e;border
 .welcome li .ic{width:18px;height:18px;color:var(--violet);margin-top:2px}
 .welcome .btn{justify-self:end;pointer-events:none}
 figure.dataflow{margin:0 auto}
-.hero .lead{text-wrap:balance}
+
+/* Hero copy uses the full column: no balanced or capped line lengths (Nav 2026-11-23). */
+.hero .hero-copy h1,.hero .lead{max-width:none;text-wrap:wrap}

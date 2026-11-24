@@ -2,8 +2,8 @@
   "home": {
     "title": "Claude Usage Tracker for Mac, Free | AI Usage Menu",
     "meta": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills each usage window and when it resets.",
-    "h1": "Your Claude Code and Codex limits, in your menu bar.",
-    "answer": "See your session and weekly limits, when each resets, and what's using them up. Free, open source, and nothing to paste.",
+    "h1": "Your Claude Code and Codex limits, in your menu bar and your Dock.",
+    "answer": "See your session and weekly limits, when each resets, and what's using them up. Free, open source, and nothing to paste.",
     "primary": "claude usage tracker",
     "faqs": [
       [
