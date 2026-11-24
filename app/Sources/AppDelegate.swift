@@ -24,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     private var settingsWindow: NSWindow?
     private var appearance: NSKeyValueObservation?
     private var eventMonitor: Any?
-    private var rendered: DockSnapshot?
+    private let dockTile = DockTileController()
     private var panelID: String?
 
     static func main() {
@@ -119,24 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
 
     private func updateDisplays() {
         updateItems()
-        let options = preferences.options
-        if !options.placement.showsDock {
-            if rendered != nil { NSApp.dockTile.contentView = nil; rendered = nil }
-            return
-        }
-        var snapshot = DockSnapshot.resolve(providers: store.displayProviders, snapshots: store.snapshots, options: options, now: .now)
-        snapshot.light = (options.dockTheme.appearance ?? NSApp.effectiveAppearance).bestMatch(from: [.aqua,.darkAqua]) == .aqua
-        let tile = NSApp.dockTile
-        guard rendered != snapshot else { return }
-        rendered = snapshot
-        if snapshot.indicator == .absent && !snapshot.light { tile.contentView = nil }
-        else {
-            let view = NSImageView(frame: .init(origin: .zero, size: tile.size))
-            view.imageScaling = .scaleProportionallyUpOrDown
-            view.image = DockIconRenderer.image(for: snapshot, size: max(32, Int(tile.size.width * (NSScreen.main?.backingScaleFactor ?? 1))))
-            tile.contentView = view
-        }
-        tile.display()
+        dockTile.update(store: store, options: preferences.options)
     }
 
     private func updateItems() {

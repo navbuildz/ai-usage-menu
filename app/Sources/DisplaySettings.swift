@@ -160,14 +160,7 @@ struct DisplaySettings: View {
                 if !testResult.isEmpty { Text(testResult).font(.caption).padding(.top, 5) }
             }
             sectionLabel("Health thresholds")
-            let levels = preferences.options.thresholds
-            GeometryReader { area in
-                HStack(spacing: 0) {
-                    Color("mint").frame(width: area.size.width * CGFloat(levels.amber) / 100)
-                    Color("amber").frame(width: area.size.width * CGFloat(levels.red - levels.amber) / 100)
-                    Color("danger")
-                }.clipShape(Capsule())
-            }.frame(height: 8).padding(.vertical, 8).accessibilityHidden(true)
+            ThresholdBar(thresholds: $preferences.options.thresholds).padding(.vertical, 10)
             threshold("Amber", value: $preferences.options.thresholds.amber, range: 1...(preferences.options.thresholds.red - 1))
             threshold("Red", value: $preferences.options.thresholds.red, range: (preferences.options.thresholds.amber + 1)...100)
         }
@@ -180,7 +173,7 @@ struct DisplaySettings: View {
             HStack(spacing: 20) {
                 Group {
                     if isDock {
-                        Image(nsImage: DockIconRenderer.image(for: dockPreview, size: 128)).resizable().frame(width: 70, height: 70).accessibilityLabel("Dock preview")
+                        Image(nsImage: DockIconRenderer.image(for: dockPreview, size: 256)).resizable().frame(width: 104, height: 104).accessibilityLabel("Dock preview")
                     } else { menuPreview }
                 }.frame(minWidth: 88, minHeight: 90)
                 Divider().frame(height: 60)
@@ -235,19 +228,34 @@ struct DisplaySettings: View {
         }
     }
 
+    /// The user's current menu bar item on a light and a dark menu bar strip, at true size.
     private var menuPreview: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            menuStrip(dark: false)
+            menuStrip(dark: true)
+        }.accessibilityElement(children: .ignore).accessibilityLabel("Menu bar preview")
+    }
+
+    private func menuStrip(dark: Bool) -> some View {
         let keys = preferences.options.separateItems && !store.displayProviders.isEmpty ? store.displayProviders.map(\.id) : ["auto"]
-        return HStack(spacing: 3) {
+        let appearance = NSAppearance(named: dark ? .darkAqua : .aqua)!
+        let ink: Color = dark ? .white : .black
+        return HStack(spacing: 10) {
+            Image(systemName: "wifi").font(.system(size: 12))
             ForEach(keys, id: \.self) { key in
-                let visual = MenuItemVisual(value: store.menuValue(key, options: preferences.options), pair: preferences.options.twoMenuNumbers && preferences.options.showPercent ? store.menuPair(key, options: preferences.options) : nil, provider: store.providers.first { $0.id == key }, options: preferences.options, appearance: NSAppearance(named: scheme == .dark ? .darkAqua : .aqua)!)
+                let visual = MenuItemVisual(value: store.menuValue(key, options: preferences.options), pair: preferences.options.twoMenuNumbers && preferences.options.showPercent ? store.menuPair(key, options: preferences.options) : nil, provider: store.providers.first { $0.id == key }, options: preferences.options, appearance: appearance)
                 HStack(spacing: 3) {
                     if let image = visual.image {
-                        Image(nsImage: image).foregroundStyle(Color(nsColor: visual.iconTint ?? .labelColor))
+                        Image(nsImage: image).renderingMode(image.isTemplate ? .template : .original)
+                            .foregroundStyle(visual.iconTint.map { Color(nsColor: $0) } ?? ink)
                     }
-                    if !visual.title.isEmpty { Text(visual.title).font(.system(size: 12, weight: .semibold)).monospacedDigit().foregroundStyle(.primary) }
-                }.padding(5).background(Color("surfaceRaised"), in: Capsule())
+                    if !visual.title.isEmpty { Text(visual.title).font(.system(size: 12, weight: .semibold)).monospacedDigit() }
+                }
             }
-        }.accessibilityLabel("Menu bar preview")
+            Text("9:41").font(.system(size: 12, weight: .medium))
+        }
+        .foregroundStyle(ink).padding(.horizontal, 10).frame(height: 24)
+        .background(dark ? Color(white: 0.16) : Color(white: 0.93), in: RoundedRectangle(cornerRadius: 6))
     }
 
     private var dockPreview: DockSnapshot {
@@ -305,5 +313,43 @@ private struct Acknowledgements: View {
                 .padding(10).background(Color("surface"), in: RoundedRectangle(cornerRadius: 10))
             HStack { Spacer(); Button("Done") { dismiss() }.buttonStyle(PrimaryButtonStyle()).keyboardShortcut(.defaultAction) }
         }.padding(22).frame(width: 520, height: 440).background(Color("background"))
+    }
+}
+
+/// Mint, amber and red bands with two draggable handles for the amber and red levels.
+private struct ThresholdBar: View {
+    @Binding var thresholds: Thresholds
+    private let handle: CGFloat = 16
+
+    var body: some View {
+        GeometryReader { area in
+            let width = area.size.width
+            ZStack(alignment: .leading) {
+                HStack(spacing: 0) {
+                    Color("mint").frame(width: width * CGFloat(thresholds.amber) / 100)
+                    Color("amber").frame(width: width * CGFloat(thresholds.red - thresholds.amber) / 100)
+                    Color("danger")
+                }.frame(height: 8).clipShape(Capsule())
+                knob(value: thresholds.amber, width: width, label: "Amber level") { thresholds.amber = min(max(1, $0), thresholds.red - 1) }
+                knob(value: thresholds.red, width: width, label: "Red level") { thresholds.red = min(max(thresholds.amber + 1, $0), 100) }
+            }.frame(maxHeight: .infinity)
+        }.frame(height: 24)
+    }
+
+    private func knob(value: Int, width: CGFloat, label: String, set: @escaping (Int) -> Void) -> some View {
+        Circle().fill(Color.white).frame(width: handle, height: handle)
+            .overlay(Circle().stroke(Color.black.opacity(0.18)))
+            .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+            .offset(x: width * CGFloat(value) / 100 - handle / 2)
+            .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                set(Int((drag.location.x / width * 100).rounded()))
+            })
+            .help("\(label): \(value)%")
+            .accessibilityElement()
+            .accessibilityLabel(label)
+            .accessibilityValue("\(value) percent")
+            .accessibilityAdjustableAction { direction in
+                set(direction == .increment ? value + 1 : value - 1)
+            }
     }
 }

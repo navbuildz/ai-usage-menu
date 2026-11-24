@@ -145,4 +145,21 @@ final class HardeningTests: XCTestCase {
         XCTAssertFalse(redacted.contains("someone@example.com"))
         XCTAssertTrue(redacted.contains("~/notes/INDEX.md"))
     }
+
+    // [B5] The Dock tile redraws only when the picture changes.
+    @MainActor func testDockTileRendersOncePerChange() {
+        let store = UsageStore(providers: [])
+        let controller = DockTileController()
+        var options = DisplayOptions()
+        options.placement = .both
+        options.dockTheme = .dark
+        for _ in 0..<100 { controller.update(store: store, options: options) }
+        XCTAssertEqual(controller.renderCount, 1)
+        options.dockTheme = .light
+        controller.update(store: store, options: options)
+        XCTAssertEqual(controller.renderCount, 2)
+        options.placement = .menu
+        controller.update(store: store, options: options)
+        XCTAssertNil(controller.rendered)
+    }
 }

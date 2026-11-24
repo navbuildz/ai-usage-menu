@@ -1,0 +1,228 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ requests · %@ sessions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ requests · %2$@ sessions"
+          }
+        }
+      }
+    },
+    "%@: %lld%%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$lld%%"
+          }
+        }
+      }
+    },
+    "%lld minutes" : {
+
+    },
+    "%lld percent" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "%lld%% and %lld%%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld%% and %2$lld%%"
+          }
+        }
+      }
+    },
+    "5 minutes (recommended)" : {
+
+    },
+    "5-hour" : {
+
+    },
+    "5-hour session" : {
+
+    },
+    "9:41" : {
+
+    },
+    "AI Usage Menu" : {
+
+    },
+    "AI Usage Menu includes Sparkle (sparkle-project.org), used only for update checks you turn on." : {
+
+    },
+    "AI Usage Menu website" : {
+
+    },
+    "Acknowledgements" : {
+
+    },
+    "Appearance" : {
+
+    },
+    "Auto" : {
+
+    },
+    "Back" : {
+
+    },
+    "Both" : {
+
+    },
+    "Browse…" : {
+
+    },
+    "Check for Updates…" : {
+
+    },
+    "Continue" : {
+
+    },
+    "Copied" : {
+
+    },
+    "Copy %@" : {
+
+    },
+    "Copy details" : {
+
+    },
+    "Dock" : {
+
+    },
+    "Dock preview" : {
+
+    },
+    "Done" : {
+
+    },
+    "Each figure is the share of this activity it applies to. They overlap, so they don't add up to 100%." : {
+
+    },
+    "From the makers of TypeFire" : {
+
+    },
+    "From your last Codex session %@. Numbers update when you use Codex again." : {
+
+    },
+    "Limit reached" : {
+
+    },
+    "Low Power Mode is on, so Claude Code is read less often." : {
+
+    },
+    "Low Power: Claude every %lld min" : {
+
+    },
+    "MIT License · BaseThread LLC" : {
+
+    },
+    "Menu bar" : {
+
+    },
+    "Menu bar preview" : {
+
+    },
+    "Numbers" : {
+
+    },
+    "One" : {
+
+    },
+    "One item per provider" : {
+
+    },
+    "Open AI Usage Menu from Finder to show either icon again." : {
+
+    },
+    "Open Settings" : {
+
+    },
+    "Preference saved. Checks will start in a release configured for updates." : {
+
+    },
+    "Privacy" : {
+
+    },
+    "Provider" : {
+
+    },
+    "Quit" : {
+
+    },
+    "Reading usage…" : {
+
+    },
+    "Refresh frequency" : {
+
+    },
+    "Reset alerts" : {
+
+    },
+    "See your Claude Code and Codex limits in the menu bar and Dock, with the time each one resets." : {
+
+    },
+    "Show less" : {
+
+    },
+    "Show percentage" : {
+
+    },
+    "Show top MCP servers, skills and subagents" : {
+
+    },
+    "Source code" : {
+
+    },
+    "Step %lld of 3" : {
+
+    },
+    "Test" : {
+
+    },
+    "Testing…" : {
+
+    },
+    "The ring fills green, then amber, then red as you use your plan." : {
+
+    },
+    "Turn on a provider in Settings to see your usage." : {
+
+    },
+    "Two" : {
+
+    },
+    "Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu connects only for update checks you choose." : {
+
+    },
+    "Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself connects only for updates you choose." : {
+
+    },
+    "Usage window" : {
+
+    },
+    "Use Auto" : {
+
+    },
+    "Use different alert levels" : {
+
+    },
+    "Weekly" : {
+
+    },
+    "What's contributing?" : {
+
+    },
+    "You can turn providers on or off later in Settings." : {
+
+    }
+  },
+  "version" : "1.0"
+}
