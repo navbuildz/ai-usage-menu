@@ -1,8 +1,7 @@
 {
   "1.0.0": [
-    "See your Claude Code and Codex limits in the menu bar and Dock.",
-    "Know when each window resets and whether you're on pace to run out.",
-    "See what's using your Claude limit, from this Mac only.",
-    "Get an alert at your amber and red levels, and when a limit resets."
+    "See your Claude Code and Codex plan limits in the menu bar and the Dock, with no cookie or API key to paste.",
+    "Know when each limit resets, and whether you're on pace to run out before it does.",
+    "See what's using your Claude limit, from activity on this Mac only."
   ]
 }

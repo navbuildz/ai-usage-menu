@@ -94,7 +94,13 @@ if [ "$mode" = "--local-feed" ]; then
 else
   prefix="https://github.com/$repo/releases/download/v$version/"
 fi
-"$bin/generate_appcast" --account ai.aiusagemenu.app --embed-release-notes --download-url-prefix "$prefix" "$out" >/dev/null
+# generate_appcast refuses a folder holding two archives of one version (the zip and the DMG),
+# so the feed is built in its own folder from the zip and its notes only.
+feed="$out/feed"
+rm -rf "$feed"; mkdir -p "$feed"
+cp "$zip" "$out/AIUsageMenu-$version.html" "$feed/"
+"$bin/generate_appcast" --account ai.aiusagemenu.app --embed-release-notes --download-url-prefix "$prefix" "$feed"
+cp "$feed/appcast.xml" "$out/appcast.xml"
 grep -q "sparkle:edSignature" "$out/appcast.xml" || { echo "Appcast is not signed" >&2; exit 1; }
 echo "Packaged $version (build $build_number) in $out"
 
