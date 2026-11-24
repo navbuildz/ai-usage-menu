@@ -23,11 +23,15 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 BaseThread LLC. MIT License.</string>
 	<key>SUAllowsAutomaticUpdates</key>
-	<false/>
+	<true/>
 	<key>SUEnableAutomaticChecks</key>
-	<false/>
+	<true/>
 	<key>SUFeedURL</key>
 	<string>https://aiusagemenu.com/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>XJgsOnPjfs4jvp9Gb5EVoYOXvuxTz3uezVuzwqFNzZY=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 	<key>SUSendProfileInfo</key>
 	<false/>
 </dict>

@@ -12,14 +12,41 @@ final class AppServices: NSObject, ObservableObject, UNUserNotificationCenterDel
     var updatesConfigured: Bool { Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") as? String != nil }
     @Published private(set) var login = false
     @Published private(set) var alerts = UserDefaults.standard.bool(forKey: "usageAlerts")
-    @Published private(set) var automatic = UserDefaults.standard.bool(forKey: "automaticUpdates")
-    private let updates = UpdateService()
+    /// Daily update checks are on unless the user turned them off.
+    @Published private(set) var automatic = UserDefaults.standard.object(forKey: "automaticUpdates") as? Bool ?? true
+    let updates = UpdateService()
+    /// Opens the update window (from the notification, the banner or the Dock menu).
+    var showUpdate: (() -> Void)?
+    /// Shows "What's new" after the app was updated.
+    var showWhatsNew: ((String, [String]) -> Void)?
     private let center = UNUserNotificationCenter.current()
 
     func start() {
         center.delegate = self
         syncLogin()
-        if automatic && updatesConfigured { updates.setAutomatic(true) }
+        updates.onFound = { [weak self] found in self?.notifyUpdate(found) }
+        if updatesConfigured { updates.setAutomatic(automatic) }
+        announceIfUpdated()
+    }
+
+    /// One notification per version. If notifications are off, the banner and red dot still show it.
+    private func notifyUpdate(_ found: UpdateService.Available) {
+        let content = UNMutableNotificationContent()
+        content.title = "AI Usage Menu \(found.version) is available"
+        content.body = found.notes.first.map { "What's new: " + $0 } ?? "Click to see what's new and update."
+        content.userInfo = ["kind": "update"]
+        center.add(.init(identifier: "update-" + found.version, content: content, trigger: nil)) { _ in }
+    }
+
+    /// After an update, show the new version's notes once.
+    private func announceIfUpdated() {
+        let defaults = UserDefaults.standard
+        let current = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
+        let seen = defaults.string(forKey: "lastVersionSeen")
+        defaults.set(current, forKey: "lastVersionSeen")
+        guard let seen, seen.compare(current, options: .numeric) == .orderedAscending else { return }
+        let notes = ReleaseNotes.bullets(for: current)
+        if !notes.isEmpty { showWhatsNew?(current, notes) }
     }
 
     func syncLogin() {
@@ -145,6 +172,11 @@ final class AppServices: NSObject, ObservableObject, UNUserNotificationCenterDel
     }
 
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions { [.banner, .list] }
+
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        guard response.notification.request.content.userInfo["kind"] as? String == "update" else { return }
+        await MainActor.run { self.showUpdate?() }
+    }
 }
 
 extension ProviderState {

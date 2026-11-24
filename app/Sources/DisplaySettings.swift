@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SettingsPane: String, CaseIterable {
-    case general = "General", menu = "Menu bar", dock = "Dock icon", behavior = "Alerts", about = "About"
+    case general = "General", menu = "Menu bar", dock = "Dock icon", behavior = "Alerts & updates", about = "About"
     var symbol: String {
         switch self { case .behavior: "bell"; case .about: "info.circle"; case .general: "slider.horizontal.3"; case .menu: "menubar.rectangle"; case .dock: "dock.rectangle" }
     }
@@ -41,18 +41,22 @@ struct DisplaySettings: View {
                     Button { pane = item } label: {
                         Label(item.rawValue, systemImage: item.symbol)
                             .font(.system(size: 13, weight: pane == item ? .semibold : .regular))
+                            .overlay(alignment: .trailing) {
+                                if item == .behavior { UpdateDot(updates: services.updates).offset(x: 14) }
+                            }
                             .frame(maxWidth: .infinity, alignment: .leading).padding(9)
                             .background(pane == item ? Color("violet").opacity(0.20) : .clear, in: RoundedRectangle(cornerRadius: 7))
                     }.buttonStyle(.plain).accessibilityAddTraits(pane == item ? .isSelected : [])
                 }
                 Spacer()
-            }.padding(.horizontal, 10).padding(.vertical, 20).frame(width: 146).background(Color("surface"))
+            }.padding(.horizontal, 10).padding(.vertical, 20).frame(width: 172).background(Color("surface"))
             Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(pane.rawValue).font(.system(size: 24, weight: .bold)).padding(.bottom, 16)
                     switch pane {
                     case .behavior:
+                        UpdateCard(updates: services.updates) { services.showUpdate?() }.padding(.bottom, 10)
                         ServiceChoices(services: services)
                         if services.alerts {
                             row("Alert at the amber and red levels") {
@@ -78,7 +82,7 @@ struct DisplaySettings: View {
                             }
                             VStack(alignment: .leading, spacing: 8) {
                                 Label("Privacy", systemImage: "lock").font(.headline)
-                                Text("Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu connects only for update checks you choose.").fixedSize(horizontal: false, vertical: true)
+                                Text("Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, once a day, and you can turn that off.").fixedSize(horizontal: false, vertical: true)
                             }.padding(14).background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
                             Link(destination: URL(string: "https://typefire.app")!) {
                                 HStack {
@@ -103,7 +107,7 @@ struct DisplaySettings: View {
                     }
                 }.padding(22).frame(maxWidth: .infinity, alignment: .leading)
             }.id(pane)
-        }.frame(width: 570, height: 500).background(Color("background"))
+        }.frame(width: 596, height: 500).background(Color("background"))
             .foregroundStyle(Color("text")).tint(Color("violet")).toggleStyle(VioletSwitch(showsLabel: false))
     }
 

@@ -26,6 +26,7 @@
 		4B8E642EE62318430F52FA7B /* Sparkle-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */; };
 		5A042D8098F4AC6D44D083F5 /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5404D2D55D03B1C0E3B74B7 /* AppServices.swift */; };
 		755906CDDE8E06C5A89831FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A390712ABFAD3DCFD18B23 /* AppDelegate.swift */; };
+		75DF6361F93631F37AEBA664 /* ReleaseNotes.json in Resources */ = {isa = PBXBuildFile; fileRef = 6BEFAB5DFAFDB0788762EBC6 /* ReleaseNotes.json */; };
 		785BD15300C21AC99DC84304 /* auth-apikey.json in Resources */ = {isa = PBXBuildFile; fileRef = A2E1308D85A1649464AA3743 /* auth-apikey.json */; };
 		79FB7AC7FA24AD0DB5A7F569 /* rate-limits.jsonl in Resources */ = {isa = PBXBuildFile; fileRef = 05DE930E7F717DB4FAD614F4 /* rate-limits.jsonl */; };
 		7D2478BAD7F2D54C6A7612E9 /* DisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098286F2261C1F4226182F4C /* DisplayTests.swift */; };
@@ -36,7 +37,9 @@
 		A02FF63B1DB66D3F770156A8 /* UsageDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30C1B4901C696AACBF74A96 /* UsageDetails.swift */; };
 		A07292B285DB37C4E43ED4F8 /* claude-api-key.txt in Resources */ = {isa = PBXBuildFile; fileRef = C65E7EC2A17D399EB29531A0 /* claude-api-key.txt */; };
 		A29760EC17997320592F8796 /* ScaffoldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8385CC8F27CC989ACC010A5 /* ScaffoldTests.swift */; };
+		A2F6105C3B0CB41419D2BE67 /* UpdateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57D1B513DBB59FF76345C657 /* UpdateViews.swift */; };
 		AD082AA888BBBF5963FD067A /* null-limits.jsonl in Resources */ = {isa = PBXBuildFile; fileRef = DA95929C7ACAD18C75A734A0 /* null-limits.jsonl */; };
+		AFF0D76BA0A980B63B7B1527 /* ReleaseNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AA74977635E20D2E79A3BFD /* ReleaseNotes.swift */; };
 		C9CFBBA3B44DEEC7D37A23CA /* DisplayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E9FF5F1B8AD0C35F741511 /* DisplayModel.swift */; };
 		D53DD453D76DB2A9A1218A01 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 67BC9FC51110F4768B036FEC /* Sparkle */; };
 		E912F5B77ABE3224CC971C29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E6643CCF7FEED79E2F9521BB /* Assets.xcassets */; };
@@ -65,11 +68,14 @@
 		4A064E27827EC53C8F9381F3 /* DockTileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockTileController.swift; sourceTree = "<group>"; };
 		5002F7E90C66DC883CB9AB0F /* HardeningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardeningTests.swift; sourceTree = "<group>"; };
 		572023DFA93649A7C5C05D16 /* UsageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageStoreTests.swift; sourceTree = "<group>"; };
+		57D1B513DBB59FF76345C657 /* UpdateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateViews.swift; sourceTree = "<group>"; };
 		5CDF24D377F5A46B5B49325F /* ClaudeCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeProvider.swift; sourceTree = "<group>"; };
 		5D5AB26B3512DD04D66BB5D0 /* DockIconRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockIconRenderer.swift; sourceTree = "<group>"; };
 		69F55108DC3A9AC626DCA632 /* MenuBarRenderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarRenderTests.swift; sourceTree = "<group>"; };
+		6BEFAB5DFAFDB0788762EBC6 /* ReleaseNotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReleaseNotes.json; sourceTree = "<group>"; };
 		8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Sparkle-LICENSE.txt"; sourceTree = "<group>"; };
 		85833BFB82AEF49C5BF217FB /* DisplaySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettings.swift; sourceTree = "<group>"; };
+		8AA74977635E20D2E79A3BFD /* ReleaseNotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseNotes.swift; sourceTree = "<group>"; };
 		8E57B5E91F1166FF30686F51 /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
 		90A390712ABFAD3DCFD18B23 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A2E1308D85A1649464AA3743 /* auth-apikey.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "auth-apikey.json"; sourceTree = "<group>"; };
@@ -108,7 +114,9 @@
 		151C1FF5810B84E9D912BCF3 /* Updater */ = {
 			isa = PBXGroup;
 			children = (
+				8AA74977635E20D2E79A3BFD /* ReleaseNotes.swift */,
 				C315B9D2ED0AC18A2769AE26 /* UpdateService.swift */,
+				57D1B513DBB59FF76345C657 /* UpdateViews.swift */,
 			);
 			path = Updater;
 			sourceTree = "<group>";
@@ -146,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				48E9B2A65FF4315297CA88AD /* Localizable.xcstrings */,
+				6BEFAB5DFAFDB0788762EBC6 /* ReleaseNotes.json */,
 				8045ABD43D74ACC1BCA88779 /* Sparkle-LICENSE.txt */,
 			);
 			path = Resources;
@@ -306,6 +315,7 @@
 			files = (
 				E912F5B77ABE3224CC971C29 /* Assets.xcassets in Resources */,
 				EF3B9D059089BEC2F769E72F /* Localizable.xcstrings in Resources */,
+				75DF6361F93631F37AEBA664 /* ReleaseNotes.json in Resources */,
 				4B8E642EE62318430F52FA7B /* Sparkle-LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,7 +355,9 @@
 				3E76E07F7DDB247AC95236A4 /* MenuBarVisuals.swift in Sources */,
 				0D948D3E2FAFA550C3AA84FA /* Onboarding.swift in Sources */,
 				33EE4EAABFB97B88D7DE9381 /* Provider.swift in Sources */,
+				AFF0D76BA0A980B63B7B1527 /* ReleaseNotes.swift in Sources */,
 				951EBBC34460FCD67463FB29 /* UpdateService.swift in Sources */,
+				A2F6105C3B0CB41419D2BE67 /* UpdateViews.swift in Sources */,
 				A02FF63B1DB66D3F770156A8 /* UsageDetails.swift in Sources */,
 				145602757EADE65F35A70415 /* UsageStore.swift in Sources */,
 				173D4A1E9034240A472C995A /* UsageView.swift in Sources */,

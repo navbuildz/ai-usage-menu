@@ -103,6 +103,9 @@ struct UsageView: View {
     var close: () -> Void = {}
     /// In the menu bar popover the view sizes itself to its content; in the window it fills the window.
     var fitsContent = false
+    /// When set, the panel shows the update banner and a red dot on the Settings button.
+    var updates: UpdateService? = nil
+    var openUpdate: () -> Void = {}
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var contentHeight: CGFloat = 200
     private var provider: (any Provider)? { store.enabled.first { $0.id == navigation.provider } ?? store.enabled.first }
@@ -117,6 +120,7 @@ struct UsageView: View {
         TimelineView(.periodic(from: .now, by: urgent ? 1 : 30)) { tick in
             VStack(spacing: 0) {
                 header(tick.date)
+                if let updates { UpdateBanner(updates: updates, open: openUpdate) }
                 tabs(tick.date)
                 ScrollView {
                     content(tick.date)
@@ -152,7 +156,11 @@ struct UsageView: View {
             HeaderButton(help: "Refresh (⌘R)", label: "Refresh usage", action: store.refreshAll) {
                 RefreshGlyph(running: !store.active.isEmpty && !reduceMotion)
             }
-            HeaderButton(help: "Settings (⌘,)", label: "Settings", action: settings) { KitIcon(name: "settings") }
+            HeaderButton(help: "Settings (⌘,)", label: "Settings", action: settings) {
+                KitIcon(name: "settings").overlay(alignment: .topTrailing) {
+                    if let updates { UpdateDot(updates: updates).offset(x: 4, y: -4) }
+                }
+            }
             HeaderButton(help: "Close (⌘W)", label: "Close", action: close) {
                 Image(systemName: "xmark").font(.system(size: 12, weight: .semibold))
             }

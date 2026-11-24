@@ -22,6 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     private var sessionFrame: NSRect?
     private var window: NSWindow?
     private var settingsWindow: NSWindow?
+    private var updateWindow: NSWindow?
     private var appearance: NSKeyValueObservation?
     private var eventMonitor: Any?
     private let dockTile = DockTileController()
@@ -69,6 +70,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             self?.handle(event) == true ? nil : event
         }
         applyPreferences()
+        services.showUpdate = { [weak self] in self?.showUpdateWindow() }
+        services.showWhatsNew = { [weak self] version, notes in self?.showWhatsNew(version: version, notes: notes) }
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
             services.start()
             store.start(minutes: preferences.options.refreshMinutes)
@@ -185,7 +188,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         let controller = NSHostingController(rootView: UsageView(store: store, preferences: preferences, navigation: navigation, settings: { [weak self] in self?.showSettings() }, close: { [weak self] in
             guard let self else { return }
             if navigation === panelNavigation { popover.performClose(nil) } else { window?.close() }
-        }, fitsContent: inPopover))
+        }, fitsContent: inPopover, updates: services.updates, openUpdate: { [weak self] in self?.showUpdateWindow() }))
         // The popover follows the view's size, so short tabs and messages leave no empty block.
         if inPopover { controller.sizingOptions = [.preferredContentSize] }
         return controller
@@ -268,6 +271,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         if let w = notification.object as? NSWindow, w === window { sessionFrame = w.frame; w.contentViewController = nil }
     }
 
+    /// The TypeFire-style update window: version, bullet notes, one button to install and relaunch.
+    @objc func showUpdateWindow() {
+        guard let available = services.updates.available else { services.checkUpdates(); return }
+        popover.performClose(nil)
+        presentUpdate(UpdateWindowView(mode: .available, version: available.version, notes: available.notes, ready: available.ready,
+                                       install: { [weak self] in self?.updateWindow?.close(); self?.services.updates.install() },
+                                       close: { [weak self] in self?.updateWindow?.close() }), title: "Update AI Usage Menu")
+    }
+
+    func showWhatsNew(version: String, notes: [String]) {
+        presentUpdate(UpdateWindowView(mode: .whatsNew, version: version, notes: notes, close: { [weak self] in self?.updateWindow?.close() }),
+                      title: "What's New in AI Usage Menu")
+    }
+
+    private func presentUpdate(_ view: UpdateWindowView, title: String) {
+        updateWindow?.close()
+        let window = NSWindow(contentViewController: NSHostingController(rootView: view))
+        window.title = title
+        window.styleMask = [.titled, .closable]
+        window.titlebarAppearsTransparent = true
+        window.backgroundColor = NSColor(named: "background")
+        window.appearance = preferences.options.theme.appearance
+        window.isReleasedWhenClosed = false
+        window.center()
+        updateWindow = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     @objc func showSettings() {
         if let welcome { welcome.makeKeyAndOrderFront(nil); return }
         services.syncLogin()
@@ -339,6 +371,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             item.state = id == selected ? .on : .off
         }
         menu.addItem(.separator())
+        if let available = services.updates.available {
+            menu.addItem(withTitle: "Update to \(available.version)…", action: #selector(showUpdateWindow), keyEquivalent: "").target = self
+        }
         for (name, action) in [("Refresh", #selector(refresh)), ("Settings…", #selector(showSettings)), ("Quit", #selector(NSApplication.terminate(_:)))] {
             menu.addItem(withTitle: name, action: action, keyEquivalent: "").target = name == "Quit" ? NSApp : self
         }
