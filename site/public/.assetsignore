@@ -1,0 +1,3 @@
+# Build artifacts that must not be served.
+content-assets.mjs
+content-modules.mjs
