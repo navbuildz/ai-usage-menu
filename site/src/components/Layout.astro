@@ -10,7 +10,7 @@ import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 import ProviderLogo from './ProviderLogo.astro';
 const {id,title,meta,graph=[],art,notFound=false}=Astro.props;
 const canonical=base+(notFound?'/404':pathFor(id));
-const og=base+'/art/og-'+id+'.png';
+const og=base+'/art/og-'+id+'.jpg';
 const cols=[
   ['Product',[[dmgUrl,'Download for Mac'],['/download','Requirements and install'],['/privacy','Privacy & Legal'],['/open-source','Open source'],['/compare','Compare trackers']]],
   ['Guides',[['/claude-usage-limits','Claude usage limits'],['/claude-code-usage','Claude Code usage'],['/codex-usage','Codex usage']]],
@@ -20,7 +20,7 @@ const cols=[
 <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>{title}</title><meta name="description" content={meta}/>{!notFound && <link rel="canonical" href={canonical}/>}<link rel="icon" href="/favicon.ico" sizes="any"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192"/><link rel="apple-touch-icon" href="/apple-touch-icon.png"/><link rel="manifest" href="/site.webmanifest"/>
 {notFound && <meta name="robots" content="noindex"/>}
 <meta name="theme-color" content="#0b0e20" media="(prefers-color-scheme: dark)"/><meta name="theme-color" content="#f6f7fd" media="(prefers-color-scheme: light)"/>
-<meta property="og:type" content={id==='claude-usage-limits'?'article':'website'}/><meta property="og:title" content={title}/><meta property="og:description" content={meta}/><meta property="og:url" content={canonical}/><meta property="og:site_name" content="AI Usage Menu"/><meta property="og:image" content={og}/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={meta}/><meta name="twitter:image" content={og}/>
+<meta property="og:type" content={id==='claude-usage-limits'?'article':'website'}/><meta property="og:title" content={title}/><meta property="og:description" content={meta}/><meta property="og:url" content={canonical}/><meta property="og:site_name" content="AI Usage Menu"/><meta property="og:image" content={og}/><meta property="og:image:secure_url" content={og}/><meta property="og:image:type" content="image/jpeg"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:alt" content={title}/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={meta}/><meta name="twitter:image" content={og}/><meta name="twitter:image:alt" content={title}/>
 {art && <link rel="preload" as="image" type="image/avif" href={'/art/'+art+'.avif'} imagesrcset={[480,800,1200].map(w=>'/art/'+art+(w===1200?'':'-'+w)+'.avif '+w+'w').join(', ')} imagesizes="(max-width: 960px) 100vw, 640px" fetchpriority="high"/>}
 {graph.length>0 && <script type="application/ld+json" set:html={JSON.stringify({'@context':'https://schema.org','@graph':graph}).replace(/</g,'\\u003c')}/>}
 <script is:inline src="/theme.js"></script><script is:inline defer src="/site.js"></script><script is:inline defer src="/ga.js"></script><script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-BQD441VNTH"></script></head>

@@ -50,7 +50,7 @@ for(const [id,data] of Object.entries(pages)){
  assert.equal(html.querySelector('meta[property="og:url"]').getAttribute('content'),canonical,id+' og:url must equal the canonical');
  assert.equal(html.querySelector('meta[name="twitter:card"]')?.getAttribute('content'),'summary_large_image',id+' twitter:card');
  for(const name of ['twitter:title','twitter:description','twitter:image'])assert.ok(html.querySelector('meta[name="'+name+'"]')?.getAttribute('content'),id+' missing '+name);
- { const png=await fs.readFile(root+new URL(og).pathname); assert.equal(png.readUInt32BE(16)+'x'+png.readUInt32BE(20),'1200x630',id+' og:image must be 1200x630'); }
+ { const img=await fs.readFile(root+new URL(og).pathname); let dims=''; if(img[0]===0x89) dims=img.readUInt32BE(16)+'x'+img.readUInt32BE(20); else { for(let i=2;i<img.length;){ const m=img[i+1], len=img.readUInt16BE(i+2); if(m>=0xC0&&m<=0xC3){ dims=img.readUInt16BE(i+7)+'x'+img.readUInt16BE(i+5); break; } i+=2+len; } } assert.equal(dims,'1200x630',id+' og:image must be 1200x630'); assert.ok(img.length<300000,id+' og:image must be under 300 KB for link previews'); for(const prop of ['og:image:type','og:image:secure_url','og:image:alt'])assert.ok(html.querySelector('meta[property="'+prop+'"]')?.getAttribute('content'),id+' needs '+prop); }
  assert.doesNotMatch(html.querySelector('footer').text,/BaseThread/);
  assert.equal(html.querySelector('footer a[href="/privacy"]').text,'Privacy & Legal');
  if(id==='privacy')assert.ok(html.querySelector('main').text.includes('© 2026 BaseThread LLC'));

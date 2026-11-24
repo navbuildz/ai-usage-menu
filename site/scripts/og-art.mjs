@@ -42,7 +42,9 @@ try {
     }, headline[id] || pages[id].h1);
     await new Promise(r => setTimeout(r, 1800));
     await page.screenshot({path: 'public/art/og-' + id + '.png', clip: {x: 0, y: 0, width: 1200, height: 630}});
-    console.log('wrote og-' + id + '.png');
+    // Light JPEG for link previews (iMessage is fussy with heavy images); the PNG stays for the GitHub social preview.
+    await page.screenshot({path: 'public/art/og-' + id + '.jpg', type: 'jpeg', quality: 88, clip: {x: 0, y: 0, width: 1200, height: 630}});
+    console.log('wrote og-' + id + '.png/.jpg');
   }
 } finally {
   await browser.close();

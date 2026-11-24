@@ -20,7 +20,7 @@
     "first120": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills ea",
     "heading": "Your Claude Code and Codex limits, in your menu bar and your Dock.",
     "canonical": "https://aiusagemenu.com/",
-    "og": "https://aiusagemenu.com/art/og-home.png",
+    "og": "https://aiusagemenu.com/art/og-home.jpg",
     "types": [
       "BreadcrumbList",
       "SoftwareApplication",
@@ -51,7 +51,7 @@
     "first120": "See your Claude Code usage live: session and weekly limits, reset times, and what's using them, right in your Mac menu b",
     "heading": "Claude Code usage, live in your menu bar",
     "canonical": "https://aiusagemenu.com/claude-code-usage",
-    "og": "https://aiusagemenu.com/art/og-claude-code-usage.png",
+    "og": "https://aiusagemenu.com/art/og-claude-code-usage.jpg",
     "types": [
       "BreadcrumbList",
       "Article",
@@ -82,7 +82,7 @@
     "first120": "Watch your Codex usage limits from your Mac menu bar: the 5-hour window, the weekly cap and when each one resets. Free, ",
     "heading": "Codex usage and limits, at a glance",
     "canonical": "https://aiusagemenu.com/codex-usage",
-    "og": "https://aiusagemenu.com/art/og-codex-usage.png",
+    "og": "https://aiusagemenu.com/art/og-codex-usage.jpg",
     "types": [
       "BreadcrumbList",
       "Article",
@@ -115,7 +115,7 @@
     "first120": "Understand the Claude usage limit on your account, from the five-hour session to the weekly reset. Check Pro, Max and Te",
     "heading": "Claude usage limits, explained",
     "canonical": "https://aiusagemenu.com/claude-usage-limits",
-    "og": "https://aiusagemenu.com/art/og-claude-usage-limits.png",
+    "og": "https://aiusagemenu.com/art/og-claude-usage-limits.jpg",
     "types": [
       "BreadcrumbList",
       "Article",
@@ -125,7 +125,7 @@
   },
   {
     "id": "open-source",
-    "bodyWords": 927,
+    "bodyWords": 961,
     "keywords": [
       "open source claude usage tracker",
       "claude usage tracker github",
@@ -140,7 +140,7 @@
     "first120": "Explore the open source Claude usage tracker built in Swift for Mac. Read the provider code, inspect privacy tests, chec",
     "heading": "Open source, MIT. Read every line.",
     "canonical": "https://aiusagemenu.com/open-source",
-    "og": "https://aiusagemenu.com/art/og-open-source.png",
+    "og": "https://aiusagemenu.com/art/og-open-source.jpg",
     "types": [
       "BreadcrumbList",
       "SoftwareSourceCode"
@@ -163,7 +163,7 @@
     "first120": "Check Claude usage without cookie access or a pasted key. See which files AI Usage Menu reads on your Mac, when connecti",
     "heading": "Nothing to paste. Nothing leaves your Mac.",
     "canonical": "https://aiusagemenu.com/privacy",
-    "og": "https://aiusagemenu.com/art/og-privacy.png",
+    "og": "https://aiusagemenu.com/art/og-privacy.jpg",
     "types": [
       "BreadcrumbList",
       "WebPage",
@@ -192,7 +192,7 @@
     "first120": "This Claude usage tracker comparison shows which Mac apps read local logs or provider APIs, display weekly limits, and o",
     "heading": "Claude and Codex usage trackers, compared",
     "canonical": "https://aiusagemenu.com/compare",
-    "og": "https://aiusagemenu.com/art/og-compare.png",
+    "og": "https://aiusagemenu.com/art/og-compare.jpg",
     "types": [
       "BreadcrumbList",
       "ItemList",
@@ -217,7 +217,7 @@
     "first120": "Download AI Usage Menu for Mac to see Claude Code and Codex plan limits in the menu bar and Dock. Check requirements, in",
     "heading": "Download AI Usage Menu for Mac",
     "canonical": "https://aiusagemenu.com/download",
-    "og": "https://aiusagemenu.com/art/og-download.png",
+    "og": "https://aiusagemenu.com/art/og-download.jpg",
     "types": [
       "BreadcrumbList",
       "SoftwareApplication",
