@@ -338,7 +338,7 @@ struct DisplaySettings: View {
 
 enum AppLinks {
     /// Filled in by TF ENG when the GitHub repository is public; links stay hidden until then.
-    static let repository = URL(string: "https://github.com/OWNER/aiusagemenu")!
+    static let repository = URL(string: "https://github.com/navbuildz/ai-usage-menu")!
 }
 
 /// Third-party licenses that ship inside the app (Sparkle).

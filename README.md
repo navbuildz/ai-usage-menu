@@ -6,11 +6,11 @@
 
 **A free, open-source Claude usage tracker for Mac.** See your Claude Code and Codex limits in the menu bar and Dock, with no cookie or API key.
 
-[![Download for Mac](https://img.shields.io/badge/Download_for_Mac-free-6340d2?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/OWNER/REPO/releases/latest/download/AIUsageMenu.dmg)
+[![Download for Mac](https://img.shields.io/badge/Download_for_Mac-free-6340d2?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/navbuildz/ai-usage-menu/releases/latest/download/AIUsageMenu.dmg)
 &nbsp;
 [![Website](https://img.shields.io/badge/aiusagemenu.com-visit-15182c?style=for-the-badge)](https://aiusagemenu.com)
 
-[![Latest release](https://img.shields.io/github/v/release/OWNER/REPO?color=6340d2&label=release)](https://github.com/OWNER/REPO/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/navbuildz/ai-usage-menu?color=6340d2&label=release)](https://github.com/navbuildz/ai-usage-menu/releases/latest)
 [![macOS 13 or later](https://img.shields.io/badge/macOS-13%2B-0b0e20?logo=apple&logoColor=white)](#requirements)
 [![Apple silicon and Intel](https://img.shields.io/badge/Apple_silicon_%2B_Intel-universal-0b0e20)](#requirements)
 [![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)](#build-from-source)
@@ -135,7 +135,7 @@ lsof -nP -a -i -p "$pid"
 
 ### Download
 
-1. [Download the signed, notarized DMG](https://github.com/OWNER/REPO/releases/latest/download/AIUsageMenu.dmg).
+1. [Download the signed, notarized DMG](https://github.com/navbuildz/ai-usage-menu/releases/latest/download/AIUsageMenu.dmg).
 2. Open it and drag **AI Usage Menu** to Applications.
 3. Open the app, review the providers it finds, and choose your menu bar and Dock views.
 
@@ -151,14 +151,14 @@ spctl --assess --type execute "/Applications/AI Usage Menu.app"
 Use Xcode with Swift 6. The deployment target is macOS 13. From the repository root:
 
 ```sh
-git clone https://github.com/OWNER/REPO.git
-cd REPO
+git clone https://github.com/navbuildz/ai-usage-menu.git
+cd ai-usage-menu
 ./app/build.sh
 ./app/build.sh test
 open "app/build/Build/Products/Release/AI Usage Menu.app"
 ```
 
-The project is generated from `app/project.yml`; after changing targets or build settings, run `cd app && xcodegen generate`. Source builds are unsigned; the signed, notarized app comes from the [releases page](https://github.com/OWNER/REPO/releases).
+The project is generated from `app/project.yml`; after changing targets or build settings, run `cd app && xcodegen generate`. Source builds are unsigned; the signed, notarized app comes from the [releases page](https://github.com/navbuildz/ai-usage-menu/releases).
 
 ## Requirements
 
