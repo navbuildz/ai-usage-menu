@@ -539,7 +539,7 @@
     "title": "How AI Usage Menu Works: No Cookie, No Key | Privacy",
     "meta": "Check Claude usage without cookie access or a pasted key. See which files AI Usage Menu reads on your Mac, when connections occur and how to verify a refresh.",
     "h1": "Nothing to paste. Nothing leaves your Mac.",
-    "answer": "AI Usage Menu runs Claude Code's own /usage command and reads Codex's own session logs on your Mac. It never asks for a cookie, password or API key, reads no browser data and has no analytics. AI Usage Menu itself only checks for updates once a day, and you can turn that off.",
+    "answer": "AI Usage Menu runs Claude Code's own /usage command and reads Codex's own session logs on your Mac. It never asks for a cookie, password or API key, reads no browser data, and the app has no analytics. AI Usage Menu itself only checks for updates once a day, and you can turn that off.",
     "primary": "claude usage without cookie",
     "faqs": [],
     "steps": [],
@@ -562,7 +562,7 @@
       ],
       [
         "Privacy policy",
-        "AI Usage Menu collects no usage data or analytics. Processing happens on this Mac. This website uses no cookies or analytics scripts."
+        "The AI Usage Menu app collects no usage data, analytics or telemetry, and processing happens on your Mac. This website uses Google Analytics and Cloudflare Web Analytics to count visits and download clicks. We don't send your name or email to either service, and nothing you type into the site is recorded. Google Analytics sets cookies to tell visits apart; Cloudflare Web Analytics sets none."
       ],
       [
         "How can a Claude usage tracker work without your cookie?",

@@ -1,0 +1,9 @@
+---
+import Icon from './Icon.astro';
+const repo = 'https://github.com/navbuildz/ai-usage-menu';
+---
+<section class="feedback" aria-labelledby="feedback-h" data-reveal>
+  <span class="ic-tile"><Icon name="chat-circle-text" duo/></span>
+  <div><h2 id="feedback-h">Found a bug or want a feature?</h2><p class="muted">Tell us on GitHub. Bugs and feature requests go to Issues; questions and ideas go to Discussions.</p></div>
+  <div class="actions"><a class="btn btn-primary btn-sm" href={repo+'/issues/new?template=bug.yml'} data-cta="feedback-bug"><Icon name="warning-circle"/>Report a bug</a><a class="btn btn-ghost btn-sm" href={repo+'/issues/new?template=feature.yml'} data-cta="feedback-feature"><Icon name="sparkle"/>Request a feature</a><a class="btn btn-ghost btn-sm" href={repo+'/discussions'} data-cta="feedback-discussions"><Icon name="chat-circle-text"/>Ask a question</a></div>
+</section>

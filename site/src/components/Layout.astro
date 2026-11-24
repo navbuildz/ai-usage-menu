@@ -23,7 +23,7 @@ const cols=[
 <meta property="og:type" content={id==='claude-usage-limits'?'article':'website'}/><meta property="og:title" content={title}/><meta property="og:description" content={meta}/><meta property="og:url" content={canonical}/><meta property="og:site_name" content="AI Usage Menu"/><meta property="og:image" content={og}/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={meta}/><meta name="twitter:image" content={og}/>
 {art && <link rel="preload" as="image" type="image/avif" href={'/art/'+art+'.avif'} imagesrcset={[480,800,1200].map(w=>'/art/'+art+(w===1200?'':'-'+w)+'.avif '+w+'w').join(', ')} imagesizes="(max-width: 960px) 100vw, 640px" fetchpriority="high"/>}
 {graph.length>0 && <script type="application/ld+json" set:html={JSON.stringify({'@context':'https://schema.org','@graph':graph}).replace(/</g,'\\u003c')}/>}
-<script is:inline src="/theme.js"></script><script is:inline defer src="/site.js"></script></head>
+<script is:inline src="/theme.js"></script><script is:inline defer src="/site.js"></script><script is:inline defer src="/ga.js"></script><script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-BQD441VNTH"></script></head>
 <body><a class="skip" href="#content">Skip to content</a>
 <span id="mast-sentinel" aria-hidden="true"></span>
 <header class="mast"><div class="wrap navline">
@@ -37,7 +37,7 @@ const cols=[
   <div class="wrap foot-cols">
     <div class="foot-id"><a href="/" class="brand"><img class="on-dark" src={darkLogo} width="186" height="40" alt="AI Usage Menu"/><img class="on-light" src={lightLogo} width="186" height="40" alt="AI Usage Menu"/></a><p>Your Claude Code and Codex limits in the menu bar and Dock. Free, open source, and nothing to paste.</p><a class="arrow-link" href="https://typefire.app">From the makers of TypeFire<Icon name="arrow-up-right"/></a></div>
     {cols.map(([h,links])=><nav aria-label={h}><h2>{h}</h2><ul>{links.map(([href,label])=><li><a href={href}>{label}</a></li>)}</ul></nav>)}
-    <nav aria-label="Elsewhere"><h2>Elsewhere</h2><ul><li><a href="/llms.txt">llms.txt</a></li><li><a href="/sitemap.xml">Sitemap</a></li><li><a href="https://typefire.app">TypeFire</a></li></ul></nav>
+    <nav aria-label="Feedback"><h2>Feedback</h2><ul><li><a href="https://github.com/navbuildz/ai-usage-menu/issues/new?template=bug.yml">Report a bug</a></li><li><a href="https://github.com/navbuildz/ai-usage-menu/issues/new?template=feature.yml">Request a feature</a></li><li><a href="https://github.com/navbuildz/ai-usage-menu/discussions">Ask a question</a></li><li><a href="https://github.com/navbuildz/ai-usage-menu">GitHub</a></li></ul></nav>
   </div>
   <div class="foot-bar"><span class="glow" aria-hidden="true"></span><div class="wrap fb-in">
     <div class="fb-tag"><img src={mark} width="28" height="28" alt="AI Usage Menu"/><span>Know your limits before you hit them.</span></div>

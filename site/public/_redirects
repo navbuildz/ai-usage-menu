@@ -1,2 +1,2 @@
-# Cloudflare Workers static assets: redirects (mirrors vercel.json).
+# Cloudflare Workers static assets: redirects.
 /appcast.xml https://github.com/navbuildz/ai-usage-menu/releases/latest/download/appcast.xml 302

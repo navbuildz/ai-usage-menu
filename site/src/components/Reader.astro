@@ -10,6 +10,7 @@ import TerminalFlow from './TerminalFlow.astro';
 import ResetTimeline from './ResetTimeline.astro';
 import DataFlow from './DataFlow.astro';
 import Visual from './Visual.astro';
+import Feedback from './Feedback.astro';
 import GuideTools from './GuideTools.astro';
 import CodeCards from './CodeCards.astro';
 import RepoInfo from './RepoInfo.astro';
@@ -41,8 +42,8 @@ const visuals = {
 }[id] ?? {};
 const toc = guide
   ? ['Quick answer','Commands',essentialsTitle,...longform.map(([h])=>h),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])]
-  : [...(id==='compare'?['Data sources and features']:[]),...(id==='open-source'?['Read the code that touches your data','Changelog',installTitle]:[]),...longform.map(([h])=>h),...(id==='privacy'?['Inspect the local reader and network test','Verify the running app','Legal notices']:[]),...(id==='download'?[installTitle,'Inspect the updater and its network boundary']:[]),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])];
-const tocId = h => ({'Read the code that touches your data':'read-the-code','Changelog':'changelog','Legal notices':'legal-notices'})[h] ?? anchor(h);
+  : [...(id==='compare'?['Data sources and features']:[]),...(id==='open-source'?['Read the code that touches your data','Changelog',installTitle,'Found a bug or want a feature?']:[]),...longform.map(([h])=>h),...(id==='privacy'?['Inspect the local reader and network test','Verify the running app','Legal notices']:[]),...(id==='download'?[installTitle,'Inspect the updater and its network boundary','Found a bug or want a feature?']:[]),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])];
+const tocId = h => ({'Found a bug or want a feature?':'feedback-h','Read the code that touches your data':'read-the-code','Changelog':'changelog','Legal notices':'legal-notices'})[h] ?? anchor(h);
 const ours = comparison.rows.find(r=>r[0]==='AI Usage Menu');
 const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-four','chart-bar','wifi-slash','gauge'];
 ---
@@ -103,6 +104,7 @@ const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-fo
     {id==='download' && <CodeCards variant="download"/>}
     {id==='privacy' && <section class="legal-block" id="legal-notices" aria-labelledby="legal-h"><h2 id="legal-h">Legal notices</h2><h3>Copyright and license</h3><p class="muted">© 2026 BaseThread LLC. AI Usage Menu is distributed under the MIT License.</p><a class="arrow-link" href="https://opensource.org/licenses/MIT">Read the MIT License<Icon name="arrow-up-right"/></a><h3>Trademarks</h3><p class="muted">AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</p></section>}
 
+    {['open-source','download'].includes(id) && <Feedback/>}
     {p.steps.length>0 && <section aria-labelledby={anchor(stepsName)}><h2 id={anchor(stepsName)}>{stepsName}</h2><ol class="steps steps-col" data-howto data-reveal-group>{p.steps.map((s,i)=><li><span class="ic-tile sm"><Icon name={['download-simple','magnifying-glass','gauge'][i]}/></span>{s}</li>)}</ol></section>}
     {p.sources.length>0 && <section aria-labelledby="sources"><h2 id="sources">Sources</h2><ul class="sources">{p.sources.map(([label,href])=><li><Icon name="book-open"/><a href={href} rel={id==='compare'?'nofollow':undefined}>{label}</a><small>Checked <time datetime={date}>{date}</time></small></li>)}</ul></section>}
   </div>

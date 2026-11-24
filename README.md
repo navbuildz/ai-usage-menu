@@ -42,6 +42,7 @@ AI Usage Menu is a free, MIT-licensed Mac app that shows your **Claude Code usag
 - [Claude usage trackers compared](#claude-usage-trackers-compared)
 - [FAQ](#faq)
 - [Guides](#guides)
+- [Feedback](#feedback)
 - [Contributing](#contributing)
 - [Security](#security)
 - [License](#license)
@@ -122,7 +123,7 @@ Read the full walkthrough on [how AI Usage Menu reads your usage without a cooki
   <img src="docs/readme/privacy-light.png" width="460" alt="Data flow on your Mac: Claude Code's /usage output and Codex's local session logs flow into AI Usage Menu in the menu bar and Dock. Nothing is sent, and checking uses zero tokens.">
 </picture>
 
-- **No analytics and no telemetry.** Processing happens on your Mac.
+- **The app has no analytics and no telemetry.** Processing happens on your Mac. (The website, aiusagemenu.com, uses Google Analytics and Cloudflare Web Analytics to count visits and downloads.)
 - **No usage network calls.** AI Usage Menu itself only checks for updates once a day, and you can turn that off.
 - **Verify it yourself.** A test in this repository fails if network APIs appear anywhere outside the updater, and you can sample the running app:
 
@@ -265,6 +266,16 @@ Yes. Choose one menu bar item per provider to keep Claude and Codex usage visibl
 - [Mac usage trackers for Claude and Codex, compared](https://aiusagemenu.com/compare): data sources, credentials and features side by side.
 - [Privacy and how readings work](https://aiusagemenu.com/privacy): which files are read and how to verify it yourself.
 - [Download AI Usage Menu for Mac](https://aiusagemenu.com/download): requirements, install and signature checks.
+
+## Feedback
+
+Found a bug or want a feature? Everything goes through GitHub.
+
+- 🐞 [Report a bug](https://github.com/navbuildz/ai-usage-menu/issues/new?template=bug.yml)
+- ✨ [Request a feature](https://github.com/navbuildz/ai-usage-menu/issues/new?template=feature.yml)
+- 💬 [Ask a question or share an idea in Discussions](https://github.com/navbuildz/ai-usage-menu/discussions)
+
+You can also choose **Report a Bug** or **Request a Feature** from the app's menu or Settings.
 
 ## Contributing
 

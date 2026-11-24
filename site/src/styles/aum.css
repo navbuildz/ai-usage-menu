@@ -888,3 +888,7 @@ figure.dataflow{margin:0 auto}
 /* Menu bar glyph: one lit bar when healthy, two when nearing the limit, three near capacity. */
 .mb-gauge .g-bar{fill:color-mix(in srgb,currentColor 28%,transparent)}
 .mb-gauge.tone-ok .b1,.mb-gauge.tone-warn .b1,.mb-gauge.tone-warn .b2,.mb-gauge.tone-hot .g-bar{fill:var(--tone)}
+.feedback{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px 18px;align-items:start;padding:24px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1)}
+.feedback h2{font-size:1.3rem;margin:0 0 6px}
+.feedback .actions{grid-column:2}
+@media (max-width:520px){.feedback{grid-template-columns:minmax(0,1fr)}.feedback .actions{grid-column:1}}
