@@ -1,5 +1,6 @@
 name: Provider output changed
 description: The app says Claude Code or Codex changed its usage output
+labels: ["provider-output"]
 body:
   - type: textarea
     attributes:

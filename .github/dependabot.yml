@@ -1,0 +1,12 @@
+# Opens pull requests when the app's Swift packages (Sparkle) or the CI actions have updates,
+# security fixes included. Every pull request still needs the maintainer's approval.
+version: 2
+updates:
+  - package-ecosystem: swift
+    directory: /app
+    schedule: { interval: weekly }
+    labels: [dependencies]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    labels: [dependencies]

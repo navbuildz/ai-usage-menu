@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question or share an idea
+    url: https://github.com/navbuildz/ai-usage-menu/discussions
+    about: Questions, setup help and ideas that aren't a bug or a concrete feature request.
+  - name: Report a security issue privately
+    url: https://github.com/navbuildz/ai-usage-menu/security/advisories/new
+    about: Please don't open a public issue for vulnerabilities.
+  - name: Guides on aiusagemenu.com
+    url: https://aiusagemenu.com/claude-usage-limits
+    about: How Claude and Codex limits and resets work.

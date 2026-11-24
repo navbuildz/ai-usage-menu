@@ -52,7 +52,10 @@ xcodegen generate >/dev/null
 mkdir -p "$out"
 zip="$out/AIUsageMenu-$version.zip"
 if [ "$mode" != "--local-feed" ]; then
-  source ~/.zshrc >/dev/null 2>&1 || true
+  # The credentials live in ~/.zshrc, which bash can't source (a zsh-only line ends the script),
+  # so ask zsh for the two values. They are never printed.
+  [ -n "${APPLE_ID:-}" ] || APPLE_ID=$(zsh -c 'source ~/.zshrc >/dev/null 2>&1; print -r -- "$APPLE_ID"')
+  [ -n "${APPLE_PASSWORD:-}" ] || APPLE_PASSWORD=$(zsh -c 'source ~/.zshrc >/dev/null 2>&1; print -r -- "$APPLE_PASSWORD"')
   : "${APPLE_ID:?APPLE_ID not set (notarization)}" "${APPLE_PASSWORD:?APPLE_PASSWORD not set (notarization)}"
   ditto -c -k --keepParent "$app" "$out/notarize.zip"
   xcrun notarytool submit "$out/notarize.zip" --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$team" --wait
@@ -98,6 +101,10 @@ echo "Packaged $version (build $build_number) in $out"
 # 5. Publish: a GitHub release holding the app and the feed. aiusagemenu.com/appcast.xml forwards to
 #    https://github.com/$repo/releases/latest/download/appcast.xml, so every copy finds it.
 if [ "$mode" = "--publish" ]; then
-  gh release create "v$version" "$zip" "$dmg" "$out/appcast.xml" --repo "$repo" --title "AI Usage Menu $version" --notes-file "$notes"
+  # Release notes: the bullets, then SHA-256 checksums so downloads can be verified.
+  body="$out/github-notes.md"
+  { cat "$notes"; echo; echo "### Checksums (SHA-256)"; echo; echo '```'
+    (cd "$out" && shasum -a 256 "$(basename "$dmg")" "$(basename "$zip")"); echo '```'; } > "$body"
+  gh release create "v$version" "$zip" "$dmg" "$out/appcast.xml" --repo "$repo" --title "AI Usage Menu $version" --notes-file "$body"
   echo "Published v$version to https://github.com/$repo/releases/tag/v$version"
 fi

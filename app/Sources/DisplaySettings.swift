@@ -92,6 +92,15 @@ struct DisplaySettings: View {
                                     KitIcon(name: "external-link", size: 14)
                                 }.padding(12).background(Color("surfaceRaised"), in: RoundedRectangle(cornerRadius: 12))
                             }.buttonStyle(.plain)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Label("Feedback", systemImage: "bubble.left.and.bubble.right").font(.headline)
+                                Text("Found a bug or want something new? Tell us on GitHub.").fixedSize(horizontal: false, vertical: true)
+                                HStack(spacing: 10) {
+                                    Link("Report a bug", destination: AppLinks.bugReport).buttonStyle(PrimaryButtonStyle())
+                                    Link("Request a feature", destination: AppLinks.featureRequest).buttonStyle(SecondaryButtonStyle())
+                                    Link("Ask a question", destination: AppLinks.discussions).font(.callout)
+                                }
+                            }.padding(14).background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
                             HStack(spacing: 14) {
                                 Text("MIT License · BaseThread LLC").foregroundStyle(Color("textSecondary"))
                                 Spacer()
@@ -337,8 +346,18 @@ struct DisplaySettings: View {
 }
 
 enum AppLinks {
-    /// Filled in by TF ENG when the GitHub repository is public; links stay hidden until then.
     static let repository = URL(string: "https://github.com/navbuildz/ai-usage-menu")!
+    /// Prefilled with the app and macOS versions so a report starts with the basics.
+    static var bugReport: URL {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let os = ProcessInfo.processInfo.operatingSystemVersion
+        let versions = "AI Usage Menu \(version), macOS \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)"
+        var components = URLComponents(string: repository.absoluteString + "/issues/new")!
+        components.queryItems = [.init(name: "template", value: "bug.yml"), .init(name: "versions", value: versions)]
+        return components.url!
+    }
+    static let featureRequest = URL(string: "https://github.com/navbuildz/ai-usage-menu/issues/new?template=feature.yml")!
+    static let discussions = URL(string: "https://github.com/navbuildz/ai-usage-menu/discussions")!
 }
 
 /// Third-party licenses that ship inside the app (Sparkle).

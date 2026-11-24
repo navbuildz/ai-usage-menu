@@ -355,6 +355,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: false)
     }
     @objc func refresh() { store.refreshAll() }
+    @objc func reportBug() { NSWorkspace.shared.open(AppLinks.bugReport) }
+    @objc func requestFeature() { NSWorkspace.shared.open(AppLinks.featureRequest) }
     @objc func typeFire() { NSWorkspace.shared.open(URL(string: "https://typefire.app")!) }
     @objc private func pickDockProvider(_ sender: NSMenuItem) {
         if let id = sender.representedObject as? String { preferences.options.dockProvider = id }
@@ -388,6 +390,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         menu.addItem(withTitle: "About AI Usage Menu", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "").target = NSApp
         menu.addItem(withTitle: "Settings…", action: #selector(showSettings), keyEquivalent: ",").target = self
         menu.addItem(withTitle: "Refresh", action: #selector(refresh), keyEquivalent: "r").target = self
+        menu.addItem(withTitle: "Report a Bug…", action: #selector(reportBug), keyEquivalent: "").target = self
+        menu.addItem(withTitle: "Request a Feature…", action: #selector(requestFeature), keyEquivalent: "").target = self
         menu.addItem(withTitle: "From the makers of TypeFire", action: #selector(typeFire), keyEquivalent: "").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit AI Usage Menu", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q").target = NSApp
