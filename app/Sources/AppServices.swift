@@ -80,7 +80,8 @@ final class AppServices: NSObject, ObservableObject, UNUserNotificationCenterDel
         Task {
             defer { requestingAlerts = false }
             do {
-                alerts = try await center.requestAuthorization(options: [.alert, .sound])
+                // A fresh center value, not the stored property, so older Swift compilers accept the async call.
+                alerts = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
                 if !alerts { alertsNote = "Allow notifications for AI Usage Menu in System Settings, then try again." }
             } catch {
                 alerts = false
