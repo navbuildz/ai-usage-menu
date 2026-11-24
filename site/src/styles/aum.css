@@ -908,3 +908,7 @@ figure.dataflow{margin:0 auto}
 .compare .cell.nl{white-space:normal}
 .spec-row b .ic{color:var(--mint)}
 @media (min-width:701px){.compare .tagpill{white-space:normal;text-align:center}.compare th:nth-child(4),.compare td:nth-child(4){max-width:130px}}
+/* Price and license: plain text, license as a quiet second line (no wrapped capsules). */
+.pl{display:grid;gap:2px}
+.pl b{font-weight:620;color:var(--ink)}
+.pl small{font-size:.8rem;color:var(--muted)}

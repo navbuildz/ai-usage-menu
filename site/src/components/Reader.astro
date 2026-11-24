@@ -74,7 +74,7 @@ const colIcons = [null,'file-code','key','tag','@claude','@codex','squares-four'
       : v==='Not listed' ? <span class="cell nl"><Icon name="minus-circle"/>Not listed</span>
       : ['Separate app','Pro tier'].includes(v) ? <span class="cell part"><Icon name="circle-half"/>{v}</span>
       : i===2 ? (v==='No' ? <span class="cell yes"><Icon name="shield-check"/>No</span> : v.startsWith('No ') ? <span class="cell nl"><Icon name="minus-circle"/>{v}</span> : <span class="cell tok"><Icon name="key"/>{v}</span>)
-      : i===3 ? <span class:list={['tagpill',{good:v==='Free · MIT'}]}>{v}</span>
+      : i===3 ? <span class="pl"><b>{v.split(' · ')[0]}</b><small>{v.split(' · ')[1]}</small></span>
       : v==='No Dock icon' ? <span class="cell nl"><Icon name="minus-circle"/>{v}</span>
       : (i===8 && row[0]==='AI Usage Menu') ? <span class="cell yes"><Icon name="shield-check"/>{v}</span>
       : v}</td>)}</tr>)}</tbody></table></div></section>}
