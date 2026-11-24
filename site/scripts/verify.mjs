@@ -18,6 +18,7 @@ const sitemap=parse(await fs.readFile(root+'/sitemap.xml','utf8'));
 const errorPage=parse(await fs.readFile(root+'/404.html','utf8'));
 assert.ok(!errorPage.querySelector('link[rel="canonical"]'));
 assert.equal(errorPage.querySelector('meta[name="robots"]').getAttribute('content'),'noindex');
+for(const sel of ['link[rel="icon"][href="/favicon.ico"]','link[rel="icon"][href="/favicon.svg"]','link[rel="apple-touch-icon"]','meta[property="og:image"]','meta[name="twitter:card"]'])assert.ok(errorPage.querySelector(sel),'404 missing '+sel);
 assert.equal(sitemap.querySelectorAll('url').length,8);
 for(const [id,data] of Object.entries(pages)){
  const path=id==='home'?'':id;
@@ -42,6 +43,14 @@ for(const [id,data] of Object.entries(pages)){
  for(const img of html.querySelectorAll('img'))assert.ok(img.getAttribute('width')&&img.getAttribute('height')&&img.getAttribute('alt'));
  for(const pic of html.querySelectorAll('picture')){assert.ok(pic.querySelector('source[type="image/avif"]')&&pic.querySelector('source[type="image/webp"]'));await fs.access(root+pic.querySelector('img').getAttribute('src'))}
  const og=html.querySelector('meta[property="og:image"]').getAttribute('content');await fs.access(root+new URL(og).pathname);
+ // Every page carries the full icon set and social card (a missing favicon or card fails the build).
+ for(const sel of ['link[rel="icon"][href="/favicon.ico"]','link[rel="icon"][href="/favicon.svg"]','link[rel="icon"][href="/favicon-192.png"]','link[rel="apple-touch-icon"]','link[rel="manifest"]'])assert.ok(html.querySelector(sel),id+' missing '+sel);
+ for(const href of ['/favicon.ico','/favicon.svg','/favicon-192.png','/apple-touch-icon.png','/site.webmanifest'])await fs.access(root+href);
+ for(const prop of ['og:title','og:description','og:url','og:type','og:site_name','og:image:width','og:image:height'])assert.ok(html.querySelector('meta[property="'+prop+'"]')?.getAttribute('content'),id+' missing '+prop);
+ assert.equal(html.querySelector('meta[property="og:url"]').getAttribute('content'),canonical,id+' og:url must equal the canonical');
+ assert.equal(html.querySelector('meta[name="twitter:card"]')?.getAttribute('content'),'summary_large_image',id+' twitter:card');
+ for(const name of ['twitter:title','twitter:description','twitter:image'])assert.ok(html.querySelector('meta[name="'+name+'"]')?.getAttribute('content'),id+' missing '+name);
+ { const png=await fs.readFile(root+new URL(og).pathname); assert.equal(png.readUInt32BE(16)+'x'+png.readUInt32BE(20),'1200x630',id+' og:image must be 1200x630'); }
  assert.doesNotMatch(html.querySelector('footer').text,/BaseThread/);
  assert.equal(html.querySelector('footer a[href="/privacy"]').text,'Privacy & Legal');
  if(id==='privacy')assert.ok(html.querySelector('main').text.includes('© 2026 BaseThread LLC'));
