@@ -7,8 +7,7 @@ import {base,labels,pathFor} from '../data/shared.mjs';
 import darkLogo from '../../../brand/02-logos/lockups/horizontal-dark-background.svg?url';
 import lightLogo from '../../../brand/02-logos/lockups/horizontal-light-background.svg?url';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
-import claudeGlyph from '../../../brand/05-ui-icons/svg/provider-claude-code.svg?raw';
-import codexGlyph from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
+import ProviderLogo from './ProviderLogo.astro';
 const {id,title,meta,graph=[],art,notFound=false}=Astro.props;
 const canonical=base+(notFound?'/404':pathFor(id));
 const og=base+'/art/og-'+id+'.png';
@@ -42,7 +41,7 @@ const cols=[
   </div>
   <div class="foot-bar"><span class="glow" aria-hidden="true"></span><div class="wrap fb-in">
     <div class="fb-tag"><img src={mark} width="28" height="28" alt="AI Usage Menu"/><span>Know your limits before you hit them.</span></div>
-    <div class="fb-glyphs" role="group" aria-label="Supported tools"><span class="glyph" role="img" aria-label="Claude Code" set:html={claudeGlyph}/><span class="glyph" role="img" aria-label="Codex" set:html={codexGlyph}/></div>
+    <div class="fb-glyphs" role="group" aria-label="Supported tools"><span class="glyph"><ProviderLogo id="claude" label/></span><span class="glyph"><ProviderLogo id="codex" label/></span></div>
     <Theme/>
     <p class="legal"><span>AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</span><span>Free and MIT licensed.</span></p>
   </div></div>

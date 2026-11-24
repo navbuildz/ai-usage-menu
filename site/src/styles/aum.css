@@ -752,3 +752,58 @@ figure.dataflow{margin:0 auto}
 .activity-card{min-width:0;max-width:100%}
 .activity-card header{flex-wrap:wrap;row-gap:8px}
 .ap-contrib header{flex-wrap:wrap;row-gap:8px}
+/* Hero panel: illustrative, so it keeps only what sells the product (Nav 2026-11-23). */
+.ap-contrib header>.seg{margin-left:auto;font-size:11px;padding:2px}
+.ap-contrib header>.seg span{padding:3px 8px}
+.app-panel.lean .ap-summary{margin-bottom:8px}
+.app-panel.lean .ap-row{padding:10px 14px}
+.app-panel.lean .ap-contrib{margin-top:12px;padding:12px 14px 0}
+.app-panel.lean .ap-contrib header{font-size:14px}
+.app-panel.lean .ap-totals{margin-top:6px;font-size:12px;font-weight:600;color:var(--p-muted)}
+.app-panel.lean .bars{margin:10px 0 0;gap:10px;padding:11px 12px}
+.app-panel.lean .bars li{font-size:12px}
+.app-panel.lean .ap-pad{height:14px}
+.home .stage{padding-block:36px 40px}
+/* Ring label: smaller number, a much smaller % sign, clear of the donut (Nav 2026-11-23). */
+.ring span{font-size:12.5px;letter-spacing:-.02em}
+.ring span small{font-size:.62em;font-weight:650;margin-left:.5px;opacity:.8}
+.app-panel .ring span{font-size:13px}
+.mb-pop .ring span{font-size:11.5px}
+@media (max-width:440px){.app-panel .ring span{font-size:11.5px}}
+.ring>span{display:flex;align-items:center;justify-content:center}
+.ring>span small{align-self:center;margin-top:2px}
+/* No container inside a container: product visuals sit straight on the section, with only a soft glow (Nav 2026-11-23). */
+.show{background:none;border:0;border-radius:0;padding:clamp(8px,2vw,16px)}
+.show::before{inset:10%;opacity:.14;filter:blur(70px)}
+.figure .show{min-height:0}
+.dock-tile .arc-tip{transition:opacity .4s var(--ease) 1.2s}
+.js .dock-tile:not(.in) .arc-tip{opacity:0}
+/* Key facts: a spec sheet, label beside value, one hairline per row (Nav 2026-11-23: no uneven tiles). */
+.specs{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,5vw,72px);align-items:start}
+.specs .sec-head{margin:0;position:sticky;top:96px}
+.spec-list{margin:0;border-top:1px solid var(--line)}
+.spec-list>div{display:grid;grid-template-columns:170px minmax(0,1fr);gap:20px;padding:15px 0;border-bottom:1px solid var(--line)}
+.spec-list dt{display:flex;align-items:center;gap:10px;align-self:start;font:620 .92rem/1.5 'Inter Variable',sans-serif;color:var(--ink)}
+.spec-list dt .ic{width:18px;height:18px;color:var(--violet)}
+.spec-list dd{margin:0;color:var(--muted);font-size:.98rem;line-height:1.5}
+@media (max-width:960px){.specs{grid-template-columns:minmax(0,1fr)}.specs .sec-head{position:static}}
+@media (max-width:520px){.spec-list>div{grid-template-columns:minmax(0,1fr);gap:4px}}
+/* Hero panel: no box around the bars inside the contributing section. */
+.app-panel.lean .bars{background:none;border:0;padding:0}
+/* Real provider marks (Claude, OpenAI) */
+.plogo{display:inline-grid;place-items:center;flex:none;width:1.15em;height:1.15em;line-height:0}
+.plogo svg{width:100%;height:100%}
+.plogo-codex{color:var(--ink)}
+.glyph .plogo{width:18px;height:18px}
+.chip .plogo{width:20px;height:20px}
+.eyebrow .plogo{width:15px;height:15px}
+.desktop-links a .plogo,.mobile-links a .plogo{width:16px;height:16px}
+.desktop-links a .plogo-codex{color:var(--ink-2)}
+.works{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.works-label{font:600 .84rem/1 'Inter Variable',sans-serif;color:var(--muted);margin-right:2px}
+.wchip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1);font:620 .88rem/1 'Inter Variable',sans-serif;color:var(--ink)}
+.wchip .plogo{width:18px;height:18px}
+.works-mac{flex-basis:100%;margin-top:4px;color:var(--faint);font-size:.88rem}
+.spec-row span{display:inline-flex;align-items:center;gap:8px}
+.spec-row .plogo{width:16px;height:16px}
+.df-node .glyph{background:var(--surface)}

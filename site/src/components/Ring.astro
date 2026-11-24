@@ -9,5 +9,5 @@ const t = a == null ? null : [r-4.2, r+4.2].map(d => [+(24 + d*Math.cos(a)).toFi
 ---
 <span class={`ring ${tone}`} data-ring={value} style={`--size:${size}px;--v:${value};--c:${c}`}>
   <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="trk" cx="24" cy="24" r={r} fill="none" stroke-width={stroke}/><circle class="val" cx="24" cy="24" r={r} fill="none" stroke-width={stroke} stroke-linecap="round"/>{t && <line class="tick" x1={t[0][0]} y1={t[0][1]} x2={t[1][0]} y2={t[1][1]} stroke-width="1.8" stroke-linecap="round"/>}</svg>
-  <span data-count={value}>{value}%</span>
+  <span data-count={value}>{value}<small>%</small></span>
 </span>

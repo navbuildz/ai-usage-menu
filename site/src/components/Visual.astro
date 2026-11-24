@@ -24,7 +24,7 @@ const captions = {
     {kind==='checklist' && <Checklist/>}
     {kind==='codex' && <div class="pair-visual"><AppPanel tab="codex" decorative/><ResetTimeline/></div>}
     {kind==='models' && <AppPanel rows3 decorative/>}
-    {kind==='dock' && <div class="dock-row">{[[30,45,'Healthy','tone-ok'],[72,57,'Nearing the limit','tone-warn'],[94,81,'Near capacity','tone-hot']].map(([s,w,label,tone])=><figure class={tone}><DockTile session={s} week={w} size={140}/><figcaption>{label}</figcaption></figure>)}</div>}
+    {kind==='dock' && <div class="dock-row">{[[30,45,'Healthy','tone-ok',false],[9,71,'Two numbers','tone-warn',true],[94,81,'Near capacity','tone-hot',false]].map(([s,w,label,tone,two])=><figure class={tone}><DockTile session={s} week={w} two={two} size={140}/><figcaption>{label}</figcaption></figure>)}</div>}
   </div>}
   <figcaption>{captions[kind]}</figcaption>
 </figure>

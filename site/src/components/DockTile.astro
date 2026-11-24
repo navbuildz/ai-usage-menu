@@ -1,16 +1,24 @@
 ---
 import {uid} from '../data/uid.mjs';
-// The Dock icon, drawn as SVG: the short upper arc follows the session, the long lower arc follows the week.
-const {session, week, size=160, label} = Astro.props;
+// The Dock icon, drawn as SVG to match app/Sources/DockIconRenderer.swift: the short upper arc follows
+// the session, the long lower arc follows the week. Near a threshold the arc's tip turns amber or red.
+// "two" shows both numbers: the session small on top, the week large below.
+const {session, week, size=160, label, two=false} = Astro.props;
 const tone = v => v >= 90 ? '#FF5C8A' : v >= 70 ? '#FFBB24' : '#34D399';
 const cx = 50, cy = 52, r = 31;
 const pt = a => [cx + r*Math.cos(a*Math.PI/180), cy + r*Math.sin(a*Math.PI/180)].map(n=>+n.toFixed(2));
 const arc = (from, to) => { const [x1,y1]=pt(from),[x2,y2]=pt(to); const large = (to-from) > 180 ? 1 : 0; return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`; };
 const upper = arc(212, 328), lower = arc(-10, 190);
 const upLen = +(2*Math.PI*r*(116/360)).toFixed(2), lowLen = +(2*Math.PI*r*(200/360)).toFixed(2);
+// Fill is mint; past 70% the last stretch of the filled arc takes the warning color, like the app's gradient tip.
+const seg = (len, v, delay) => {
+  const fill = len*v/100, tip = v >= 70 ? Math.min(fill, len*0.14) : 0;
+  return {fill:+fill.toFixed(2), tip:+tip.toFixed(2), color:tone(v), delay};
+};
+const up = seg(upLen, session, 0), low = seg(lowLen, week, .15);
 const id = uid('dk');
 ---
-<svg class="dock-tile" data-dock viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={label ?? `Dock icon showing ${session} percent of the session and ${week} percent of the week`}>
+<svg class="dock-tile" data-dock viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={label ?? (two ? `Dock icon showing the session at ${session} percent and the week at ${week} percent` : `Dock icon showing ${session} percent of the session and ${week} percent of the week`)}>
   <defs>
     <linearGradient id={id+'bg'} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#263866"/><stop offset=".55" stop-color="#0D1231"/><stop offset="1" stop-color="#1d0f33"/></linearGradient>
     <linearGradient id={id+'rim'} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#59B9FF" stop-opacity=".7"/><stop offset=".5" stop-color="#7356FF" stop-opacity=".12"/><stop offset="1" stop-color="#D954F4" stop-opacity=".45"/></linearGradient>
@@ -19,7 +27,11 @@ const id = uid('dk');
   <rect x="3.6" y="3.6" width="92.8" height="92.8" rx="21.4" fill="none" stroke={`url(#${id}rim)`} stroke-width="1.2"/>
   <path d={upper} fill="none" stroke="#ffffff1c" stroke-width="7" stroke-linecap="round"/>
   <path d={lower} fill="none" stroke="#ffffff1c" stroke-width="7" stroke-linecap="round"/>
-  <path class="arc" d={upper} fill="none" stroke={tone(session)} stroke-width="7" stroke-linecap="round" style={`--len:${upLen};stroke-dasharray:${upLen};stroke-dashoffset:${(upLen*(1-session/100)).toFixed(2)}`}/>
-  <path class="arc" d={lower} fill="none" stroke={tone(week)} stroke-width="7" stroke-linecap="round" style={`--len:${lowLen};stroke-dasharray:${lowLen};stroke-dashoffset:${(lowLen*(1-week/100)).toFixed(2)};transition-delay:.15s`}/>
-  <text x="50" y="60" text-anchor="middle" fill="#fff" font-family="Inter Variable, system-ui, sans-serif" font-weight="700" font-size="24" letter-spacing="-.5">{session}</text>
+  {[[upper,upLen,up],[lower,lowLen,low]].map(([d,len,s])=><>
+    <path class="arc" d={d} fill="none" stroke="#34D399" stroke-width="7" stroke-linecap="round" style={`--len:${len};stroke-dasharray:${len};stroke-dashoffset:${(len-s.fill).toFixed(2)};transition-delay:${s.delay}s`}/>
+    {s.tip>0 && <path class="arc-tip" d={d} fill="none" stroke={s.color} stroke-width="7" stroke-linecap="round" style={`stroke-dasharray:0 ${(s.fill-s.tip).toFixed(2)} ${s.tip} ${len}`}/>}
+  </>)}
+  {two
+    ? <><text x="50" y="45" text-anchor="middle" fill="#fff" font-family="Inter Variable, system-ui, sans-serif" font-weight="700" font-size="15">{session}</text><text x="50" y="67" text-anchor="middle" fill="#fff" font-family="Inter Variable, system-ui, sans-serif" font-weight="700" font-size="21" letter-spacing="-.5">{week}</text></>
+    : <text x="50" y="60" text-anchor="middle" fill="#fff" font-family="Inter Variable, system-ui, sans-serif" font-weight="700" font-size="24" letter-spacing="-.5">{session}</text>}
 </svg>

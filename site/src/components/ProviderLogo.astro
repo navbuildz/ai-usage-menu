@@ -1,0 +1,9 @@
+---
+// Real provider marks (Lobe Icons, MIT; see src/logos/LICENSE.md): Claude for Claude Code, OpenAI for Codex.
+import claude from '../logos/claude.svg?raw';
+import openai from '../logos/openai.svg?raw';
+const {id, label=false, class:cls=''} = Astro.props;
+const svg = id==='codex' ? openai : claude;
+const name = id==='codex' ? 'Codex' : 'Claude Code';
+---
+<span class={`plogo plogo-${id} ${cls}`} role={label?'img':undefined} aria-label={label?name:undefined} aria-hidden={label?undefined:'true'} set:html={svg}/>

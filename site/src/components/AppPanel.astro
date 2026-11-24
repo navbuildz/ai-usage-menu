@@ -7,7 +7,7 @@ import Icon from './Icon.astro';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 import claudeGlyph from '../../../brand/05-ui-icons/svg/provider-claude-code.svg?raw';
 import codexGlyph from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
-const {tab='claude', interactive=false, contrib=false, contribRows=1, decorative=false, rows3=false, foot=false, id='panel'} = Astro.props;
+const {tab='claude', interactive=false, contrib=false, contribRows=1, decorative=false, rows3=false, foot=false, lean=false, id='panel'} = Astro.props;
 const OK='On track for this window';
 const data = {
   claude: rows3 ? {
@@ -30,7 +30,7 @@ const contributing = [['Start fresh when you switch tasks','98%','/clear',98],['
 const views = interactive ? ['claude','codex'] : [tab];
 const tabs = [['claude','Claude Code',claudeGlyph,'tone-ok'],['codex','Codex',codexGlyph,'tone-stale']];
 ---
-<div class="app-panel" data-panel aria-hidden={decorative?'true':undefined}>
+<div class:list={["app-panel",{lean}]} data-panel aria-hidden={decorative?'true':undefined}>
   <div class="ap-head"><img src={mark} width="30" height="30" alt="AI Usage Menu"/><div><b>AI Usage Menu</b><small data-updated>{data[tab].updated}</small></div><span class="ap-tools"><Icon name="arrows-clockwise"/><Icon name="gear-six"/><Icon name="x"/></span></div>
   <div class="ap-tabs" role={interactive?'tablist':undefined} aria-label={interactive?'Provider':undefined}>
     {tabs.map(([key,label,glyph,dot])=>interactive
@@ -43,9 +43,9 @@ const tabs = [['claude','Claude Code',claudeGlyph,'tone-ok'],['codex','Codex',co
       <div class="ap-body">{v.rows.map(([name,val,reset,pace,tick])=>
         <div class="ap-row"><Ring value={val} tick={tick} stale={v.stale}/><div><b>{name}</b><small>{reset}</small>{pace && <small class:list={['pace',{hot:pace!==OK}]}>{pace}</small>}</div></div>)}</div>
       {v.note && <p class="ap-note"><Icon name="clock"/>{v.note}</p>}
-      <div class="ap-meta">{v.meta.map(([k,m])=><span>{k} <b>{m}</b></span>)}</div>
+      {!lean && <div class="ap-meta">{v.meta.map(([k,m])=><span>{k} <b>{m}</b></span>)}</div>}
     </div>)})}
-  {contrib && <div class="ap-contrib"><header><Icon name="stack"/>What's contributing?<span class="seg"><span class="on">Last 24h</span><span>Last 7d</span></span></header><p class="ap-totals">2,446 requests · 16 sessions</p><p class="ap-overlap"><Icon name="info"/>Each figure is the share of this activity it applies to. They overlap, so they don't add up to 100%.</p>
-    <ul class="bars" data-bars>{contributing.map(([label,pct,sub,w],i)=><li style={`--w:${w};--d:${i}`}>{label}<span>{pct}</span><small>{sub.startsWith('/')?<code>{sub}</code>:sub}</small><i></i></li>)}</ul></div>}
+  {contrib && <div class="ap-contrib"><header><Icon name="stack"/>What's contributing?<span class="seg"><span class="on">Last 24h</span><span>Last 7d</span></span></header><p class="ap-totals">2,446 requests · 16 sessions</p>{!lean && <p class="ap-overlap"><Icon name="info"/>Each figure is the share of this activity it applies to. They overlap, so they don't add up to 100%.</p>}
+    <ul class="bars" data-bars>{contributing.map(([label,pct,sub,w],i)=><li style={`--w:${w};--d:${i}`}>{label}<span>{pct}</span>{!lean && <small>{sub.startsWith('/')?<code>{sub}</code>:sub}</small>}<i></i></li>)}</ul></div>}
   {foot ? <div class="ap-foot"><span>From the makers of TypeFire <Icon name="arrow-up-right"/></span><span>Quit</span></div> : <div class="ap-pad"></div>}
 </div>

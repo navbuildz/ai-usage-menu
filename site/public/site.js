@@ -14,10 +14,11 @@
 
     // Count a number up once.
     const countUp = (el, to) => {
-      if (reduce) { el.textContent = to + '%'; return; }
+      const pct = n => n + '<small>%</small>';
+      if (reduce) { el.innerHTML = pct(to); return; }
       const start = performance.now(), dur = 1300;
-      const tick = t => { const k = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e) + '%'; if (k < 1) requestAnimationFrame(tick); };
-      el.textContent = '0%'; requestAnimationFrame(tick);
+      const tick = t => { const k = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - k, 3); el.innerHTML = pct(Math.round(to * e)); if (k < 1) requestAnimationFrame(tick); };
+      el.innerHTML = pct(0); requestAnimationFrame(tick);
     };
 
     // Reveal and "fill on view" for rings, bars, dock tiles, timelines and the terminal.
@@ -64,7 +65,7 @@
       const show = k => {
         i = k; const [v, name, tone] = states[k];
         [gauge, pop, ring].forEach(el => { el.classList.remove('tone-ok', 'tone-warn', 'tone-hot'); el.classList.add(tone); });
-        value.textContent = v + '%'; label.textContent = name; ring.style.setProperty('--v', v); num.textContent = v + '%';
+        value.textContent = v + '%'; label.textContent = name; ring.style.setProperty('--v', v); num.innerHTML = v + '<small>%</small>';
         legend.forEach((l, n) => l.classList.toggle('on', n === k));
       };
       legend.forEach((l, n) => { l.addEventListener('mouseenter', () => { clearInterval(timer); show(n); }); l.addEventListener('mouseleave', run); });

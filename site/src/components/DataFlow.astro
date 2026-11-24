@@ -2,15 +2,14 @@
 // Where a reading comes from: two local sources into the app, and nothing sent.
 import Icon from './Icon.astro';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
-import claudeGlyph from '../../../brand/05-ui-icons/svg/provider-claude-code.svg?raw';
-import codexGlyph from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
+import ProviderLogo from './ProviderLogo.astro';
 ---
 <figure class="dataflow" role="img" aria-label="Claude Code's /usage output and Codex's local session logs flow into AI Usage Menu on your Mac. Nothing is sent.">
   <div class="df-head" aria-hidden="true"><Icon name="desktop"/>On your Mac</div>
   <div class="df-grid" aria-hidden="true">
     <div class="df-src">
-      <div class="df-node"><span class="glyph" set:html={claudeGlyph}/><div>Claude Code<small>/usage output</small></div></div>
-      <div class="df-node"><span class="glyph" set:html={codexGlyph}/><div>Codex<small>Local session logs</small></div></div>
+      <div class="df-node"><span class="glyph"><ProviderLogo id="claude"/></span><div>Claude Code<small>/usage output</small></div></div>
+      <div class="df-node"><span class="glyph"><ProviderLogo id="codex"/></span><div>Codex<small>Local session logs</small></div></div>
     </div>
     <svg class="df-lines" viewBox="0 0 54 110"><path d="M0 28 C 30 28, 24 55, 54 55"/><path d="M0 82 C 30 82, 24 55, 54 55"/></svg>
     <div class="df-node app"><img src={mark} width="30" height="30" alt="AI Usage Menu"/><div>AI Usage Menu<small>Menu bar and Dock</small></div></div>
