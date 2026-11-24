@@ -5,6 +5,18 @@
   const ready = fn => document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', fn) : fn();
 
   ready(() => {
+    // /download starts the download once per visit, after the page has rendered. Buttons elsewhere are plain
+    // links to the DMG, so a click starts the download inside the click itself (no timer, no iframe).
+    const auto = document.querySelector('[data-autodl]');
+    if (auto) {
+      let done = false; try { done = sessionStorage.getItem('aum-autodl') === '1'; } catch {}
+      if (!done) setTimeout(() => {
+        try { sessionStorage.setItem('aum-autodl', '1'); } catch {}
+        try { window.gtag && gtag('event', 'mac_download', {cta: 'auto', page: location.pathname, transport_type: 'beacon'}); } catch {}
+        location.href = auto.dataset.autodl;
+      }, 600);
+    }
+
     // Header: frosted once the page scrolls.
     const mast = document.querySelector('.mast'), sentinel = document.querySelector('#mast-sentinel');
     if (mast && sentinel) new IntersectionObserver(([e]) => mast.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);

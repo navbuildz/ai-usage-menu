@@ -2,9 +2,9 @@
 import Layout from '../components/Layout.astro';
 import Icon from '../components/Icon.astro';
 import DockTile from '../components/DockTile.astro';
-import {labels,pathFor} from '../data/shared.mjs';
+import {labels,pathFor,dmgUrl} from '../data/shared.mjs';
 const icons={home:'app-window','claude-code-usage':'terminal-window','codex-usage':'code','claude-usage-limits':'gauge','open-source':'git-branch',privacy:'lock-simple',compare:'scales',download:'download-simple'};
 ---
 <Layout id="home" title="Page not found | AI Usage Menu" meta="Find the usage tracker, setup guide, and downloads." notFound>
-<section class="notfound"><DockTile session={100} week={100} size={120} label="Dock icon showing a full ring"/><h1>Page not found</h1><p class="lead muted">This page has hit its limit. Try one of these instead.</p><nav class="related" aria-label="Site pages">{Object.entries(labels).map(([id,label])=><a href={pathFor(id)}><Icon name={icons[id]}/>{label}</a>)}</nav></section>
+<section class="notfound"><DockTile session={100} week={100} size={120} label="Dock icon showing a full ring"/><h1>Page not found</h1><p class="lead muted">This page has hit its limit. Try one of these instead.</p><nav class="related" aria-label="Site pages">{Object.entries(labels).map(([id,label])=><a href={id==='download'?dmgUrl:pathFor(id)}><Icon name={icons[id]}/>{label}</a>)}</nav></section>
 </Layout>

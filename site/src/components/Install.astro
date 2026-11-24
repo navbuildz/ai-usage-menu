@@ -1,10 +1,10 @@
 ---
 import config from '../data/repo.json';
-import {repo} from '../data/shared.mjs';
+import {repo,dmgUrl} from '../data/shared.mjs';
 import Icon from './Icon.astro';
 const {variant='install'}=Astro.props;
 // Written for release day: the DMG is signed and notarized and the repository is public.
-const dmg=config.dmg||repo+'/releases/latest/download/AIUsageMenu.dmg';
+const dmg=dmgUrl;
 const options=variant==='verify'?[
  {id:'process',label:'App sockets',icon:'plug',command:'pid=$(pgrep -x "AI Usage Menu" | head -n 1)\nlsof -nP -a -i -p "$pid"',note:'Open AI Usage Menu first. This takes a point-in-time sample of connections owned by the app process.'},
  {id:'signature',label:'Signature',icon:'seal-check',command:'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"',note:'After installing the released app, run this to verify its code signature.'}
@@ -22,7 +22,7 @@ const intro=variant==='verify'?'Two checks you can run yourself: what the app ha
 <div class="terminal" data-terminal data-reveal style="--d:1">
 <div class="terminal-tabs" role="tablist" aria-label={title}>{options.map((tab,i)=><button type="button" role="tab" id={variant+'-tab-'+tab.id} aria-controls={variant+'-panel-'+tab.id} aria-selected={i===0?'true':'false'}><Icon name={tab.icon}/>{tab.label}</button>)}</div>
 {options.map((tab,i)=><div role="tabpanel" id={variant+'-panel-'+tab.id} aria-labelledby={variant+'-tab-'+tab.id} tabindex="0" hidden={i!==0}>
-{tab.id==='download' && <><a class="btn btn-primary" href={dmg}>Download the signed DMG<Icon name="download-simple"/></a>
+{tab.id==='download' && <><a class="btn btn-primary" href={dmg} data-cta="install">Download the signed DMG<Icon name="download-simple"/></a>
   <ol class="dmg-steps"><li><Icon name="download-simple"/>Open the downloaded DMG</li><li><Icon name="folder-simple"/>Drag AI Usage Menu to Applications</li><li><Icon name="cursor-click"/>Open it and choose your menu bar and Dock views</li></ol></>}
 {tab.command && <div class="command-row"><pre><code>{tab.command}</code></pre><button type="button" data-copy-command aria-label={'Copy '+tab.label+' command'}><Icon name="copy"/><span>Copy</span></button></div>}
 <p>{tab.note}</p>

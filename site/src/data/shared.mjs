@@ -2,6 +2,8 @@ import config from './repo.json' with {type:'json'};
 import {readRepository} from './repository.mjs';
 export const stats = await readRepository(config);
 export const repo = 'https://github.com/'+config.owner+'/'+config.repo;
+// Every Download button downloads the app directly (signed, notarized DMG from the latest release).
+export const dmgUrl = config.dmg || repo+'/releases/latest/download/AIUsageMenu.dmg';
 export const base = 'https://aiusagemenu.com';
 export const compatibility='Works with Claude Pro, Max and Team plans and ChatGPT plans for Codex. API-key accounts have no plan limits to show.';
 export const labels={home:'Home','claude-code-usage':'Claude Code usage','codex-usage':'Codex usage','claude-usage-limits':'Claude usage limits','open-source':'Open source',privacy:'Privacy & Legal',compare:'Compare',download:'Download'};

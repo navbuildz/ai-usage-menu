@@ -10,7 +10,7 @@ import Faq from './Faq.astro';
 import CtaBand from './CtaBand.astro';
 import TextLinks from './TextLinks.astro';
 import {facts} from '../data/facts.mjs';
-import {compatibility} from '../data/shared.mjs';
+import {compatibility,dmgUrl} from '../data/shared.mjs';
 const {p, id, date, dateLabel} = Astro.props;
 const [glance, activity, dock, pair, open] = p.sections;
 const factIcons = {Product:'app-window',Platforms:'desktop',Plans:'users-three','Data sources':'file-code','Network calls':'wifi-slash',Price:'coins',License:'scales',Maker:'sparkle'};
@@ -21,7 +21,7 @@ const stepIcons = ['download-simple','magnifying-glass','gauge'];
     <span class="eyebrow" data-reveal><Icon name="gauge"/>Free and open source for Mac</span>
     <h1 data-reveal style="--d:1">{p.h1}</h1>
     <p class="lead" data-reveal style="--d:2">{p.answer}</p>
-    <div class="actions" data-reveal style="--d:3"><a class="btn btn-primary" href="/download">Download free for Mac<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
+    <div class="actions" data-reveal style="--d:3"><a class="btn btn-primary" href={dmgUrl} data-cta="hero">Download free for Mac<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
     <div class="works" data-reveal style="--d:4"><span class="works-label">Works with</span><span class="wchip"><ProviderLogo id="claude"/>Claude Code</span><span class="wchip"><ProviderLogo id="codex"/>Codex</span><span class="works-mac">macOS 13 or later · Apple silicon and Intel</span></div>
   </div>
   <div class="hero-art">
@@ -77,7 +77,7 @@ const stepIcons = ['download-simple','magnifying-glass','gauge'];
   <div class="cards3" data-reveal-group>
     <article class="card"><span class="ic-tile"><Icon name="lock-simple" duo/></span><h3>Private by design</h3><p>AI Usage Menu reads what Claude Code and Codex already show on your Mac. There is no cookie, password or key to paste.</p><a class="card-foot stretch" href="/privacy">How privacy works<Icon name="arrow-right"/></a></article>
     <article class="card"><span class="ic-tile"><Icon name="git-branch" duo/></span><h3>{open[0]}</h3><p><TextLinks text={open[1]} id={id}/></p><a class="card-foot stretch" href="/open-source">Read the code<Icon name="arrow-right"/></a></article>
-    <article class="card"><span class="ic-tile"><Icon name="lightning" duo/></span><h3>Set up in a minute</h3><p>Install it, open it and review the providers it finds. Then choose what the menu bar and Dock show.</p><a class="card-foot stretch" href="/download">Download for Mac<Icon name="arrow-right"/></a></article>
+    <article class="card"><span class="ic-tile"><Icon name="lightning" duo/></span><h3>Set up in a minute</h3><p>Install it, open it and review the providers it finds. Then choose what the menu bar and Dock show.</p><a class="card-foot stretch" href={dmgUrl} data-cta="card">Download for Mac<Icon name="arrow-right"/></a></article>
   </div>
 </section>
 

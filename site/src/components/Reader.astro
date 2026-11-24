@@ -22,9 +22,8 @@ import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 import release from '../data/release.json';
 import repoConfig from '../data/repo.json';
 import comparison from '../data/compare.json';
-import {compatibility,labels,pathFor} from '../data/shared.mjs';
+import {compatibility,labels,pathFor,dmgUrl} from '../data/shared.mjs';
 const {p, id, date, dateLabel, stepsName, sections} = Astro.props;
-const dmgUrl = repoConfig.dmg || 'https://github.com/'+repoConfig.owner+'/'+repoConfig.repo+'/releases/latest/download/AIUsageMenu.dmg';
 const installTitle = repoConfig.homebrewPublished ? 'Install three ways' : 'Install two ways';
 const guide = ['claude-code-usage','codex-usage','claude-usage-limits'].includes(id);
 const anchor = h => h.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -52,8 +51,9 @@ const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-fo
     <span class="eyebrow" data-reveal>{id==='claude-code-usage'?<ProviderLogo id="claude" class="ic"/>:id==='codex-usage'?<ProviderLogo id="codex" class="ic"/>:<Icon name={eyebrow[0]}/>}{eyebrow[1]}</span>
     <h1 data-reveal style="--d:1">{p.h1}</h1>
     <p class="lead" data-reveal style="--d:2">{p.answer}</p>
-    <div class="actions" data-reveal style="--d:3"><a class="btn btn-primary" href={id==='download'?dmgUrl:'/download'}>{id==='download'?'Download the signed DMG':'Download free for Mac'}<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
+    <div class="actions" data-reveal style="--d:3"><a class="btn btn-primary" href={dmgUrl} data-cta="hero">{id==='download'?'Download the signed DMG':'Download free for Mac'}<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
     {id==='download' && <p class="hero-note" data-reveal style="--d:4"><span><Icon name="check-circle"/>macOS 13 or later</span><span><Icon name="check-circle"/>Apple silicon and Intel</span><span><Icon name="check-circle"/>Free</span></p>}
+    {id==='download' && <p class="autodl" data-autodl={dmgUrl}><Icon name="download-simple"/><span>Your download should start automatically. If it doesn't, <a href={dmgUrl} data-cta="autodl-fallback">download AI Usage Menu</a>.</span></p>}
     {id==='download' && <p class="muted" data-reveal style="--d:5">{compatibility}</p>}
   </div>
   <div class="hero-art" data-reveal style="--d:2">
@@ -80,7 +80,7 @@ const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-fo
 <div class="read">
   <aside class="side">
     <div class="toc"><strong><Icon name="list"/>On this page</strong><nav aria-label="On this page">{toc.map(h=><a href={'#'+tocId(h)}>{h}</a>)}</nav>
-      <div class="rail-card"><img src={mark} width="52" height="52" alt="AI Usage Menu"/><b>See it live in your menu bar</b><p>Free for macOS 13 or later.</p><a class="btn btn-primary btn-sm" href="/download">Download<Icon name="download-simple"/></a><ul><li><Icon name="check-circle"/>No cookie or key</li><li><Icon name="check-circle"/>0 tokens to check</li></ul></div>
+      <div class="rail-card"><img src={mark} width="52" height="52" alt="AI Usage Menu"/><b>See it live in your menu bar</b><p>Free for macOS 13 or later.</p><a class="btn btn-primary btn-sm" href={dmgUrl} data-cta="rail">Download<Icon name="download-simple"/></a><ul><li><Icon name="check-circle"/>No cookie or key</li><li><Icon name="check-circle"/>0 tokens to check</li></ul></div>
     </div>
   </aside>
   <div class="body">
@@ -112,6 +112,6 @@ const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-fo
 
 {p.faqs.length>0 && <div class="sec"><Faq faqs={p.faqs} id={id} headingId="frequently-asked-questions"/></div>}
 
-<section class="sec-tight explore" aria-labelledby="explore-h"><h2 id="explore-h">Explore AI Usage Menu</h2><div class="related">{Object.keys(labels).filter(k=>k!==id).map(k=><a href={pathFor(k)}><Icon name={{home:'app-window','claude-code-usage':'terminal-window','codex-usage':'code','claude-usage-limits':'gauge','open-source':'git-branch',privacy:'lock-simple',compare:'scales',download:'download-simple'}[k]}/>{labels[k]}</a>)}</div></section>
+<section class="sec-tight explore" aria-labelledby="explore-h"><h2 id="explore-h">Explore AI Usage Menu</h2><div class="related">{Object.keys(labels).filter(k=>k!==id).map(k=><a href={k==='download'?dmgUrl:pathFor(k)} data-cta={k==='download'?'explore':undefined}><Icon name={{home:'app-window','claude-code-usage':'terminal-window','codex-usage':'code','claude-usage-limits':'gauge','open-source':'git-branch',privacy:'lock-simple',compare:'scales',download:'download-simple'}[k]}/>{labels[k]}</a>)}</div></section>
 <p class="revision"><Icon name="calendar-check"/>{guide||id==='compare'?'Last checked':'Last updated'} <time datetime={date}>{dateLabel}</time></p>
 <div class="sec-tight"><CtaBand/></div>

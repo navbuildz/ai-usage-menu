@@ -11,7 +11,8 @@ document.addEventListener('click', e => {
   if (!a) return;
   const href = a.getAttribute('href') || '';
   const where = a.dataset.cta || (a.closest('header') ? 'header' : a.closest('footer') ? 'footer' : (a.closest('section,[id]')?.id || 'page'));
-  const params = {cta: where, page: location.pathname, link_text: (a.textContent || '').trim().slice(0, 60)};
+  // transport_type beacon: the hit is queued and never delays or cancels the download navigation.
+  const params = {cta: where, page: location.pathname, link_text: (a.textContent || '').trim().slice(0, 60), transport_type: 'beacon'};
   try {
     if (href.includes('AIUsageMenu.dmg')) gtag('event', 'mac_download', params);
     else if (href === '/download') gtag('event', 'download_page_click', params);

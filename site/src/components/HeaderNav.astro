@@ -1,7 +1,8 @@
 ---
 import Icon from './Icon.astro';
 import ProviderLogo from './ProviderLogo.astro';
+import {dmgUrl} from '../data/shared.mjs';
 const {id, mobile=false}=Astro.props;
 const pages=[['claude-code-usage','Claude Code','@claude'],['codex-usage','Codex','@codex'],['claude-usage-limits','Usage limits','gauge'],['compare','Compare','scales'],['open-source','Open source','git-branch']];
 ---
-<nav aria-label={mobile?'Mobile navigation':'Main navigation'} class={mobile?'mobile-links':'desktop-links'}>{pages.map(([key,label,icon])=><a href={'/'+key} aria-current={id===key?'page':undefined}>{icon.startsWith('@')?<ProviderLogo id={icon.slice(1)} class="ic"/>:<Icon name={icon}/>}{label}</a>)}{mobile && <a href="/download" aria-current={id==='download'?'page':undefined}><Icon name="download-simple"/>Download</a>}</nav>
+<nav aria-label={mobile?'Mobile navigation':'Main navigation'} class={mobile?'mobile-links':'desktop-links'}>{pages.map(([key,label,icon])=><a href={'/'+key} aria-current={id===key?'page':undefined}>{icon.startsWith('@')?<ProviderLogo id={icon.slice(1)} class="ic"/>:<Icon name={icon}/>}{label}</a>)}{mobile && <a href={dmgUrl} data-cta="mobile-menu"><Icon name="download-simple"/>Download for Mac</a>}</nav>

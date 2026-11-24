@@ -3,7 +3,7 @@ import '../styles/aum.css';
 import HeaderNav from './HeaderNav.astro';
 import Theme from './Theme.astro';
 import Icon from './Icon.astro';
-import {base,labels,pathFor} from '../data/shared.mjs';
+import {base,labels,pathFor,dmgUrl} from '../data/shared.mjs';
 import darkLogo from '../../../brand/02-logos/lockups/horizontal-dark-background.svg?url';
 import lightLogo from '../../../brand/02-logos/lockups/horizontal-light-background.svg?url';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
@@ -12,7 +12,7 @@ const {id,title,meta,graph=[],art,notFound=false}=Astro.props;
 const canonical=base+(notFound?'/404':pathFor(id));
 const og=base+'/art/og-'+id+'.png';
 const cols=[
-  ['Product',[['/download','Download'],['/privacy','Privacy & Legal'],['/open-source','Open source'],['/compare','Compare trackers']]],
+  ['Product',[[dmgUrl,'Download for Mac'],['/download','Requirements and install'],['/privacy','Privacy & Legal'],['/open-source','Open source'],['/compare','Compare trackers']]],
   ['Guides',[['/claude-usage-limits','Claude usage limits'],['/claude-code-usage','Claude Code usage'],['/codex-usage','Codex usage']]],
   ['Project',[['/open-source#read-the-code','Read the code'],['/open-source#changelog','Changelog'],['/privacy#legal-notices','MIT license']]],
 ];
@@ -30,7 +30,7 @@ const cols=[
   <a class="brand brand-live" href="/" aria-label="AI Usage Menu home"><img class="brand-mark" src={mark} width="34" height="34" alt="AI Usage Menu"/><span class="brand-word" aria-hidden="true">AI Usage Menu</span></a>
   <HeaderNav id={id}/>
   <details class="nav-disclosure"><summary aria-label="Navigation menu"><Icon name="list" class="ic-open"/><Icon name="x" class="ic-close"/></summary><HeaderNav id={id} mobile/></details>
-  <a class="btn btn-primary btn-sm nav-cta" aria-current={id==='download'?'page':undefined} href="/download"><span>Download<span class="lbl-long"> for Mac</span></span><Icon name="download-simple"/></a>
+  <a class="btn btn-primary btn-sm nav-cta" href={dmgUrl} data-cta="header"><span>Download<span class="lbl-long"> for Mac</span></span><Icon name="download-simple"/></a>
 </div></header>
 <main id="content"><div class="wrap">{id!=='home' && <nav class="crumb" aria-label="Breadcrumb"><a href="/">AI Usage Menu</a><Icon name="caret-down" class="crumb-sep"/><span>{notFound?'Page not found':labels[id]}</span></nav>}<slot/></div></main>
 <footer class="site">
