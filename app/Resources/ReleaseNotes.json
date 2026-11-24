@@ -1,4 +1,8 @@
 {
+  "1.0.2": [
+    "New versions now show up as soon as you open the app, not only once a day.",
+    "Check for updates and see your version right in Settings > About."
+  ],
   "1.0.1": [
     "The menu bar and Dock no longer show a warning while your first reading is loading."
   ],
