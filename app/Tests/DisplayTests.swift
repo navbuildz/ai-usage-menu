@@ -22,8 +22,16 @@ final class DisplayTests: XCTestCase {
 
     private let now = Date(timeIntervalSince1970: 1800000000)
     private let providers: [any Provider] = [ClaudeCodeProvider(), CodexProvider()]
+    /// Reference renders of the Dock tile. 32 and 128 px are committed (Tests/Golden/dock); the large
+    /// 1024 px set is kept locally in handoff/ and compared only when present.
     private var screenshotFolder: URL {
         URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("handoff/screenshots/dock")
+    }
+    private func goldenURL(_ name: String, size: Int) -> URL? {
+        let tests = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+        if size <= 128 { return tests.appendingPathComponent("Golden/dock/\(name)-\(size).png") }
+        let local = tests.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("handoff/screenshots/dock/\(name)-\(size).png")
+        return FileManager.default.fileExists(atPath: local.path) || ProcessInfo.processInfo.environment["RECORD_DOCK"] == "1" ? local : nil
     }
     private func snapshot(_ session: Double, _ weekly: Double, stale: Bool = false) -> ProviderSnapshot {
         let date = now.addingTimeInterval(stale ? -1 : 300)
@@ -118,8 +126,11 @@ final class DisplayTests: XCTestCase {
                 let image = DockIconRenderer.image(for: snapshot, size: size)
                 let bitmap = try XCTUnwrap(image.representations.first as? NSBitmapImageRep)
                 let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
-                let url = screenshotFolder.appendingPathComponent("\(name)-\(size).png")
-                if record { try png.write(to: url) }
+                guard let url = goldenURL(name, size: size) else { continue }
+                if record {
+                    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+                    try png.write(to: url)
+                }
                 let actual = try XCTUnwrap(NSBitmapImageRep(data: png))
                 let golden = try XCTUnwrap(NSBitmapImageRep(data: Data(contentsOf: url)))
                 XCTAssertEqual(golden.pixelsWide, size)
