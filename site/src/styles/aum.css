@@ -678,7 +678,7 @@ html[data-theme=dark] .band,html[data-theme=dark] .cta{background:#11142e;border
 .welcome .btn{justify-self:end;pointer-events:none}
 figure.dataflow{margin:0 auto}
 
-/* Hero copy uses the full column: no balanced or capped line lengths (Nav 2026-11-23). */
+/* Hero copy uses the full column: no balanced or capped line lengths. */
 .hero .hero-copy h1,.hero .lead{max-width:none;text-wrap:wrap}
 
 /* ---------- App panel, matched to the current app (2026-11-23) ---------- */
@@ -710,7 +710,7 @@ figure.dataflow{margin:0 auto}
 .ap-meta{padding:10px 16px 4px}
 .ap-contrib{margin:12px 0 0;padding:14px 14px 4px;border:0;border-top:1px solid var(--p-line);border-radius:0;background:none}
 .ap-contrib header{font-size:15px}
-.ap-contrib header>span:not(.ic){margin-left:auto;background:none;padding:0;color:inherit;font-size:inherit}
+.ap-contrib header>span:not(.ic):not(.seg){margin-left:auto;background:none;padding:0;color:inherit}
 .ap-contrib .seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--p-card);border:1px solid var(--p-line);font-size:11.5px;font-weight:600}
 .ap-contrib .seg span{padding:4px 9px;border-radius:999px;color:var(--p-muted)}
 .ap-contrib .seg span.on{background:#7c5cff;color:#fff}
@@ -752,7 +752,7 @@ figure.dataflow{margin:0 auto}
 .activity-card{min-width:0;max-width:100%}
 .activity-card header{flex-wrap:wrap;row-gap:8px}
 .ap-contrib header{flex-wrap:wrap;row-gap:8px}
-/* Hero panel: illustrative, so it keeps only what sells the product (Nav 2026-11-23). */
+/* Hero panel: illustrative, so it keeps only what sells the product. */
 .ap-contrib header>.seg{margin-left:auto;font-size:11px;padding:2px}
 .ap-contrib header>.seg span{padding:3px 8px}
 .app-panel.lean .ap-summary{margin-bottom:8px}
@@ -764,7 +764,7 @@ figure.dataflow{margin:0 auto}
 .app-panel.lean .bars li{font-size:12px}
 .app-panel.lean .ap-pad{height:14px}
 .home .stage{padding-block:36px 40px}
-/* Ring label: smaller number, a much smaller % sign, clear of the donut (Nav 2026-11-23). */
+/* Ring label: smaller number, a much smaller % sign, clear of the donut. */
 .ring span{font-size:12.5px;letter-spacing:-.02em}
 .ring span small{font-size:.62em;font-weight:650;margin-left:.5px;opacity:.8}
 .app-panel .ring span{font-size:13px}
@@ -772,13 +772,13 @@ figure.dataflow{margin:0 auto}
 @media (max-width:440px){.app-panel .ring span{font-size:11.5px}}
 .ring>span{display:flex;align-items:center;justify-content:center}
 .ring>span small{align-self:center;margin-top:2px}
-/* No container inside a container: product visuals sit straight on the section, with only a soft glow (Nav 2026-11-23). */
+/* No container inside a container: product visuals sit straight on the section, with only a soft glow. */
 .show{background:none;border:0;border-radius:0;padding:clamp(8px,2vw,16px)}
 .show::before{inset:10%;opacity:.14;filter:blur(70px)}
 .figure .show{min-height:0}
 .dock-tile .arc-tip{transition:opacity .4s var(--ease) 1.2s}
 .js .dock-tile:not(.in) .arc-tip{opacity:0}
-/* Key facts: a spec sheet, label beside value, one hairline per row (Nav 2026-11-23: no uneven tiles). */
+/* Key facts: a spec sheet, label beside value, one hairline per row. */
 .specs{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,5vw,72px);align-items:start}
 .specs .sec-head{margin:0;position:sticky;top:96px}
 .spec-list{margin:0;border-top:1px solid var(--line)}
@@ -807,3 +807,17 @@ figure.dataflow{margin:0 auto}
 .spec-row span{display:inline-flex;align-items:center;gap:8px}
 .spec-row .plogo{width:16px;height:16px}
 .df-node .glyph{background:var(--surface)}
+/* Home hero: two callouts only, diagonally opposite: menu bar top right, Dock icon bottom left. */
+.stage .dock-float.dock-bl{left:2%;right:auto;bottom:4px;width:clamp(72px,7vw,96px)}
+@media (max-width:700px){.stage .dock-float.dock-bl{left:-2px;width:68px}}
+.home .stage .dock-float.dock-bl{left:max(0px,calc(50% - 200px - 64px));bottom:-14px}
+.home .stage .chip-tr{right:max(0px,calc(50% - 200px - 64px))}
+@media (max-width:700px){.home .stage .dock-float.dock-bl{left:-4px;bottom:-10px}.home .stage .chip-tr{right:0}}
+@media (max-width:700px){.home .stage{padding:58px 0 56px}.home .stage .chip-tr{top:4px}.home .stage .dock-float.dock-bl{bottom:-4px;width:64px}}
+/* Last 24h / Last 7d toggle: smaller type. */
+.ap-contrib header>.seg,.activity-card .seg{font-size:9.5px;font-weight:600;padding:2px}
+.ap-contrib header>.seg span,.activity-card .seg span{padding:3px 7px}
+.ap-contrib header>span.seg{margin-left:auto;display:inline-flex;padding:2px;border-radius:999px;background:var(--p-card);border:1px solid var(--p-line);color:var(--p-muted);font-size:9.5px;font-weight:600}
+.ap-contrib header>span.seg span{padding:3px 7px;border-radius:999px;color:var(--p-muted)}
+.ap-contrib header>span.seg span.on{background:#7c5cff;color:#fff}
+.mb-gauge svg{width:16px;height:13px}
