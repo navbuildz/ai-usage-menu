@@ -39,9 +39,9 @@ final class UpdateService: NSObject, ObservableObject, SPUUpdaterDelegate {
         updater.automaticallyDownloadsUpdates = enabled
         updater.updateCheckInterval = Self.dayInSeconds
         lastChecked = updater.lastUpdateCheckDate
-        if enabled, Date().timeIntervalSince(updater.lastUpdateCheckDate ?? .distantPast) > Self.dayInSeconds || Self.feedOverride != nil {
-            updater.checkForUpdatesInBackground()
-        }
+        // Check quietly at every launch as well as once a day, so a new release shows up the next
+        // time the app opens (2026-11-23: a copy that checked an hour before 1.0.1 waited a day).
+        if enabled { updater.checkForUpdatesInBackground() }
     }
 
     /// "Check for Updates…": Sparkle's own window, which shows the release notes and installs.

@@ -79,7 +79,10 @@ struct DisplaySettings: View {
                                     Text("AI Usage Menu").font(.title2.bold())
                                     Text("Version " + (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")).foregroundStyle(Color("textSecondary"))
                                 }
+                                Spacer()
+                                Button("Check for Updates…") { services.checkUpdates() }.buttonStyle(SecondaryButtonStyle())
                             }
+                            UpdateCard(updates: services.updates) { services.showUpdate?() }
                             VStack(alignment: .leading, spacing: 8) {
                                 Label("Privacy", systemImage: "lock").font(.headline)
                                 Text("Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, once a day, and you can turn that off.").fixedSize(horizontal: false, vertical: true)
