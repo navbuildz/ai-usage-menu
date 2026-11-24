@@ -7,7 +7,7 @@ jobs:
   build-and-test:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Generate the Xcode project
         run: brew install xcodegen && cd app && xcodegen generate
       - name: Test
