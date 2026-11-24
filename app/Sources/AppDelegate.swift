@@ -158,7 +158,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             button.image = visual.image
             button.contentTintColor = visual.iconTint
             button.imagePosition = visual.title.isEmpty ? .imageOnly : .imageLeading
-            let description = (provider?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.compactUsage + " percent used" } ?? "Usage unavailable"))
+            // With one combined item, name the provider the user picked so a warning is never ambiguous.
+            let named = provider ?? store.providers.first { $0.id == options.menuProvider }
+            let unavailable = value == .warning ? "couldn't read usage, open the menu for details" : "Usage unavailable"
+            let description = (named?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.compactUsage + " percent used" } ?? unavailable))
             let shownID = provider?.id ?? (value.percent != nil ? store.enabled.first { $0.glyph == { if case let .value(_, g) = value { return g }; return "" }() }?.id : nil)
             let stale = shownID.flatMap { id in store.snapshots[id].map { $0.isStale(providerID: id, at: .now) } } ?? false
             button.alphaValue = stale ? 0.55 : 1

@@ -3,7 +3,7 @@
 //         which Claude Code refreshes during /usage (no other field is decoded).
 // Runs:   your own `claude -p /usage` (and `claude --version` once), from
 //         ~/Library/Application Support/AI Usage Menu/claude-workdir, with no MCP servers,
-//         no user settings, hooks or plugins, and Claude Code's update check and telemetry off.
+//         no user settings, hooks or plugins, and Claude Code's update check off.
 // Writes: nothing itself. Claude Code may update its own files under ~/.claude.
 // Sends:  nothing itself. Claude Code contacts Anthropic to fetch your usage, as /usage does.
 
@@ -75,9 +75,10 @@ actor ClaudeCodeProvider: Provider {
     private var version: String?
     private var attemptedShell = false
     private var lastOverride: String?
-    /// Measured 2026-11-23 (Claude Code 2.1.330): /usage returns the same windows with these set,
-    /// in about 3 s instead of 4.5 s, and Claude Code skips its update check and telemetry.
-    static let quietEnvironment = ["DISABLE_AUTOUPDATER": "1", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"]
+    /// Claude Code skips its own update check during the read. Do NOT add
+    /// CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: it stops /usage from fetching usage at all, so Claude
+    /// Code prints its cache, and prints no limits once that cache is about an hour old (found 2026-11-23).
+    static let quietEnvironment = ["DISABLE_AUTOUPDATER": "1"]
     private let workdir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/AI Usage Menu/claude-workdir")
 
     func resolve() async -> URL? {

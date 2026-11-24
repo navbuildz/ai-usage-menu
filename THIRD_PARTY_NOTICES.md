@@ -1,6 +1,6 @@
 # Third-party notices
 
-AI Usage Menu is MIT licensed (see LICENSE). It ships with the following third-party software.
+AI Usage Menu is MIT licensed (see LICENSE). It ships with the following third-party software. The website (site/) also uses Phosphor Icons and Lobe Icons.
 
 ## Sparkle
 
@@ -142,3 +142,11 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## Phosphor Icons (website only)
+
+https://phosphoricons.com, used in site/src/icons. MIT License, Copyright (c) 2023 Phosphor Icons; full text in site/src/icons/LICENSE.
+
+## Lobe Icons (website only)
+
+https://github.com/lobehub/lobe-icons, used for the Claude and OpenAI logos in site/src/logos. MIT License; full text in site/src/logos/LICENSE.md. AI Usage Menu is not affiliated with Anthropic or OpenAI.

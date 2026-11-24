@@ -12,7 +12,11 @@ struct DockSnapshot: Equatable {
     static func resolve(providers: [any Provider], snapshots: [String: ProviderSnapshot], options: DisplayOptions, now: Date) -> Self {
         let available = providers.filter { snapshots[$0.id]?.state != .notInstalled && snapshots[$0.id] != nil }
         var choices = available
-        if available.count > 1, let selected = available.first(where: { $0.id == options.dockProvider }) { choices = [selected] }
+        // A chosen provider stays chosen while it has no reading yet; it then shows its own warning
+        // instead of another provider's number.
+        if let selected = providers.first(where: { $0.id == options.dockProvider }), snapshots[selected.id]?.state != .notInstalled {
+            choices = [selected]
+        }
         var result = Self(indicator: .absent, thresholds: options.thresholds)
         var best = -2.0
         for provider in choices {

@@ -101,11 +101,13 @@ final class HardeningTests: XCTestCase {
         XCTAssertEqual(AppServices.alertLevels(defaults: defaults, health: health), [70, 95])
     }
 
-    // [A3] The Claude read runs with Claude Code's update check and telemetry off.
-    func testChildEnvironmentIsQuiet() throws {
-        let output = try LocalCommand.run(URL(fileURLWithPath: "/bin/sh"), ["-c", "printf \"$DISABLE_AUTOUPDATER/$CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC\""],
+    // [A3] The Claude read skips Claude Code's update check, and must never disable its usage fetch.
+    func testChildEnvironment() throws {
+        XCTAssertNil(ClaudeCodeProvider.quietEnvironment["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"],
+                     "this variable stops /usage from fetching, so limits go stale and then disappear")
+        let output = try LocalCommand.run(URL(fileURLWithPath: "/bin/sh"), ["-c", "printf \"$DISABLE_AUTOUPDATER\""],
                                           in: URL(fileURLWithPath: "/"), extraEnvironment: ClaudeCodeProvider.quietEnvironment)
-        XCTAssertEqual(output.stdout, "1/1")
+        XCTAssertEqual(output.stdout, "1")
     }
 
     // [D3] Pace: projection from the share of the window that has passed.
@@ -179,5 +181,31 @@ final class HardeningTests: XCTestCase {
         XCTAssertEqual(merged.map(\.usedPercent), [25, 80, 90])
         XCTAssertEqual(merged[0].resetsAt, date("2026-11-24T03:10:00Z"))
         XCTAssertNil(ClaudeUsageCache.decode(Data(#"{"numStartups":3}"#.utf8)))
+    }
+
+    // 2026-11-23: Claude Code was chosen, its read failed, and the menu bar showed Codex's number.
+    @MainActor func testChosenProviderIsNeverSwappedForAnother() async {
+        struct Fixed: Provider {
+            let id: String; let snapshot: ProviderSnapshot
+            var displayName: String { id }
+            var glyph: String { id == "claude" ? "provider-claude-code" : "provider-codex" }
+            func isAvailable() async -> Bool { true }
+            func read() async -> ProviderSnapshot { snapshot }
+        }
+        let now = Date()
+        var codex = ProviderSnapshot(asOf: now, state: .ready)
+        codex.limits = [.init(label: "Session", usedPercent: 92, resetsAt: now.addingTimeInterval(3600), windowMinutes: 300, source: "c")]
+        let claudeFailed = ProviderSnapshot(asOf: now, state: .unknownFormat, rawText: "no limits printed")
+        let store = UsageStore(providers: [Fixed(id: "claude", snapshot: claudeFailed), Fixed(id: "codex", snapshot: codex)])
+        for provider in store.providers { _ = await store.read(provider) }
+        var options = DisplayOptions()
+        options.menuProvider = "claude"
+        XCTAssertEqual(store.menuValue("auto", options: options), .warning, "Claude chosen and unreadable must show a warning, not Codex")
+        options.twoMenuNumbers = true
+        XCTAssertNil(store.menuPair("auto", options: options).session)
+        options.dockProvider = "claude"
+        XCTAssertEqual(DockSnapshot.resolve(providers: store.displayProviders, snapshots: store.snapshots, options: options, now: now).indicator, .warning)
+        options.menuProvider = "auto"; options.twoMenuNumbers = false
+        XCTAssertEqual(store.menuValue("auto", options: options).percent, 92, "Auto still picks the provider with a reading")
     }
 }

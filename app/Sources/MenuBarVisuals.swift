@@ -5,40 +5,40 @@ import AppKit
 
 @MainActor
 enum MenuGauge {
-    static func image(percent: Double, thresholds: Thresholds, appearance: NSAppearance) -> NSImage {
+    /// Three rising bars, one color. Solid bars show the usage tier (1 low, 2 medium, 3 high,
+    /// from the health thresholds); the rest are faint. It is a template image, so macOS draws it
+    /// black or white to match the menu bar, in light, dark and tinted wallpapers alike.
+    static func image(percent: Double, thresholds: Thresholds, appearance: NSAppearance? = nil) -> NSImage {
         let tier = thresholds.tier(percent)
-        let ink = thresholds.color(percent)
-        let light = appearance.bestMatch(from: [.darkAqua,.aqua]) == .aqua
-        let rects = [CGRect(x: 8.9,y: 18.2,width: 4.8,height: 7.8), CGRect(x: 15,y: 14.5,width: 4.8,height: 11.5), CGRect(x: 21.1,y: 10.7,width: 4.8,height: 15.3)]
-        return NSImage(size: .init(width: 18,height: 18), flipped: true) { bounds in
-            guard let c = NSGraphicsContext.current?.cgContext else { return false }
-            c.saveGState()
-            c.scaleBy(x: bounds.width / 32, y: bounds.height / 32)
-            let template = NSImage(named: "UsageTemplate")!
-            template.draw(in: .init(x: 0,y: 0,width: 32,height: 32), from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
-            (light ? NSColor.black : NSColor.white).setFill()
-            NSRect(x: 0,y: 0,width: 32,height: 32).fill(using: .sourceAtop)
-            for (index, rect) in rects.enumerated() {
-                let path = NSBezierPath(roundedRect: rect, xRadius: 1.8, yRadius: 1.8)
-                (index < tier ? ink : (light ? NSColor.lightGray : NSColor.darkGray)).setFill()
-                path.fill()
+        let image = NSImage(size: .init(width: 18, height: 18), flipped: false) { _ in
+            let heights: [CGFloat] = [6, 10, 14]
+            for (index, height) in heights.enumerated() {
+                let rect = NSRect(x: 2 + CGFloat(index) * 5, y: 2, width: 3.6, height: height)
+                NSColor.black.withAlphaComponent(index < tier ? 1 : 0.28).setFill()
+                NSBezierPath(roundedRect: rect, xRadius: 1.2, yRadius: 1.2).fill()
             }
-            c.restoreGState()
             return true
         }
+        image.isTemplate = true
+        image.accessibilityDescription = ["low", "medium", "high"][tier - 1] + " usage"
+        return image
     }
 }
 
 extension UsageStore {
     func menuValue(_ key: String, options: DisplayOptions) -> Indicator {
         let choice = key == "auto" ? options.menuProvider : key
-        let id = displayProviders.contains { $0.id == choice } ? choice : "auto"
+        // Keep the provider the user chose, even while it has no reading (it then shows its warning).
+        // Fall back to Auto only when that provider is turned off or not installed.
+        let chosenUsable = enabled.contains { $0.id == choice } && snapshots[choice]?.state != .notInstalled
+        let id = chosenUsable ? choice : "auto"
+        let pool: [any Provider] = chosenUsable ? enabled.filter { $0.id == choice } : displayProviders
         if options.twoMenuNumbers && options.showPercent {
             let pair = menuPair(key, options: options)
             if case let .value(_, glyph) = pair.indicator, let peak = [pair.session, pair.weekly].compactMap({ $0 }).max() { return .value(peak, glyph) }
             return pair.indicator
         }
-        return Indicator.select(providers: displayProviders, snapshots: snapshots, providerID: id, window: options.menuWindow, at: .now)
+        return Indicator.select(providers: pool, snapshots: snapshots, providerID: id, window: options.menuWindow, at: .now)
     }
 
     func menuPair(_ key: String, options: DisplayOptions) -> DockSnapshot {
@@ -97,6 +97,6 @@ struct MenuItemVisual {
             }
             return true
         }
-        image?.isTemplate = provider != nil
+        image?.isTemplate = true
     }
 }

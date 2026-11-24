@@ -8,8 +8,8 @@ Report suspected vulnerabilities privately through GitHub's "Report a vulnerabil
 
 AI Usage Menu is a small app, and you can check everything below in the source.
 
-- **It runs one program:** your own `claude` binary, with `-p /usage`, from its own folder in `~/Library/Application Support/AI Usage Menu/claude-workdir`. Claude Code then contacts Anthropic the same way it does when you type `/usage`. The app passes `DISABLE_AUTOUPDATER=1` and `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` so Claude Code skips its update check and telemetry during the read.
-- **It reads two things:** the end of the newest Codex session log in `~/.codex/sessions`, and the `auth_mode` field of `~/.codex/auth.json`. No other field of that file is decoded.
+- **It runs one program:** your own `claude` binary, with `-p /usage`, from its own folder in `~/Library/Application Support/AI Usage Menu/claude-workdir`. Claude Code then contacts Anthropic the same way it does when you type `/usage`. The app passes `DISABLE_AUTOUPDATER=1` so Claude Code skips its update check during the read.
+- **It reads three things:** the `cachedUsageUtilization` field of `~/.claude.json` (the usage figures Claude Code caches during `/usage`; no other field is decoded), the end of the newest Codex session log in `~/.codex/sessions`, and the `auth_mode` field of `~/.codex/auth.json`. No other field of that file is decoded.
 - **It writes nothing outside its own preferences** and that working folder.
 - **It makes no network requests,** except Sparkle update checks, which are off until you turn them on. `ProviderTests.testNoNetworkCodeOutsideUpdater` fails the build if networking code appears anywhere outside `Sources/Updater`.
 

@@ -28,6 +28,7 @@ targets:
         SUEnableAutomaticChecks: false
         SUAllowsAutomaticUpdates: false
         SUSendProfileInfo: false
+        NSHumanReadableCopyright: "© 2026 BaseThread LLC. MIT License."
     sources:
       - Sources
       - Assets.xcassets

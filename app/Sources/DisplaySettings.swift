@@ -166,58 +166,97 @@ struct DisplaySettings: View {
         }
     }
 
+    // The Menu bar and Dock panes are two separate views, each bound straight to its own settings.
+    // They used to share one view whose controls switched bindings by pane, which let Settings show
+    // one setting while the app used another (2026-11-23: "Claude Code" shown, Codex saved).
     private var displayPane: some View {
-        let isDock = pane == .dock
-        return VStack(alignment: .leading, spacing: 0) {
-            visibilitySwitch(isDock: isDock).padding(.bottom, 12)
-            HStack(spacing: 20) {
-                Group {
-                    if isDock {
-                        Image(nsImage: DockIconRenderer.image(for: dockPreview, size: 256)).resizable().frame(width: 104, height: 104).accessibilityLabel("Dock preview")
-                    } else { menuPreview }
-                }.frame(minWidth: 88, minHeight: 90)
-                Divider().frame(height: 60)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Provider").font(.caption).foregroundStyle(Color("textSecondary"))
-                    let candidates = store.displayProviders
-                    if !isDock && preferences.options.separateItems { Text("One item per provider") }
-                    else if candidates.count <= 1 { Text(candidates.first?.displayName ?? "None connected") }
-                    else {
-                        Picker("Provider", selection: isDock ? $preferences.options.dockProvider : $preferences.options.menuProvider) {
-                            Text("Auto").tag("auto")
-                            ForEach(candidates, id: \.id) { Text($0.displayName).tag($0.id) }
-                        }.labelsHidden()
-                    }
+        Group {
+            if pane == .dock { dockPane } else { menuPane }
+        }
+    }
+
+    /// Every enabled provider is offered, even one without a reading yet, so the saved choice always
+    /// has a matching item and the picker never displays a value that isn't the one in use.
+    private var providerChoices: [any Provider] { store.enabled }
+
+    private var menuPane: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            visibilitySwitch(isDock: false).padding(.bottom, 12)
+            previewCard(preview: AnyView(menuPreview)) {
+                if preferences.options.separateItems {
+                    Text("One item per provider")
+                } else {
+                    Picker("Menu bar provider", selection: $preferences.options.menuProvider) {
+                        Text("Auto (most used)").tag("auto")
+                        ForEach(providerChoices, id: \.id) { Text($0.displayName).tag($0.id) }
+                    }.labelsHidden().fixedSize()
                 }
-                Spacer(minLength: 0)
-            }.padding(.horizontal, 16).frame(maxWidth: .infinity)
-                .background(Color("surface"), in: RoundedRectangle(cornerRadius: 12)).padding(.bottom, 14)
-            if isDock || preferences.options.showPercent {
+            }
+            if preferences.options.showPercent {
                 row("Numbers") {
-                    Picker("Numbers", selection: isDock ? $preferences.options.twoDockNumbers : $preferences.options.twoMenuNumbers) {
+                    Picker("Menu bar numbers", selection: $preferences.options.twoMenuNumbers) {
                         Text("One").tag(false)
                         Text("Two").tag(true)
                     }.labelsHidden().pickerStyle(.segmented).frame(width: 160)
                 }
             }
-            if isDock ? preferences.options.twoDockNumbers : preferences.options.twoMenuNumbers && preferences.options.showPercent {
+            if preferences.options.twoMenuNumbers && preferences.options.showPercent {
                 row("Top number") { Text("5-hour session") }
                 row("Bottom number") { Text("Weekly") }
             } else {
-                row(isDock ? "Center number" : "Window") {
-                    Picker("Usage window", selection: isDock ? $preferences.options.dockWindow : $preferences.options.menuWindow) {
+                row("Window") {
+                    Picker("Menu bar window", selection: $preferences.options.menuWindow) {
                         Text("5-hour").tag(WindowChoice.session)
                         Text("Weekly").tag(WindowChoice.weekly)
                     }.pickerStyle(.segmented).labelsHidden().frame(width: 160)
                 }
             }
-            if isDock {
-                row("Dock appearance") { themePicker($preferences.options.dockTheme) }
-            } else {
-                row("One item per provider") { Toggle("One item per provider", isOn: $preferences.options.separateItems).labelsHidden() }
-                row("Show percentage") { Toggle("Show percentage", isOn: $preferences.options.showPercent).labelsHidden() }
-            }
+            row("One item per provider") { Toggle("One item per provider", isOn: $preferences.options.separateItems).labelsHidden() }
+            row("Show percentage") { Toggle("Show percentage", isOn: $preferences.options.showPercent).labelsHidden() }
         }
+    }
+
+    private var dockPane: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            visibilitySwitch(isDock: true).padding(.bottom, 12)
+            previewCard(preview: AnyView(Image(nsImage: DockIconRenderer.image(for: dockPreview, size: 256)).resizable().frame(width: 104, height: 104).accessibilityLabel("Dock preview"))) {
+                Picker("Dock provider", selection: $preferences.options.dockProvider) {
+                    Text("Auto (most used)").tag("auto")
+                    ForEach(providerChoices, id: \.id) { Text($0.displayName).tag($0.id) }
+                }.labelsHidden().fixedSize()
+            }
+            row("Numbers") {
+                Picker("Dock numbers", selection: $preferences.options.twoDockNumbers) {
+                    Text("One").tag(false)
+                    Text("Two").tag(true)
+                }.labelsHidden().pickerStyle(.segmented).frame(width: 160)
+            }
+            if preferences.options.twoDockNumbers {
+                row("Top number") { Text("5-hour session") }
+                row("Bottom number") { Text("Weekly") }
+            } else {
+                row("Center number") {
+                    Picker("Dock window", selection: $preferences.options.dockWindow) {
+                        Text("5-hour").tag(WindowChoice.session)
+                        Text("Weekly").tag(WindowChoice.weekly)
+                    }.pickerStyle(.segmented).labelsHidden().frame(width: 160)
+                }
+            }
+            row("Dock appearance") { themePicker($preferences.options.dockTheme) }
+        }
+    }
+
+    private func previewCard<Control: View>(preview: AnyView, @ViewBuilder control: () -> Control) -> some View {
+        HStack(spacing: 20) {
+            preview.frame(minWidth: 88, minHeight: 90)
+            Divider().frame(height: 60)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Provider").font(.caption).foregroundStyle(Color("textSecondary"))
+                control()
+            }
+            Spacer(minLength: 0)
+        }.padding(.horizontal, 16).frame(maxWidth: .infinity)
+            .background(Color("surface"), in: RoundedRectangle(cornerRadius: 12)).padding(.bottom, 14)
     }
 
     private func visibilitySwitch(isDock: Bool) -> some View {
@@ -254,7 +293,7 @@ struct DisplaySettings: View {
             }
             Text("9:41").font(.system(size: 12, weight: .medium))
         }
-        .foregroundStyle(ink).padding(.horizontal, 10).frame(height: 24)
+        .foregroundStyle(ink).padding(.horizontal, 10).frame(height: 24).fixedSize()
         .background(dark ? Color(white: 0.16) : Color(white: 0.93), in: RoundedRectangle(cornerRadius: 6))
     }
 
