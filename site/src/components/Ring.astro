@@ -1,0 +1,10 @@
+---
+// A usage ring as drawn in the app: mint while healthy, amber near the limit, danger near capacity.
+const {value, size=52, stroke=5} = Astro.props;
+const r = 24 - stroke/2, c = +(2*Math.PI*r).toFixed(2);
+const tone = value >= 90 ? 'tone-hot' : value >= 70 ? 'tone-warn' : 'tone-ok';
+---
+<span class={`ring ${tone}`} data-ring={value} style={`--size:${size}px;--v:${value};--c:${c}`}>
+  <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="trk" cx="24" cy="24" r={r} fill="none" stroke-width={stroke}/><circle class="val" cx="24" cy="24" r={r} fill="none" stroke-width={stroke} stroke-linecap="round"/></svg>
+  <span data-count={value}>{value}%</span>
+</span>

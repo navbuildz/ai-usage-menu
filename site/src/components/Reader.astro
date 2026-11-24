@@ -1,0 +1,103 @@
+---
+// Every page except home: a split hero with staged art, then contents + reading column.
+import Icon from './Icon.astro';
+import AppPanel from './AppPanel.astro';
+import DockTile from './DockTile.astro';
+import MenuBarDemo from './MenuBarDemo.astro';
+import ActivityCard from './ActivityCard.astro';
+import TerminalFlow from './TerminalFlow.astro';
+import ResetTimeline from './ResetTimeline.astro';
+import DataFlow from './DataFlow.astro';
+import Visual from './Visual.astro';
+import GuideTools from './GuideTools.astro';
+import CodeCards from './CodeCards.astro';
+import RepoInfo from './RepoInfo.astro';
+import Install from './Install.astro';
+import Faq from './Faq.astro';
+import CtaBand from './CtaBand.astro';
+import TextLinks from './TextLinks.astro';
+import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
+import release from '../data/release.json';
+import comparison from '../data/compare.json';
+import {compatibility,labels,pathFor} from '../data/shared.mjs';
+const {p, id, date, dateLabel, stepsName, sections} = Astro.props;
+const guide = ['claude-code-usage','codex-usage','claude-usage-limits'].includes(id);
+const anchor = h => h.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+// Guides: the short sections become "the essentials" cards; the long questions read as prose.
+const essentials = guide ? sections.filter(([,b])=>b.split(/\s+/).length < 60) : [];
+const longform = guide ? sections.filter(([,b])=>b.split(/\s+/).length >= 60) : sections;
+const essentialsTitle = {'claude-code-usage':'Claude Code usage at a glance','codex-usage':'Codex usage at a glance','claude-usage-limits':'The limits at a glance'}[id];
+const eyebrow = {'claude-code-usage':['terminal-window','Claude Code guide'],'codex-usage':['code','Codex guide'],'claude-usage-limits':['gauge','Usage limits guide'],'open-source':['git-branch','Open source · MIT'],privacy:['lock-simple','Privacy & Legal'],compare:['scales','Comparison'],download:['download-simple','Free download']}[id];
+const essIcons = ['eye','app-window','stack','terminal-window','gear-six','coins'];
+// Visuals placed between long sections, per page (index = after that many long sections).
+const visuals = {
+  'claude-code-usage': {0:'terminal',2:'activity',5:'checklist'},
+  'codex-usage': {0:'codex',2:'menubar',5:'checklist'},
+  'claude-usage-limits': {0:'models',2:'dock',6:'checklist'},
+}[id] ?? {};
+const toc = guide
+  ? ['Quick answer','Commands',essentialsTitle,...longform.map(([h])=>h),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])]
+  : [...(id==='compare'?['Data sources and features']:[]),...(id==='open-source'?['Read the code that touches your data','Changelog','Install three ways']:[]),...longform.map(([h])=>h),...(id==='privacy'?['Inspect the local reader and network test','Verify the running app','Legal notices']:[]),...(id==='download'?['Install three ways','Inspect the updater and its network boundary']:[]),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])];
+const tocId = h => ({'Read the code that touches your data':'read-the-code','Changelog':'changelog','Legal notices':'legal-notices'})[h] ?? anchor(h);
+const ours = comparison.rows.find(r=>r[0]==='AI Usage Menu');
+---
+<section class="hero hero-guide">
+  <div class="hero-copy">
+    <span class="eyebrow" data-reveal><Icon name={eyebrow[0]}/>{eyebrow[1]}</span>
+    <h1 data-reveal style="--d:1">{p.h1}</h1>
+    <p class="lead" data-reveal style="--d:2">{p.answer}</p>
+    <div class="actions" data-reveal style="--d:3"><a class="btn btn-primary" href="/download">Download free for Mac<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
+    {id==='download' && <p class="hero-note" data-reveal style="--d:4"><span><Icon name="check-circle"/>macOS 13 or later</span><span><Icon name="check-circle"/>Apple silicon and Intel</span><span><Icon name="check-circle"/>Free</span></p>}
+    {id==='download' && <p class="muted" data-reveal style="--d:5">{compatibility}</p>}
+  </div>
+  <div class="hero-art" data-reveal style="--d:2">
+    {id==='claude-code-usage' && <div class="stage"><span class="chip chip-bar chip-tl" aria-hidden="true"><Icon name="terminal-window"/><span>/usage<small>read for you</small></span></span><AppPanel rows3/><span class="dock-float" aria-hidden="true"><DockTile session={94} week={57} size={124}/></span></div>}
+    {id==='codex-usage' && <div class="stage"><span class="chip chip-tr" aria-hidden="true"><Icon name="clock-countdown"/><span>Resets in 1h 29m<small>5-hour window</small></span></span><AppPanel tab="codex"/><span class="dock-float" aria-hidden="true"><DockTile session={72} week={57} size={124}/></span></div>}
+    {id==='claude-usage-limits' && <div class="stage"><ResetTimeline/></div>}
+    {id==='privacy' && <div class="stage"><DataFlow/></div>}
+    {id==='open-source' && <div class="stage"><div class="filecard" aria-hidden="true"><header><img src={mark} width="26" height="26" alt="AI Usage Menu"/>aiusagemenu<span>MIT</span></header>{[['Claude Code reader','app/Sources/ClaudeCodeProvider.swift'],['Codex session reader','app/Sources/CodexProvider.swift'],['Optional update check','app/Sources/Updater/UpdateService.swift'],['Network source test','app/Tests/ProviderTests.swift']].map(([t,f])=><div class="file"><Icon name="file-code"/><div>{t}<small>{f}</small></div></div>)}</div></div>}
+    {id==='compare' && <div class="stage"><div class="spec" aria-hidden="true"><header><img src={mark} width="30" height="30" alt="AI Usage Menu"/>AI Usage Menu<span>MIT</span></header>{[['Usage source',ours[1]],['Price',ours[2]],['Claude Code','Yes'],['Codex','Yes'],['Live Dock gauge','Yes'],['Activity breakdown','Yes']].map(([k,v])=><div class="spec-row"><span>{k}</span><b>{v==='Yes'?<><Icon name="check-circle"/>Yes</>:v}</b></div>)}</div></div>}
+    {id==='download' && <div class="stage"><div class="welcome" role="img" aria-label="First launch of AI Usage Menu: your AI usage at a glance, with usage staying on your Mac"><img src={mark} width="56" height="56" alt="AI Usage Menu"/><b>Your AI usage at a glance</b><p>See your Claude Code and Codex limits in the menu bar and Dock.</p><ul><li><Icon name="lock-simple"/>Usage stays on your Mac. No cookies or API keys are required.</li><li><Icon name="info"/>Claude Code may contact Anthropic when it reads usage.</li><li><Icon name="arrows-clockwise"/>The app only connects for updates you choose.</li></ul><span class="btn btn-primary btn-sm">Continue</span></div><span class="dock-float" aria-hidden="true"><DockTile session={30} week={57} size={124}/></span></div>}
+  </div>
+</section>
+
+{id==='compare' && <section class="compare-full" aria-labelledby="data-sources-and-features"><h2 id="data-sources-and-features">Data sources and features</h2>
+      <div class="table-wrap"><table class="compare"><thead><tr>{comparison.columns.map(c=><th scope="col">{c}</th>)}</tr></thead><tbody>{comparison.rows.map(row=><tr class:list={{ours:row[0]==='AI Usage Menu'}}>{row.map((cell,i)=>{const v=row[0]==='AI Usage Menu' && comparison.columns[i]==='Code-signed and notarized' && release.signedAndNotarized?'Yes':cell;return <td data-label={comparison.columns[i]}>{i===0?<>{v}<button type="button" class="row-more" aria-expanded="false"><span>Show all</span><Icon name="caret-down"/></button></>:v==='Yes'?<span class="yes"><Icon name="check-circle"/>Yes</span>:v}</td>})}</tr>)}</tbody></table></div></section>}
+
+<div class="read">
+  <aside class="side">
+    <div class="toc"><strong><Icon name="list"/>On this page</strong><nav aria-label="On this page">{toc.map(h=><a href={'#'+tocId(h)}>{h}</a>)}</nav>
+      <div class="rail-card"><img src={mark} width="52" height="52" alt="AI Usage Menu"/><b>See it live in your menu bar</b><p>Free for macOS 13 or later.</p><a class="btn btn-primary btn-sm" href="/download">Download<Icon name="download-simple"/></a><ul><li><Icon name="check-circle"/>No cookie or key</li><li><Icon name="check-circle"/>0 tokens to check</li></ul></div>
+    </div>
+  </aside>
+  <div class="body">
+    {guide && <GuideTools id={id}/>}
+    {guide && <section aria-labelledby={anchor(essentialsTitle)}><h2 id={anchor(essentialsTitle)}>{essentialsTitle}</h2><div class="essentials" data-reveal-group>{essentials.map(([h,b],i)=><article class="essential"><span class="ic-tile sm"><Icon name={essIcons[i % essIcons.length]}/></span><h3>{h}</h3><p><TextLinks text={b} id={id}/></p>{h==='Using Claude Code too?' && <a class="arrow-link" href="/claude-code-usage">Claude Code usage<Icon name="arrow-right"/></a>}</article>)}</div></section>}
+
+
+
+    {id==='open-source' && <RepoInfo/>}
+    {['open-source','download'].includes(id) && <Install/>}
+
+    {guide && visuals[0] && <Visual kind={visuals[0]}/>}
+    {longform.map(([h,b],i)=><>
+      <section class="prose" aria-labelledby={anchor(h)} data-reveal><h2 id={anchor(h)}>{h}</h2><p><TextLinks text={b} id={id}/></p>
+        {h==='Verify the download' && <pre class="verify-code"><code>{'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"\nspctl --assess --type execute "/Applications/AI Usage Menu.app"'}</code></pre>}
+      </section>
+      {guide && visuals[i+1] && <Visual kind={visuals[i+1]}/>}
+    </>)}
+
+    {id==='privacy' && <><CodeCards variant="verify"/><Install variant="verify"/></>}
+    {id==='download' && <CodeCards variant="download"/>}
+    {id==='privacy' && <section class="legal-block" id="legal-notices" aria-labelledby="legal-h"><h2 id="legal-h">Legal notices</h2><h3>Copyright and license</h3><p class="muted">© 2026 BaseThread LLC. AI Usage Menu is distributed under the MIT License.</p><a class="arrow-link" href="https://opensource.org/licenses/MIT">Read the MIT License<Icon name="arrow-up-right"/></a><h3>Trademarks</h3><p class="muted">AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</p></section>}
+
+    {p.steps.length>0 && <section aria-labelledby={anchor(stepsName)}><h2 id={anchor(stepsName)}>{stepsName}</h2><ol class="steps steps-col" data-howto data-reveal-group>{p.steps.map((s,i)=><li><span class="ic-tile sm"><Icon name={['download-simple','magnifying-glass','gauge'][i]}/></span>{s}</li>)}</ol></section>}
+    {p.sources.length>0 && <section aria-labelledby="sources"><h2 id="sources">Sources</h2><ul class="sources">{p.sources.map(([label,href])=><li><Icon name="book-open"/><a href={href} rel={id==='compare'?'nofollow':undefined}>{label}</a><small>Checked <time datetime={date}>{date}</time></small></li>)}</ul></section>}
+  </div>
+</div>
+
+{p.faqs.length>0 && <div class="sec"><Faq faqs={p.faqs} id={id} headingId="frequently-asked-questions"/></div>}
+
+<section class="sec-tight explore" aria-labelledby="explore-h"><h2 id="explore-h">Explore AI Usage Menu</h2><div class="related">{Object.keys(labels).filter(k=>k!==id).map(k=><a href={pathFor(k)}><Icon name={{home:'app-window','claude-code-usage':'terminal-window','codex-usage':'code','claude-usage-limits':'gauge','open-source':'git-branch',privacy:'lock-simple',compare:'scales',download:'download-simple'}[k]}/>{labels[k]}</a>)}</div></section>
+<p class="revision"><Icon name="calendar-check"/>{guide||id==='compare'?'Last checked':'Last updated'} <time datetime={date}>{dateLabel}</time></p>
+<div class="sec-tight"><CtaBand/></div>

@@ -1,28 +1,30 @@
 ---
 import config from '../data/repo.json';
 import {repo} from '../data/shared.mjs';
+import Icon from './Icon.astro';
 const {variant='install'}=Astro.props;
 const releaseReady=Boolean(config.dmg);
 const options=variant==='verify'?[
- {id:'process',label:'App sockets',command:'pid=$(pgrep -x "AI Usage Menu" | head -n 1)\nlsof -nP -a -i -p "$pid"',note:'Open AI Usage Menu first. This takes a point-in-time sample of connections owned by the app process.'},
- {id:'signature',label:'Signature',command:'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"',note:'After installing the released app, run this to verify its code signature.'}
+ {id:'process',label:'App sockets',icon:'plug',command:'pid=$(pgrep -x "AI Usage Menu" | head -n 1)\nlsof -nP -a -i -p "$pid"',note:'Open AI Usage Menu first. This takes a point-in-time sample of connections owned by the app process.'},
+ {id:'signature',label:'Signature',icon:'seal-check',command:'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"',note:'After installing the released app, run this to verify its code signature.'}
 ]:[
- {id:'download',label:'Download',command:'open "/Applications/AI Usage Menu.app"',note:'After installation, this command opens the app. Requires macOS 13 or later on Apple silicon or Intel.'},
- {id:'homebrew',label:'Homebrew',command:'brew install --cask aiusagemenu',note:'Run the cask command in Terminal once the cask is published.'},
- {id:'source',label:'Build from source',command:(config.owner!=='OWNER'?'git clone '+repo+'.git\ncd '+config.repo+'\n':'')+'./app/build.sh',note:'Run the build script from the repository root with Xcode and the Swift 6 toolchain installed.'}
+ {id:'download',label:'Download',icon:'download-simple',note:'Requires macOS 13 or later on Apple silicon or Intel.'},
+ {id:'homebrew',label:'Homebrew',icon:'package',command:'brew install --cask aiusagemenu',note:'Run the cask command in Terminal once the cask is published.'},
+ {id:'source',label:'Build from source',icon:'code',command:(config.owner!=='OWNER'?'git clone '+repo+'.git\ncd '+config.repo+'\n':'')+'./app/build.sh',note:'Run the build script from the repository root with Xcode and the Swift 6 toolchain installed.'}
 ];
 const title=variant==='verify'?'Verify the running app':'Install three ways';
+const anchor=title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+const intro=variant==='verify'?'Two checks you can run yourself: what the app has open right now, and whether the build you installed is the one we signed.':'Download the app, install it with Homebrew, or build it from the source yourself.';
 ---
-<section class="block"><h2>{title}</h2>
-<div class="terminal" data-terminal>
-<div class="terminal-tabs" role="tablist" aria-label={title}>{options.map((tab,i)=><button type="button" role="tab" id={variant+'-tab-'+tab.id} aria-controls={variant+'-panel-'+tab.id} aria-selected={i===0?'true':'false'}>{tab.label}</button>)}</div>
-{options.map(tab=><div role="tabpanel" id={variant+'-panel-'+tab.id} aria-labelledby={variant+'-tab-'+tab.id} tabindex="0">
-{tab.id==='download' && (releaseReady?<a class="download-button" href={config.dmg}>Download signed DMG ↓</a>:<button class="download-button" type="button" disabled>Signed DMG with the first release</button>)}
-{tab.id==='homebrew'&&!config.homebrewPublished && <span class="pending">Available after the first release</span>}
-<div class="command-row"><pre><code>{tab.command}</code></pre><button type="button" data-copy-command aria-label={'Copy '+tab.label+' command'}>Copy</button></div><p>{tab.note}</p>
+<section class="install" id={anchor} aria-labelledby={anchor+'-h'}>
+<div class="install-copy" data-reveal><span class="ic-tile"><Icon name={variant==='verify'?'shield-check':'tray-arrow-down'} duo/></span><h2 id={anchor+'-h'}>{title}</h2><p class="muted">{intro}</p></div>
+<div class="terminal" data-terminal data-reveal style="--d:1">
+<div class="terminal-tabs" role="tablist" aria-label={title}>{options.map((tab,i)=><button type="button" role="tab" id={variant+'-tab-'+tab.id} aria-controls={variant+'-panel-'+tab.id} aria-selected={i===0?'true':'false'}><Icon name={tab.icon}/>{tab.label}</button>)}</div>
+{options.map((tab,i)=><div role="tabpanel" id={variant+'-panel-'+tab.id} aria-labelledby={variant+'-tab-'+tab.id} tabindex="0" hidden={i!==0}>
+{tab.id==='download' && <>{releaseReady?<a class="btn btn-primary" href={config.dmg}>Download the DMG<Icon name="download-simple"/></a>:<span class="pending"><Icon name="hourglass"/>Signed DMG with the first release</span>}
+  <ol class="dmg-steps"><li><Icon name="download-simple"/>Open the downloaded DMG</li><li><Icon name="folder-simple"/>Drag AI Usage Menu to Applications</li><li><Icon name="cursor-click"/>Open it and choose your menu bar and Dock views</li></ol></>}
+{tab.id==='homebrew'&&!config.homebrewPublished && <span class="pending"><Icon name="hourglass"/>Available after the first release</span>}
+{tab.command && <div class="command-row"><pre><code>{tab.command}</code></pre><button type="button" data-copy-command aria-label={'Copy '+tab.label+' command'}><Icon name="copy"/><span>Copy</span></button></div>}
+<p>{tab.note}</p>
 </div>)}
 </div></section>
-<script is:inline defer src="/install-tabs.js"></script>
-<style>
-.terminal{background:#111425;color:#f6f7ff;border:1px solid #373950;border-radius:1.1rem;max-width:56rem;overflow:hidden}.terminal-tabs{display:flex;flex-wrap:wrap;gap:.25rem;padding:.6rem;border-bottom:1px solid #393c52}.terminal button,.terminal a{font:600 .82rem/1.3 'Inter Variable',sans-serif}.terminal-tabs button,.command-row button{color:#cdd0e0;background:none;border:0;border-radius:.6rem;padding:.55rem .8rem;cursor:pointer}.terminal-tabs button[aria-selected=true]{background:#353854;color:#fff}.terminal [role=tabpanel]{padding:clamp(1rem,3vw,1.7rem)}.terminal .command-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;padding:.7rem;background:#090d19;border-radius:.6rem}.command-row pre{color:#f5f4ff;white-space:pre-wrap;margin:0;padding:.35rem;min-width:0;overflow-wrap:anywhere}.command-row button{background:#292d46;flex:none}.terminal p{color:#c1c3d4;font-size:.95rem;margin:.85rem 0 0}.pending,.download-button{display:inline-block;color:#d4c7ff;border:1px solid #48425f;border-radius:2rem;background:#262339;padding:.4rem .75rem;margin-bottom:.8rem}.terminal .download-button:disabled{color:#c0bfd0;background:#262738;border-color:#444456}.pending{font-size:.8rem}.terminal :focus-visible{outline:2px solid #c7b6ff;outline-offset:2px}
-</style>

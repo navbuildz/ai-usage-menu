@@ -1,6 +1,16 @@
 ---
+import Icon from './Icon.astro';
 const {id}=Astro.props,codex=id==='codex-usage',command=codex?'/status':'/usage';
 const rows=codex?[['Session','5 hours','The session deadline shown in the reading','Codex CLI or the Codex tab'],['Weekly','7 days','The weekly deadline shown in the reading','Codex CLI or the Codex tab']]:[['Session','5 hours','The end of the current session window','Claude Code /usage or the Claude Code tab'],['Weekly','7 days','The weekly reset shown by Claude','Claude Code /usage or the Claude Code tab'],['Model-specific weekly','7 days, when reported','The reset on that model’s own row','Claude Code /usage, if the plan lists it']];
 ---
-<section class="guide-tool block" id="quick-answer"><h2>Quick answer</h2><p>{codex?'Codex reports session and weekly windows with separate reset times.':'Claude Code reports session and weekly windows separately, with model-specific rows when available.'}</p><table class="quick-table"><caption class="sr-only">Plan windows and reset times</caption><thead><tr>{['Window','Length','What resets it','Where to see it'].map(l=><th scope="col">{l}</th>)}</tr></thead><tbody>{rows.map(row=><tr>{row.map((cell,i)=>i===0?<th scope="row">{cell}</th>:<td data-label={['','Length','What resets it','Where to see it'][i]}>{cell}</td>)}</tr>)}</tbody></table></section>
-<section class="guide-tool block" id="commands"><h2>Commands</h2><p>Enter <code>{command}</code> inside an active {codex?'Codex CLI':'Claude Code'} session to see the account readout.</p><div class="command-surface"><span>{codex?'Codex CLI':'Claude Code'}</span><pre><code>{command}</code></pre></div><a href={codex?'https://developers.openai.com/codex/cli/slash-commands/':'https://code.claude.com/docs/en/interactive-mode'}>{codex?'Codex CLI slash commands':'Claude Code interactive commands'}</a></section>
+<section class="callout" id="quick-answer" aria-labelledby="qa-h" data-reveal>
+  <div class="callout-head"><span class="ic-tile sm"><Icon name="lightning"/></span><h2 id="qa-h">Quick answer</h2></div>
+  <p>{codex?'Codex reports session and weekly windows with separate reset times.':'Claude Code reports session and weekly windows separately, with model-specific rows when available.'}</p>
+  <div class="qwrap"><table class="qtable"><caption class="sr-only">Plan windows and reset times</caption><thead><tr>{['Window','Length','What resets it','Where to see it'].map(l=><th scope="col">{l}</th>)}</tr></thead><tbody>{rows.map(row=><tr>{row.map((cell,i)=>i===0?<th scope="row">{cell}</th>:<td data-label={['','Length','What resets it','Where to see it'][i]}>{cell}</td>)}</tr>)}</tbody></table></div>
+</section>
+<section class="cmd-card" id="commands" aria-labelledby="cmd-h" data-reveal>
+  <h2 id="cmd-h">Commands</h2>
+  <p class="muted">Enter <code>{command}</code> inside an active {codex?'Codex CLI':'Claude Code'} session to see the account readout.</p>
+  <div class="cmd-surface"><Icon name="terminal-window"/>{command}<span>{codex?'Codex CLI':'Claude Code'}</span></div>
+  <a class="arrow-link" href={codex?'https://developers.openai.com/codex/cli/slash-commands/':'https://code.claude.com/docs/en/interactive-mode'}>{codex?'Codex CLI slash commands':'Claude Code interactive commands'}<Icon name="arrow-up-right"/></a>
+</section>

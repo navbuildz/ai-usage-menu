@@ -1,5 +1,8 @@
 ---
+import Icon from './Icon.astro';
+import claudeGlyph from '../../../brand/05-ui-icons/svg/provider-claude-code.svg?raw';
+import codexGlyph from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
 const {id, mobile=false}=Astro.props;
-const pages=[['claude-code-usage','Claude Code'],['codex-usage','Codex'],['claude-usage-limits','Usage limits'],['compare','Compare'],['open-source','Open source']];
+const pages=[['claude-code-usage','Claude Code',claudeGlyph],['codex-usage','Codex',codexGlyph],['claude-usage-limits','Usage limits','gauge'],['compare','Compare','scales'],['open-source','Open source','git-branch']];
 ---
-<nav aria-label={mobile?'Mobile navigation':'Main navigation'} class={mobile?'mobile-links':'desktop-links'}>{pages.map(([key,label])=><a href={'/'+key} aria-current={id===key?'page':undefined}>{label}</a>)}</nav>
+<nav aria-label={mobile?'Mobile navigation':'Main navigation'} class={mobile?'mobile-links':'desktop-links'}>{pages.map(([key,label,icon])=><a href={'/'+key} aria-current={id===key?'page':undefined}>{icon.startsWith('<')?<span class="ic" aria-hidden="true" set:html={icon}/>:<Icon name={icon}/>}{label}</a>)}{mobile && <a href="/download" aria-current={id==='download'?'page':undefined}><Icon name="download-simple"/>Download</a>}</nav>

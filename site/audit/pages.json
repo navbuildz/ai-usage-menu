@@ -1,7 +1,7 @@
 [
   {
     "id": "home",
-    "bodyWords": 1290,
+    "bodyWords": 1134,
     "keywords": [
       "claude usage tracker",
       "ai usage tracker mac",
@@ -18,7 +18,7 @@
     "description": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills each usage window and when it resets.",
     "descriptionLength": 155,
     "first120": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills ea",
-    "heading": "Know your AI usage. Stay in control.",
+    "heading": "Your Claude Code and Codex limits, in your menu bar.",
     "canonical": "https://aiusagemenu.com/",
     "og": "https://aiusagemenu.com/art/og-home.png",
     "types": [
@@ -31,7 +31,7 @@
   },
   {
     "id": "claude-code-usage",
-    "bodyWords": 1546,
+    "bodyWords": 1698,
     "keywords": [
       "claude code usage",
       "claude code usage limit",
@@ -61,7 +61,7 @@
   },
   {
     "id": "codex-usage",
-    "bodyWords": 1535,
+    "bodyWords": 1682,
     "keywords": [
       "codex usage",
       "codex usage limit",
@@ -92,7 +92,7 @@
   },
   {
     "id": "claude-usage-limits",
-    "bodyWords": 2066,
+    "bodyWords": 2172,
     "keywords": [
       "claude usage limits",
       "claude 5 hour limit",
@@ -125,7 +125,7 @@
   },
   {
     "id": "open-source",
-    "bodyWords": 901,
+    "bodyWords": 907,
     "keywords": [
       "open source claude usage tracker",
       "claude usage tracker github",
@@ -148,7 +148,7 @@
   },
   {
     "id": "privacy",
-    "bodyWords": 817,
+    "bodyWords": 935,
     "keywords": [
       "claude usage tracker without cookie",
       "is it safe to paste claude session cookie",
@@ -171,7 +171,7 @@
   },
   {
     "id": "compare",
-    "bodyWords": 1242,
+    "bodyWords": 1309,
     "keywords": [
       "claude usage tracker comparison",
       "claude usage tracker alternatives",
@@ -199,7 +199,7 @@
   },
   {
     "id": "download",
-    "bodyWords": 856,
+    "bodyWords": 978,
     "keywords": [
       "download claude usage tracker mac",
       "claude usage app mac",

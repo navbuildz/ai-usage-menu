@@ -1,0 +1,21 @@
+---
+// A Mac menu bar with the AI Usage Menu gauge stepping through the three health states.
+import Icon from './Icon.astro';
+import Ring from './Ring.astro';
+import DockTile from './DockTile.astro';
+const states = [[30,'Healthy','tone-ok'],[72,'Nearing the limit','tone-warn'],[94,'Near capacity','tone-hot']];
+---
+<div class="menubar-demo" data-menubar>
+  <div class="mb-wall">
+    <div class="mb-bar" aria-hidden="true">
+      <span class="mb-gauge tone-warn" data-mb-gauge><svg viewBox="0 0 32 32"><path class="g-arc" d="M 3.9 24.9 A 12.2 12.2 0 1 1 28.2 16" fill="none" stroke-width="2.6" stroke-linecap="round"/><rect class="g-bar" x="8.9" y="18.2" width="4.8" height="7.8" rx="1.8"/><rect class="g-bar" x="15" y="14.5" width="4.8" height="11.5" rx="1.8"/><rect class="g-bar" x="21.1" y="10.7" width="4.8" height="15.3" rx="1.8"/></svg><span data-mb-value>72%</span></span>
+      <Icon name="wifi-high"/><Icon name="battery-high"/><span>Mon 12:10 PM</span>
+    </div>
+    <div class="mb-pop tone-warn" data-mb-pop aria-hidden="true">
+      <div class="row"><Ring value={72} size={46}/><div><b>Session</b><small>Resets in 1h 52m</small></div></div>
+      <span class="mb-state" data-mb-label>Nearing the limit</span>
+    </div>
+    <div class="mb-dock" aria-hidden="true"><i></i><i></i><i></i><DockTile session={72} week={57} size={48}/></div>
+  </div>
+  <div class="mb-legend">{states.map(([v,label,tone],i)=><span class:list={[tone,{on:i===1}]} data-mb-state={v}>{v}% · {label}</span>)}</div>
+</div>

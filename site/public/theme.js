@@ -1,39 +1,19 @@
+// Runs in <head>: apply the saved theme before first paint, mark JS as available, wire the Auto/Light/Dark switch.
+document.documentElement.classList.add('js');
 const saved = () => { try { return localStorage.getItem('aum-theme') || 'system'; } catch { return 'system'; } };
 function apply(choice) {
   const dark = choice === 'dark' || (choice === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-  const mode = dark ? 'dark' : 'light';
-  document.documentElement.dataset.theme = mode;
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
   document.querySelectorAll('source[data-capture-theme]').forEach(source => {
-    source.media = source.dataset.captureTheme === mode ? source.dataset.viewport : 'not all';
+    source.media = source.dataset.captureTheme === (dark ? 'dark' : 'light') ? source.dataset.viewport : 'not all';
   });
 }
 apply(saved());
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', () => {
   const buttons = document.querySelectorAll('[data-mode]');
   let choice = saved();
-  function reflect() {
-    apply(choice);
-    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mode === choice)));
-  }
+  const reflect = () => { apply(choice); buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === choice))); };
   reflect();
-  buttons.forEach(button => button.addEventListener('click', () => {
-    choice = button.dataset.mode;
-    try { localStorage.setItem('aum-theme', choice); } catch {}
-    reflect();
-  }));
+  buttons.forEach(b => b.addEventListener('click', () => { choice = b.dataset.mode; try { localStorage.setItem('aum-theme', choice); } catch {} reflect(); }));
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', reflect);
-  document.querySelectorAll('.copy').forEach(button=>button.addEventListener('click',async()=>{
-    try {await navigator.clipboard.writeText(button.previousElementSibling.textContent);button.textContent='Copied'} catch {button.textContent='Select the command above'}
-  }));
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  const sentinel = document.querySelector('#mast-sentinel');
-  if (sentinel) new IntersectionObserver(([entry]) => {
-    document.querySelector('.mast').classList.toggle('scrolled', !entry.isIntersecting);
-  }).observe(sentinel);
-  const menu = document.querySelector('.nav-disclosure');
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && menu?.open) { menu.open = false; menu.querySelector('summary').focus(); }
-  });
 });

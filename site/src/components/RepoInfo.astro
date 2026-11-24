@@ -3,8 +3,8 @@ import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {repo,stats} from '../data/shared.mjs';
 import config from '../data/repo.json';
-import TrustCard from './TrustCard.astro';
 import CodeCards from './CodeCards.astro';
+import Icon from './Icon.astro';
 const local=await readFile(resolve('../CHANGELOG.md'),'utf8');
 const milestones=local.split(/^## /m).slice(1).map(block=>{
  const [heading,...lines]=block.trim().split('\n');
@@ -13,9 +13,7 @@ const milestones=local.split(/^## /m).slice(1).map(block=>{
 });
 const releases=stats?.releases.length?stats.releases.map(r=>({tag:r.tag,date:r.date,lines:r.lines??[r.note].filter(Boolean)})):milestones;
 ---
-<TrustCard/><CodeCards/>
-<section class="block"><h2>Changelog</h2><div class="timeline">{releases.map(release=><article><header><strong>{release.tag}</strong><time datetime={release.date}>{release.date}</time></header><ul>{release.lines.map(line=><li>{line}</li>)}</ul></article>)}</div>
-{config.owner!=='OWNER' && <a href={repo+'/releases'}>All releases ↗</a>}</section>
-<style>
-.timeline{margin:1.4rem 0;border-left:2px solid var(--line);padding-left:1.6rem}.timeline article{position:relative;margin:0 0 1.3rem}.timeline article:before{content:'';position:absolute;left:-2.02rem;top:.7rem;width:.75rem;height:.75rem;border-radius:50%;background:var(--link)}.timeline header{display:flex;align-items:center;flex-wrap:wrap;gap:.75rem}.timeline strong{border-radius:2rem;background:var(--raised);color:var(--link);padding:.3rem .7rem;font-size:.85rem}.timeline time{color:var(--muted);font-size:.9rem}.timeline ul{padding-left:1rem}
-</style>
+<CodeCards/>
+<section id="changelog" aria-labelledby="changelog-h"><h2 id="changelog-h">Changelog</h2>
+<ol class="timeline" data-reveal-group>{releases.map(release=><li><span class="tag">{release.tag}</span><div><time datetime={release.date}>{release.date}</time><ul>{release.lines.map(line=><li>{line}</li>)}</ul></div></li>)}</ol>
+{config.owner!=='OWNER' && <a class="arrow-link" href={repo+'/releases'}>All releases<Icon name="arrow-up-right"/></a>}</section>

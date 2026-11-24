@@ -1,25 +1,13 @@
 ---
 import release from '../data/release.json';
 import {facts} from '../data/facts.mjs';
-import TrustCard from '../components/TrustCard.astro';
-import CodeCards from '../components/CodeCards.astro';
-import TextLinks from '../components/TextLinks.astro';
 import Layout from '../components/Layout.astro';
-import Actions from '../components/Actions.astro';
-import ProductStage from '../components/ProductStage.astro';
-import HomeFeatures from '../components/HomeFeatures.astro';
-import Capture from '../components/Capture.astro';
-import TrustStrip from '../components/TrustStrip.astro';
-import GuideTools from '../components/GuideTools.astro';
-import ResetTimeline from '../components/ResetTimeline.astro';
-import '../components/product-story.css';
-import Art from '../components/Art.astro';
-import RepoInfo from '../components/RepoInfo.astro';
-import Install from '../components/Install.astro';
+import Home from '../components/Home.astro';
+import Reader from '../components/Reader.astro';
 import pages from '../data/content.json';
 import comparison from '../data/compare.json';
 import config from '../data/repo.json';
-import {repo,base,pathFor,compatibility,labels,feature,dates,stats} from '../data/shared.mjs';
+import {repo,base,pathFor,labels,feature,dates} from '../data/shared.mjs';
 export function getStaticPaths(){ return Object.keys(pages).map(id=>({params:{page:id==='home'?undefined:id},props:{id}})); }
 const {id}=Astro.props,p=pages[id],url=base+pathFor(id),home=id==='home',date=dates[id];
 const appID=base+'/#software',orgID=base+'/#organization';
@@ -36,33 +24,9 @@ if(guide||id==='compare')graph.push({'@type':'Article',headline:p.h1,description
 if(p.faqs.length)graph.push({'@type':'FAQPage',name:p.h1,url,mainEntity:p.faqs.map(([q,a])=>({'@type':'Question',name:q,acceptedAnswer:{'@type':'Answer',text:a}}))});
 const stepsName=({'claude-code-usage':'Check Claude Code usage','codex-usage':'Check Codex usage','claude-usage-limits':'How to check your Claude usage',download:'Install AI Usage Menu'})[id] || 'How it works in three steps';
 if(!home && p.steps.length)graph.push({'@type':'HowTo',name:stepsName,url,description:p.meta,step:p.steps.map((text,i)=>({'@type':'HowToStep',position:i+1,text}))});
-const gallery={home:['strips-dark','breakdown','trio','pair'],'claude-code-usage':[null,null,'breakdown'],'codex-usage':['trio'],'claude-usage-limits':[null,null,'terminal'],download:[],privacy:[],compare:[]};
 const sections=p.sections.filter(([heading])=>heading!==stepsName).filter(([heading])=>id!=='open-source'||!['Changelog','Read the code that touches your data','Install three ways'].includes(heading));
-const anchor=heading=>heading.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const toc=['Quick answer','Commands',...sections.map(([heading])=>heading),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[]),'Explore AI Usage Menu'];
-
+const dateLabel=new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'UTC'}).format(new Date(date));
 ---
-<Layout id={id} title={p.title} meta={p.meta} graph={graph} art={feature[id]}>
-<section class:list={['hero',{home}]}><div>{(home||id==='download'||id==='open-source') && <div class="hero-pills"><span>Open source · MIT</span><span>Free</span><span>0 tokens to check</span></div>}<h1>{p.h1}</h1>{home && <p class="tagline">The free Claude usage tracker for Mac, for Claude Code and Codex.</p>}<p class="answer">{p.answer}</p><Actions/>{(home||id==='download') && <p class="compat">{compatibility}</p>}</div><div class="heroart">{home?<ProductStage/>:id==='claude-usage-limits'?<ResetTimeline/>:id==='codex-usage'?<Capture name="codex" alt="Codex usage in the Mac app, with session and weekly reset times" width="760" height="640" hero={false}/>:<Art name={feature[id]} priority/>}</div></section>
-{home && <><TrustStrip/><HomeFeatures sections={sections}/></>}
-<div class:list={['reading-area',{'guide-layout':guide}]}>
-{guide && <aside class="guide-toc" aria-label="Table of contents"><nav aria-label="On this page"><strong>On this page</strong>{toc.map(heading=><a href={'#'+anchor(heading)}>{heading}</a>)}</nav></aside>}
-<div class="reading-body">
-{guide && <GuideTools id={id}/>}
-
-{id==='compare' && <section class="block"><h2>Data sources and features</h2><div class="comparison-table"><table class="compare"><thead><tr>{comparison.columns.map(c=><th scope="col">{c}</th>)}</tr></thead><tbody>{comparison.rows.map(row=><tr>{row.map((cell,i)=><td data-label={comparison.columns[i]+':'}>{row[0]==='AI Usage Menu' && comparison.columns[i]==='Code-signed and notarized' && release.signedAndNotarized?'Yes':cell}</td>)}</tr>)}</tbody></table></div></section>}
-{id==='open-source' && <RepoInfo/>}
-{['open-source','download'].includes(id) && <Install/>}
-{home && <div class="home-reads">{sections.slice(5).map(([heading,body])=><section class="read-card"><h2>{heading}</h2><p class="sectiontext"><TextLinks text={body} id={id}/></p></section>)}</div>}
-{(home?[]:sections).map(([heading,body],i)=>{const image=guide?null:gallery[id]?.[i];return <section class={image?'feature':'block'}><div class="featurecopy"><h2 id={guide?anchor(heading):undefined}>{heading}</h2><p class="sectiontext"><TextLinks text={body} id={id}/></p>{heading==='Verify the download' && <pre><code>{'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"\nspctl --assess --type execute "/Applications/AI Usage Menu.app"'}</code></pre>}{heading==='Using Claude Code too?' && <a href="/claude-code-usage">Claude Code usage</a>}{heading==='Free, and open source' && <a href="/open-source">Explore the open-source tracker ↗</a>}</div>{image && <Art name={image}/>}{id==='codex-usage' && i===0 && <ResetTimeline/>}</section>})}
-{id==='privacy' && <><CodeCards variant="verify"/><Install variant="verify"/></>}
-{id==='download' && <CodeCards variant="download"/>}
-{home && <><TrustCard/><section class="block"><h2>Key facts</h2><dl class="fact-list">{Object.entries(facts).map(([term,value])=><><dt>{term}</dt><dd>{value}</dd></>)}</dl></section></>}
-{id==='privacy' && <section class="block"><h2>Legal notices</h2><h3>Copyright and license</h3><p>© 2026 BaseThread LLC. AI Usage Menu is distributed under the MIT License.</p><a href={publicRepo?repo+'/blob/'+config.branch+'/LICENSE':'https://opensource.org/licenses/MIT'}>Read the MIT License</a><h3>Trademarks</h3><p>AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</p></section>}
-{p.steps.length>0 && <section class="block"><h2 id={guide?anchor(stepsName):undefined}>{stepsName}</h2><ol data-howto>{p.steps.map(step=><li>{step}</li>)}</ol></section>}
-{!home && p.sources.length>0 && <section class="block"><h2 id={guide?anchor('Sources'):undefined}>Sources</h2><div class="sources">{p.sources.map(([label,href])=><span><a href={href} rel={id==='compare'?'nofollow':undefined}>{label}</a><small> · Checked <time datetime={date}>{date}</time></small></span>)}</div></section>}
-{p.faqs.length>0 && <section class="block faq"><h2 id={guide?anchor('Frequently asked questions'):undefined}>Frequently asked questions</h2>{p.faqs.map(([q,a])=><details><summary>{q}</summary><p><TextLinks text={a} id={id}/></p></details>)}</section>}
-{!home && <section class="block"><h2 id={guide?anchor('Explore AI Usage Menu'):undefined}>Explore AI Usage Menu</h2><div class="related">{Object.keys(labels).filter(k=>k!==id).map(k=><a href={pathFor(k)}>{labels[k]}</a>)}</div><Actions/></section>}
-<p class="revision">{guide||id==='compare'?'Last checked':'Last updated'} <time datetime={date}>{new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'UTC'}).format(new Date(date))}</time></p>
-</div></div>
+<Layout id={id} title={p.title} meta={p.meta} graph={graph} art={undefined}>
+{home ? <Home p={p} id={id} date={date} dateLabel={dateLabel}/> : <Reader p={p} id={id} date={date} dateLabel={dateLabel} stepsName={stepsName} sections={sections}/>}
 </Layout>

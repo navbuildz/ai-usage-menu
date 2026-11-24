@@ -1,0 +1,17 @@
+---
+// Questions: heading and links on the left (sticky), questions on the right. FAQ schema stays with the page.
+import Icon from './Icon.astro';
+import TextLinks from './TextLinks.astro';
+const {faqs, id, headingId} = Astro.props;
+const hid = headingId ?? 'faq-h';
+const guideLink = id==='claude-usage-limits' ? ['/claude-code-usage','Claude Code guide'] : ['/claude-usage-limits','Usage limits guide'];
+---
+<section class="faq-sec" aria-labelledby={hid}>
+  <div class="fs-side" data-reveal>
+    <span class="ic-tile lg"><Icon name="chat-circle-text" duo/></span>
+    <h2 id={hid}>Frequently asked questions</h2>
+    <p>Short answers about readings, privacy and plans. The guides go deeper.</p>
+    <div class="fs-links"><a href={guideLink[0]}><Icon name="book-open"/>{guideLink[1]}</a><a href="/open-source"><Icon name="code"/>Read the code</a></div>
+  </div>
+  <div class="faq">{faqs.map(([q,a],i)=><details open={i===0}><summary>{q}</summary><p><TextLinks text={a} id={id}/></p></details>)}</div>
+</section>

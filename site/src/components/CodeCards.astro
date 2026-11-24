@@ -4,15 +4,16 @@ import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import config from '../data/repo.json';
 import {repo} from '../data/shared.mjs';
+import Icon from './Icon.astro';
 const {variant='all'}=Astro.props;
 const specs=[
- ['claude','Claude Code reader','app/Sources/ClaudeCodeProvider.swift','func read() -> ProviderSnapshot',9,'Runs the local /usage command and parses its output.'],
+ ['claude','Claude Code reader','app/Sources/ClaudeCodeProvider.swift','func read() async -> ProviderSnapshot',9,'Runs the local /usage command and parses its output.'],
  ['codex','Codex log reader','app/Sources/CodexProvider.swift','static func latest(in file:',11,'Reads the newest session from the end of its local log.'],
  ['account','Codex account mode','app/Sources/CodexProvider.swift','static func authMode(in file:',7,'Decodes the account mode to identify sign-ins with plan windows.'],
  ['updates','Optional updater','app/Sources/Updater/UpdateService.swift','private func controller()',9,'Starts the updater when an update check is requested.'],
  ['network','Network source test','app/Tests/ProviderTests.swift','func testNoNetworkCodeOutsideUpdater()',8,'Checks app sources for network APIs outside the updater.']
 ] as const;
-const selected=specs.filter(([id])=>variant==='all'||(variant==='verify'?['account','network']:['updates','network']).includes(id));
+const selected=specs.filter(([id])=>variant==='all'?id!=='account':(variant==='verify'?['account','network']:['updates','network']).includes(id));
 const cards=await Promise.all(selected.map(async ([id,title,path,signature,count,description])=>{
  const file=await readFile(resolve('..',path),'utf8');
  const lines=file.split(/\r?\n/),start=lines.findIndex(line=>line.includes(signature));
@@ -21,16 +22,14 @@ const cards=await Promise.all(selected.map(async ([id,title,path,signature,count
  return {id,title,path,description,excerpt,first:start+1,url:repo+'/blob/'+config.branch+'/'+path+'#L'+(start+1)+'-L'+(start+count)};
 }));
 const heading=variant==='all'?'Read the code that touches your data':variant==='verify'?'Inspect the local reader and network test':'Inspect the updater and its network boundary';
+const anchor=heading.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 ---
-<section class="block source-section" id="read-the-code">
-<h2>{heading}</h2>
-<div class="network-statement"><p>The app makes no network requests except the update check you turn on.</p><a href="#source-network">See the network source test ↓</a></div>
-<div class="source-grid">{cards.map(card=><article id={'source-'+card.id} class="source-card">
-<header><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2.8h8l4 4V21H6z M14 3v5h4 M10.5 11l-2 2 2 2 M13.5 11l2 2-2 2"/></svg><h3>{card.title}</h3></header>
-<div class="source-path" title={card.path}><span>{card.path.slice(0,-12)}</span><b>{card.path.slice(-12)}</b></div>
-<p>{card.description}</p><section class="source-sample" tabindex="0" aria-label={card.title+' Swift excerpt'} style={'--source-first: '+(card.first-1)}><Code code={card.excerpt} lang="swift" theme="github-dark" /></section>
-{config.owner!=='OWNER' && <a href={card.url}>View on GitHub ↗</a>}
+<section class="source-section" id={variant==='all'?'read-the-code':anchor} aria-labelledby={anchor+'-h'}>
+<h2 id={anchor+'-h'}>{heading}</h2>
+<div class="network-statement" data-reveal><span class="ic-tile"><Icon name="wifi-slash" duo/></span><p>The app makes no network requests except the update check you turn on.</p></div>
+<div class="source-grid" data-reveal-group>{cards.map(card=><article id={'source-'+card.id} class="source-card">
+<header><span class="ic-tile sm"><Icon name="file-code"/></span><h3>{card.title}</h3></header>
+<div class="source-path" title={card.path}>{card.path}</div>
+<p>{card.description}</p><div class="source-sample" style={'--source-first: '+(card.first-1)}><Code code={card.excerpt} lang="swift" theme="github-dark" /></div>
+{config.owner!=='OWNER' && <a class="arrow-link" href={card.url}>View on GitHub<Icon name="arrow-up-right"/></a>}
 </article>)}</div></section>
-<style>
-.network-statement{padding:clamp(1rem,3vw,2.5rem);margin:1.3rem 0;background:var(--raised);border-radius:1.25rem}.network-statement p{font:650 clamp(1.35rem,2.4vw,2rem)/1.22 'Inter Variable',sans-serif;letter-spacing:-.04em;max-width:32ch;margin:0 0 .65rem}.source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.source-card{min-width:0;padding:1.1rem;border:1px solid var(--line);border-radius:1rem;background:var(--panel);scroll-margin-top:6rem}.source-card header{display:flex;align-items:center;gap:.55rem}.source-card header svg{color:var(--link);flex:none}.source-card h3{margin:0}.source-card p{margin:.65rem 0;color:var(--muted)}.source-path{display:flex;min-width:0;font:.78rem/1.5 ui-monospace,monospace;color:var(--muted);white-space:nowrap;margin:.6rem 0}.source-path span{overflow:hidden;text-overflow:ellipsis}.source-path b{font-weight:inherit;flex:none}.source-sample{background:#101321;border-radius:.7rem;overflow:auto}.source-sample :global(pre){background:transparent!important;margin:0;padding:.8rem;white-space:pre;overflow:visible;line-height:1.65}.source-sample :global(code){white-space:pre;overflow-wrap:normal;font-size:.72rem;counter-reset:source-line var(--source-first)}.source-sample :global(.line:before){counter-increment:source-line;content:counter(source-line);display:inline-block;width:3ch;margin-right:1.2ch;color:#a1a7bc;text-align:right}.source-card>a{display:inline-block;margin-top:.75rem}#read-the-code{scroll-margin-top:6rem}@media(min-width:1100px){.source-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:700px){.source-grid{grid-template-columns:1fr}}
-</style>

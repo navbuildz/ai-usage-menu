@@ -1,0 +1,16 @@
+---
+// /usage typed in Claude Code, then the same numbers arriving in the app.
+import Icon from './Icon.astro';
+import AppPanel from './AppPanel.astro';
+---
+<div class="flow" data-term aria-hidden="true">
+  <div class="term"><header><i></i><i></i><i></i><span>Claude Code</span></header>
+    <div class="tb"><div class="cmd"><span data-type="/usage">/usage</span><span class="caret"></span></div>
+      <div class="out">Current session <b>94% used</b></div>
+      <div class="out">Current week (all models) <b>57% used</b></div>
+      <div class="out">Current week (Fable) <b>90% used</b></div>
+    </div>
+  </div>
+  <span class="flow-arrow"><Icon name="arrow-right"/></span>
+  <AppPanel rows3 decorative/>
+</div>

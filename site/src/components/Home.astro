@@ -1,0 +1,97 @@
+---
+import Icon from './Icon.astro';
+import AppPanel from './AppPanel.astro';
+import DockTile from './DockTile.astro';
+import MenuBarDemo from './MenuBarDemo.astro';
+import ActivityCard from './ActivityCard.astro';
+import TerminalFlow from './TerminalFlow.astro';
+import Faq from './Faq.astro';
+import CtaBand from './CtaBand.astro';
+import TextLinks from './TextLinks.astro';
+import {facts} from '../data/facts.mjs';
+import {compatibility} from '../data/shared.mjs';
+const {p, id, date, dateLabel} = Astro.props;
+const [glance, activity, dock, pair, open, ...notes] = p.sections;
+const noteIcons = ['hourglass','squares-four','app-window'];
+const factIcons = {Product:'app-window',Platforms:'desktop',Plans:'users-three','Data sources':'file-code','Network calls':'wifi-slash',Price:'coins',License:'scales',Maker:'sparkle'};
+const stepIcons = ['download-simple','magnifying-glass','gauge'];
+---
+<section class="hero home">
+  <div class="hero-copy">
+    <span class="eyebrow" data-reveal><Icon name="gauge"/>Free and open source for Mac</span>
+    <h1 data-reveal style="--d:1">{p.h1}</h1>
+    <p class="lead" data-reveal style="--d:2">{p.answer}</p>
+    <div class="actions" data-reveal style="--d:3"><a class="btn btn-primary" href="/download">Download free for Mac<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
+    <p class="hero-note" data-reveal style="--d:4"><span><Icon name="check-circle"/>macOS 13 or later</span><span><Icon name="check-circle"/>Apple silicon and Intel</span><span><Icon name="check-circle"/>0 tokens to check</span></p>
+  </div>
+  <div class="hero-art">
+    <div class="stage" role="img" aria-label="AI Usage Menu showing the Claude Code session at 30 percent and the weekly limit at 57 percent, each with its own reset time, beside the menu bar reading and the Dock icon.">
+      <span class="chip chip-tl" aria-hidden="true"><Icon name="coins"/><span>0 tokens<small>to check usage</small></span></span>
+      <span class="chip chip-bar chip-tr" aria-hidden="true"><svg viewBox="0 0 32 32" width="18" height="18" class="tone-ok"><path d="M 3.9 24.9 A 12.2 12.2 0 1 1 28.2 16" fill="none" stroke="#34D399" stroke-width="2.6" stroke-linecap="round"/><rect x="8.9" y="18.2" width="4.8" height="7.8" rx="1.8" fill="#34D399"/><rect x="15" y="14.5" width="4.8" height="11.5" rx="1.8" fill="#34D399"/><rect x="21.1" y="10.7" width="4.8" height="15.3" rx="1.8" fill="#34D399"/></svg><span>30%<small>in your menu bar</small></span></span>
+      <AppPanel contrib decorative/>
+      <span class="chip chip-bl" aria-hidden="true"><Icon name="clock-countdown"/><span>Resets in 1h 52m<small>Session window</small></span></span>
+      <span class="dock-float" aria-hidden="true"><DockTile session={30} week={57} size={124}/></span>
+    </div>
+  </div>
+</section>
+
+<ul class="trustline" data-reveal-group>
+  <li><Icon name="lock-simple"/>No cookie, password or key</li>
+  <li><Icon name="cloud-slash"/>No network calls for readings</li>
+  <li><Icon name="coins"/>Zero tokens to check</li>
+  <li><Icon name="git-branch"/>Open source, MIT</li>
+</ul>
+
+<section class="sec split">
+  <div class="split-copy" data-reveal><span class="eyebrow"><Icon name="gauge"/>Menu bar</span><h2>{glance[0]}</h2><p class="lead"><TextLinks text={glance[1]} id={id}/></p><a class="arrow-link" href="/claude-usage-limits">How the two limits work<Icon name="arrow-right"/></a></div>
+  <div data-reveal style="--d:1"><MenuBarDemo/></div>
+</section>
+
+<section class="sec split flip">
+  <div class="split-copy" data-reveal><span class="eyebrow"><Icon name="stack"/>Activity</span><h2>{activity[0]}</h2><p class="lead"><TextLinks text={activity[1]} id={id}/></p><a class="arrow-link" href="/claude-code-usage">Explore Claude Code usage<Icon name="arrow-right"/></a></div>
+  <div class="show" data-reveal style="--d:1"><ActivityCard/></div>
+</section>
+
+<section class="sec split">
+  <div class="split-copy" data-reveal><span class="eyebrow"><Icon name="squares-four"/>Dock</span><h2>{dock[0]}</h2><p class="lead"><TextLinks text={dock[1]} id={id}/></p></div>
+  <div class="show" data-reveal style="--d:1"><div>
+    <div class="dock-row">{[[30,45,'Healthy','tone-ok'],[72,57,'Nearing the limit','tone-warn'],[94,81,'Near capacity','tone-hot']].map(([s,w,label,tone])=><figure class={tone}><DockTile session={s} week={w} size={150}/><figcaption>{label}</figcaption></figure>)}</div>
+    <p class="dock-legend"><span><i></i>Upper arc: session</span><span><i class="wk"></i>Lower arc: week</span></p>
+  </div></div>
+</section>
+
+<section class="sec split flip">
+  <div class="split-copy" data-reveal><span class="eyebrow"><Icon name="code"/>Two providers</span><h2>{pair[0]}</h2><p class="lead"><TextLinks text={pair[1]} id={id}/></p><a class="arrow-link" href="/codex-usage">Check Codex usage<Icon name="arrow-right"/></a></div>
+  <div class="show" data-reveal style="--d:1"><AppPanel interactive id="pair"/></div>
+</section>
+
+<section class="band" aria-labelledby="tokens-h">
+  <div class="band-grid">
+    <div class="split-copy" data-reveal><span class="eyebrow"><Icon name="terminal-window"/>/usage</span><h2 id="tokens-h">Zero tokens to check</h2><p class="lead">Open the existing usage readout without sending a prompt to a model. The app reads what Claude Code already prints, then keeps it in your menu bar.</p>
+      <div class="band-stats"><div><b>0</b><span>tokens per check</span></div><div><b>0</b><span>cookies or keys</span></div><div><b>2</b><span>providers</span></div></div></div>
+    <TerminalFlow/>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="cards3" data-reveal-group>
+    <article class="card"><span class="ic-tile"><Icon name="lock-simple" duo/></span><h3>Private by design</h3><p>AI Usage Menu reads what Claude Code and Codex already show on your Mac. There is no cookie, password or key to paste.</p><a class="card-foot stretch" href="/privacy">How privacy works<Icon name="arrow-right"/></a></article>
+    <article class="card"><span class="ic-tile"><Icon name="git-branch" duo/></span><h3>{open[0]}</h3><p><TextLinks text={open[1]} id={id}/></p><a class="card-foot stretch" href="/open-source">Read the code<Icon name="arrow-right"/></a></article>
+    <article class="card"><span class="ic-tile"><Icon name="lightning" duo/></span><h3>Set up in a minute</h3><p>Install it, open it and review the providers it finds. Then choose what the menu bar and Dock show.</p><a class="card-foot stretch" href="/download">Download for Mac<Icon name="arrow-right"/></a></article>
+  </div>
+</section>
+
+
+<section class="sec">
+  <div class="sec-head" data-reveal><span class="eyebrow"><Icon name="list-checks"/>Get started</span><h2>How it works in three steps</h2></div>
+  <ol class="steps" data-howto data-reveal-group>{p.steps.map((s,i)=><li><span class="ic-tile"><Icon name={stepIcons[i]} duo/></span>{s}</li>)}</ol>
+</section>
+
+<section class="sec-tight">
+  <div class="sec-head" data-reveal><span class="eyebrow"><Icon name="info"/>At a glance</span><h2>Key facts</h2><p>{compatibility}</p></div>
+  <dl class="facts" data-reveal>{Object.entries(facts).map(([k,v])=><div><dt><Icon name={factIcons[k]}/>{k}</dt><dd>{v}</dd></div>)}</dl>
+</section>
+
+<div class="sec"><Faq faqs={p.faqs} id={id}/></div>
+<p class="revision"><Icon name="calendar-check"/>Last updated <time datetime={date}>{dateLabel}</time></p>
+<div class="sec-tight"><CtaBand/></div>

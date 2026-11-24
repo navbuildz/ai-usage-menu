@@ -1,0 +1,41 @@
+---
+// The app's window, rebuilt in HTML so it is crisp at any size, matches each theme and can move.
+// Readings are the same example values as the app captures.
+import Ring from './Ring.astro';
+import Icon from './Icon.astro';
+import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
+import claudeGlyph from '../../../brand/05-ui-icons/svg/provider-claude-code.svg?raw';
+import codexGlyph from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
+const {tab='claude', interactive=false, contrib=false, decorative=false, rows3=false, id='panel'} = Astro.props;
+const data = {
+  claude: {
+    rows: rows3
+      ? [['Session',94,'Resets in 1h 52m','Nov 23 at 3:56 PM'],['Weekly (all models)',57,'Resets in 6d 0h','Nov 29 at 2:03 PM'],['Weekly · Fable',90,'Resets in 6d 0h','Nov 29 at 2:03 PM']]
+      : [['Session',30,'Resets in 1h 52m','Nov 23 at 5:28 PM'],['Weekly (all models)',57,'Resets in 6d 0h','Nov 29 at 3:36 PM']],
+    meta: [['Plan','Claude subscription'],['CLI version','2.1.330']], foot: 'Updated just now'
+  },
+  codex: {
+    rows: [['Session',72,'Resets in 1h 29m','Nov 23 at 5:06 PM'],['Weekly',57,'Resets in 3d 23h','Nov 27 at 3:36 PM']],
+    meta: [['Plan','Plus']], foot: 'As of 3h ago (last Codex activity)'
+  }
+};
+const views = interactive ? ['claude','codex'] : [tab];
+---
+<div class="app-panel" data-panel aria-hidden={decorative?'true':undefined}>
+  <div class="ap-head"><img src={mark} width="30" height="30" alt="AI Usage Menu"/><div><b>AI Usage</b><small>{data[tab].foot==='Updated just now'?'Updated just now':'Updated 3h ago'}</small></div><span class="ap-tools"><Icon name="arrows-clockwise"/><Icon name="gear-six"/></span></div>
+  <div class="ap-tabs" role={interactive?'tablist':undefined} aria-label={interactive?'Provider':undefined}>
+    {[['claude','Claude Code',claudeGlyph],['codex','Codex',codexGlyph]].map(([key,label,glyph])=>interactive
+      ? <button type="button" role="tab" id={`${id}-tab-${key}`} aria-controls={`${id}-view-${key}`} aria-selected={key===tab?'true':'false'} tabindex={key===tab?0:-1}><span set:html={glyph}/>{label}</button>
+      : <span class:list={['tab',{on:key===tab}]}><span set:html={glyph}/>{label}</span>)}
+  </div>
+  {views.map(key=>
+    <div class="ap-view" id={interactive?`${id}-view-${key}`:undefined} role={interactive?'tabpanel':undefined} aria-labelledby={interactive?`${id}-tab-${key}`:undefined} hidden={key!==tab}>
+      <div class="ap-body">{data[key].rows.map(([name,v,reset,when])=>
+        <div class="ap-row"><Ring value={v}/><div><b>{name}</b><small>{reset}</small><small>{when}</small></div><span class="ap-left">{100-v}% left</span></div>)}</div>
+      <div class="ap-meta">{data[key].meta.map(([k,v])=><span>{k} <b>{v}</b></span>)}</div>
+      {key==='codex' && <p class="ap-foot">{data.codex.foot}</p>}
+    </div>)}
+  {contrib && <div class="ap-contrib"><header><Icon name="stack"/>What's contributing?<span>Last 24h</span></header><p>2,446 requests · 16 sessions · this Mac only</p>
+    <ul class="bars" data-bars><li style="--w:98;--d:0">Start fresh when you switch tasks<span>98%</span><i></i></li><li style="--w:90;--d:1">Review sessions active over many hours<span>90%</span><i></i></li><li style="--w:22;--d:2">Trim INDEX.md<span>22%</span><i></i></li></ul></div>}
+  {!contrib && <div style="height:14px"></div>}
+</div>

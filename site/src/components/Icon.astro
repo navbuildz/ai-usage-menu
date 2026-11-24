@@ -1,0 +1,10 @@
+---
+// One Phosphor icon (MIT, copied into src/icons), inlined at build time: no icon font, no script.
+const regular = import.meta.glob('../icons/regular/*.svg', {query:'?raw', import:'default', eager:true});
+const duotone = import.meta.glob('../icons/duotone/*.svg', {query:'?raw', import:'default', eager:true});
+const {name, duo=false, label, class:cls=''} = Astro.props;
+const set = duo ? duotone : regular;
+const svg = set[`../icons/${duo?'duotone':'regular'}/${name}.svg`];
+if (!svg) throw new Error('Missing icon: '+name);
+---
+<span class={`ic ${cls}`} role={label?'img':undefined} aria-label={label} aria-hidden={label?undefined:'true'} set:html={svg}/>

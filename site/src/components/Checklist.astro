@@ -1,0 +1,5 @@
+---
+import Icon from './Icon.astro';
+const items = [['arrows-clockwise','Start fresh when you switch tasks'],['hourglass','Review long-running sessions'],['users-three','Check which models your subagents use'],['file-text','Trim oversized context files']];
+---
+<ul class="checklist" data-reveal-group aria-hidden="true">{items.map(([icon,label])=><li><span class="ic-tile sm"><Icon name={icon}/></span>{label}<Icon name="check-circle"/></li>)}</ul>

@@ -1,0 +1,10 @@
+---
+// "What's contributing?" from the Claude Code tab, with bars that grow into view.
+import Icon from './Icon.astro';
+const rows = [['Start fresh when you switch tasks','98%','/clear',98],['Review sessions active over many hours','90%','whole sessions with requests in 8 or more separate hours',90],['Check which models your subagents use','89%','share covers whole sessions, not only subagents',89],['Trim INDEX.md','22%','19k tokens per request',22]];
+---
+<div class="activity-card" aria-hidden="true">
+  <header><Icon name="stack"/>What's contributing?<span class="seg"><span class="on">Last 24h</span><span>Last 7d</span></span></header>
+  <p class="stat">2,446 requests · 16 sessions<small>Approximate · this Mac only · shares overlap</small></p>
+  <ul class="bars" data-bars>{rows.map(([label,pct,sub,w],i)=><li style={`--w:${w};--d:${i}`}>{label}<span>{pct}</span><small>{sub.startsWith('/')?<code>{sub}</code>:sub}</small><i></i></li>)}</ul>
+</div>

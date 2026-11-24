@@ -1,4 +1,14 @@
 ---
-const {codex=false}=Astro.props;
+// Two independent reset clocks; the bars draw in when the figure scrolls into view.
+import Icon from './Icon.astro';
+const sessionLen = 256, weekLen = 148;
 ---
-<figure class="reset-timeline"><figcaption>Two independent reset clocks</figcaption><svg viewBox="0 0 470 228" role="img" aria-label="Example: a session starting Monday at 9 AM resets at 2 PM. The separate seven-day window resets Saturday at 7 AM Pacific."><g fill="currentColor"><text x="20" y="33" class="line-title">5-hour session</text><text x="20" y="99">Mon · 9 AM</text><text x="449" y="99" text-anchor="end">Mon · 2 PM</text><text x="20" y="149" class="line-title">7-day week</text><text x="20" y="213">Sat · 7 AM</text><text x="449" y="213" text-anchor="end">Next Sat · 7 AM</text></g><g class="time-bars" stroke-linecap="round"><path d="M22 62 H448 M22 176 H448"/><path class="first-time" d="M22 62 H278"/><path class="next-time" d="M22 176 H170"/></g><g fill="var(--panel)" stroke="currentColor" stroke-width="2"><circle cx="448" cy="62" r="7"/><circle cx="448" cy="176" r="7"/></g></svg><p>Example in Pacific time. Each bar spans one full window.</p></figure>
+<figure class="reset-timeline" data-reveal-draw>
+  <figcaption><Icon name="clock-countdown"/>Two independent reset clocks</figcaption>
+  <svg viewBox="0 0 470 228" role="img" aria-label="Example: a session starting Monday at 9 AM resets at 2 PM. The separate seven-day window resets Saturday at 7 AM Pacific.">
+    <g><text x="20" y="33" class="line-title">5-hour session</text><text x="20" y="99" class="sub">Mon · 9 AM</text><text x="449" y="99" text-anchor="end" class="sub">Mon · 2 PM</text><text x="20" y="149" class="line-title">7-day week</text><text x="20" y="213" class="sub">Sat · 7 AM</text><text x="449" y="213" text-anchor="end" class="sub">Next Sat · 7 AM</text></g>
+    <g class="time-bars" stroke-linecap="round"><path d="M22 62 H448 M22 176 H448"/><path class="first-time" d="M22 62 H278" style={`--len:${sessionLen};stroke-dasharray:${sessionLen}`}/><path class="next-time" d="M22 176 H170" style={`--len:${weekLen};stroke-dasharray:${weekLen}`}/></g>
+    <g fill="var(--surface)" stroke="var(--violet)" stroke-width="2.5"><circle cx="448" cy="62" r="7"/><circle cx="448" cy="176" r="7"/></g>
+  </svg>
+  <p>Example in Pacific time. Each bar spans one full window.</p>
+</figure>

@@ -1,7 +1,0 @@
----
-import {visuals} from '../data/shared.mjs';
-const {name,priority=false}=Astro.props;
-const src=(extension)=>[480,800,1200].map(w=>`/art/${name}${w===1200?'':'-'+w}.${extension} ${w}w`).join(', ');
-const sizes='(max-width: 680px) 100vw, (max-width: 1000px) 72vw, 700px';
----
-<picture><source type="image/avif" srcset={src('avif')} sizes={sizes}/><source type="image/webp" srcset={src('webp')} sizes={sizes}/><img class="art" src={'/art/'+name+'.png'} srcset={src('png')} sizes={sizes} alt={visuals[name]} width="1200" height="800" loading={priority?'eager':'lazy'} fetchpriority={priority?'high':'auto'} decoding="async"/></picture>

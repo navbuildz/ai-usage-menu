@@ -2,7 +2,7 @@
   "home": {
     "title": "Claude Usage Tracker for Mac, Free | AI Usage Menu",
     "meta": "A free Claude usage tracker for Mac shows Claude Code and Codex plan limits in your menu bar and Dock. See what fills each usage window and when it resets.",
-    "h1": "Know your AI usage. Stay in control.",
+    "h1": "Your Claude Code and Codex limits, in your menu bar.",
     "answer": "AI Usage Menu is a free, open-source Mac app that shows your Claude Code and Codex plan usage in the menu bar and Dock: session and weekly limits, when each resets, and what is using them up. It reads what Claude Code and Codex already show on your Mac, so there is no cookie, password or API key to paste.",
     "primary": "claude usage tracker",
     "faqs": [
@@ -562,7 +562,7 @@
       ],
       [
         "What the app reads and writes",
-        "The Codex reader checks session logs under ~/.codex/sessions and reads only the auth_mode value from ~/.codex/auth.json, never a key or token. The activity breakdown uses local Claude Code session metadata. The app stores local settings and uses its own working directory for Claude Code."
+        "The Claude reader runs Claude Code's /usage command and reads one field of ~/.claude.json, cachedUsageUtilization: the usage figures Claude Code saves when /usage runs, so your numbers are current rather than one refresh behind. The app decodes no other field in that file. The Codex reader checks session logs under ~/.codex/sessions and reads only the auth_mode value from ~/.codex/auth.json, never a key or token. The activity breakdown uses local Claude Code session metadata. The app stores local settings and uses its own working directory for Claude Code."
       ],
       [
         "Verify it yourself",

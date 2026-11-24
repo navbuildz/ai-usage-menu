@@ -1,0 +1,30 @@
+---
+// One product visual between long sections of a guide.
+import AppPanel from './AppPanel.astro';
+import DockTile from './DockTile.astro';
+import MenuBarDemo from './MenuBarDemo.astro';
+import ActivityCard from './ActivityCard.astro';
+import TerminalFlow from './TerminalFlow.astro';
+import ResetTimeline from './ResetTimeline.astro';
+import Checklist from './Checklist.astro';
+const {kind} = Astro.props;
+const captions = {
+  terminal:'The same numbers as /usage, kept in your menu bar.',
+  activity:'What is filling the window, ranked by share of requests.',
+  checklist:'When a window is nearly full, start with these.',
+  codex:'The Codex tab: the 5-hour window, the week and when each resets.',
+  menubar:'One glance at the menu bar: healthy, nearing the limit or near capacity.',
+  models:'A model-specific weekly row sits beside the all-models week.',
+  dock:'The upper arc is the session, the lower arc is the week.',
+};
+---
+<figure class="figure" data-reveal>
+  {kind==='menubar' ? <MenuBarDemo/> : kind==='terminal' ? <div class="band band-inline"><TerminalFlow/></div> : <div class="show">
+    {kind==='activity' && <ActivityCard/>}
+    {kind==='checklist' && <Checklist/>}
+    {kind==='codex' && <div class="pair-visual"><AppPanel tab="codex" decorative/><ResetTimeline/></div>}
+    {kind==='models' && <AppPanel rows3 decorative/>}
+    {kind==='dock' && <div class="dock-row">{[[30,45,'Healthy','tone-ok'],[72,57,'Nearing the limit','tone-warn'],[94,81,'Near capacity','tone-hot']].map(([s,w,label,tone])=><figure class={tone}><DockTile session={s} week={w} size={140}/><figcaption>{label}</figcaption></figure>)}</div>}
+  </div>}
+  <figcaption>{captions[kind]}</figcaption>
+</figure>
