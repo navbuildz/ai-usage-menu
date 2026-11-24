@@ -40,8 +40,8 @@ targets:
       base:
         PRODUCT_NAME: AI Usage Menu
         PRODUCT_BUNDLE_IDENTIFIER: ai.aiusagemenu.app
-        MARKETING_VERSION: 1.0.0
-        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 1.0.1
+        CURRENT_PROJECT_VERSION: 3
         INFOPLIST_KEY_LSUIElement: YES
         ENABLE_APP_SANDBOX: NO
         SWIFT_EMIT_LOC_STRINGS: YES
