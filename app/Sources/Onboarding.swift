@@ -30,7 +30,7 @@ struct ServiceChoices: View {
                 Text(title)
                 Text(detail).font(.caption).foregroundStyle(Color("textSecondary"))
             }.frame(maxWidth: .infinity, alignment: .leading)
-        }.toggleStyle(.switch).padding(.vertical, 5)
+        }.toggleStyle(VioletSwitch()).padding(.vertical, 5)
     }
 }
 

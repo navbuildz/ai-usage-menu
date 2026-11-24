@@ -416,3 +416,31 @@ struct SecondaryButtonStyle: ButtonStyle {
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("border").opacity(0.5)))
     }
 }
+
+/// A switch that is violet when on and gray when off, in active and inactive windows alike
+/// (the system switch turns gray when its window is not key, so on and off looked the same).
+struct VioletSwitch: ToggleStyle {
+    /// Settings rows draw their own label beside the switch, so they pass false.
+    var showsLabel = true
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            if showsLabel {
+                configuration.label
+                Spacer(minLength: 0)
+            }
+            Capsule()
+                .fill(configuration.isOn ? Color("violet") : Color("border").opacity(0.55))
+                .frame(width: 38, height: 22)
+                .overlay(alignment: configuration.isOn ? .trailing : .leading) {
+                    Circle().fill(.white).shadow(color: .black.opacity(0.25), radius: 1, y: 1).padding(2)
+                }
+                .animation(.easeOut(duration: 0.15), value: configuration.isOn)
+                .contentShape(Capsule())
+                .onTapGesture { configuration.isOn.toggle() }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(configuration.isOn ? "On" : "Off")
+        .accessibilityAction { configuration.isOn.toggle() }
+    }
+}

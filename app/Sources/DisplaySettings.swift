@@ -104,7 +104,7 @@ struct DisplaySettings: View {
                 }.padding(22).frame(maxWidth: .infinity, alignment: .leading)
             }.id(pane)
         }.frame(width: 570, height: 500).background(Color("background"))
-            .foregroundStyle(Color("text")).tint(Color("violet")).toggleStyle(.switch)
+            .foregroundStyle(Color("text")).tint(Color("violet")).toggleStyle(VioletSwitch(showsLabel: false))
     }
 
     private var general: some View {
