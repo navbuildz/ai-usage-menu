@@ -843,3 +843,4 @@ figure.dataflow{margin:0 auto}
 .dock-row figure:hover>svg{transform:translateY(-4px) scale(1.05) rotate(-3deg)}
 .ring{transition:transform .3s var(--spring)}
 .ap-row:hover .ring{transform:scale(1.06) rotate(-4deg)}
+.wl-in{display:grid;gap:14px;justify-items:start}.wl-in .btn{justify-self:end}

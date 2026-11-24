@@ -29,7 +29,7 @@ const id = uid('dk');
   <path d={lower} fill="none" stroke="#ffffff1c" stroke-width="7" stroke-linecap="round"/>
   {[[upper,upLen,up],[lower,lowLen,low]].map(([d,len,s])=><>
     <path class="arc" d={d} fill="none" stroke="#34D399" stroke-width="7" stroke-linecap="round" style={`--len:${len};stroke-dasharray:${len};stroke-dashoffset:${(len-s.fill).toFixed(2)};transition-delay:${s.delay}s`}/>
-    {s.tip>0 && <path class="arc-tip" d={d} fill="none" stroke={s.color} stroke-width="7" stroke-linecap="round" style={`stroke-dasharray:0 ${(s.fill-s.tip).toFixed(2)} ${s.tip} ${len}`}/>}
+    {s.tip>0 && <path class="arc-tip" d={d} fill="none" stroke={s.color} stroke-width="7" stroke-linecap="round" style={`stroke-dasharray:${s.tip} ${len*2};stroke-dashoffset:${(-(s.fill-s.tip)).toFixed(2)}`}/>}
   </>)}
   {two
     ? <><text x="50" y="45" text-anchor="middle" fill="#fff" font-family="Inter Variable, system-ui, sans-serif" font-weight="700" font-size="15">{session}</text><text x="50" y="67" text-anchor="middle" fill="#fff" font-family="Inter Variable, system-ui, sans-serif" font-weight="700" font-size="21" letter-spacing="-.5">{week}</text></>
