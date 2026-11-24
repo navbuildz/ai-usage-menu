@@ -9,8 +9,7 @@
     "Live Dock gauge",
     "Activity breakdown",
     "Network calls by the app",
-    "Code-signed and notarized",
-    "Free plan limits shown"
+    "Limits shown"
   ],
   "rows": [
     [
@@ -21,10 +20,9 @@
       "Yes",
       "Yes",
       "Yes",
-      "Claude session and context drivers",
-      "None for usage; optional update checks",
-      "Signed release coming",
-      "Session, weekly and reported model windows"
+      "Session and context drivers",
+      "None for usage",
+      "Session, week and per-model week"
     ],
     [
       "ClaudeUsageBar",
@@ -36,21 +34,19 @@
       "Not listed",
       "Not listed",
       "Anthropic usage API",
-      "Not stated",
-      "Claude session and weekly, model-specific when available"
+      "Session, week, per-model when available"
     ],
     [
       "CodexBar",
-      "Provider-specific OAuth, CLI or cookies",
+      "OAuth, CLI or cookies, by provider",
       "Free",
       "MIT",
       "Yes",
       "Yes",
       "Not listed",
-      "Local cost and token reports",
-      "Depends on provider and selected source",
-      "Not stated in product overview",
-      "Reported provider windows, including session and week"
+      "Cost and token reports",
+      "Depends on the selected source",
+      "Provider windows, incl. session and week"
     ],
     [
       "ccusage",
@@ -60,22 +56,20 @@
       "Yes",
       "Yes",
       "Not listed",
-      "Terminal token and cost reports",
-      "Pricing and optional telemetry; offline mode available",
-      "CLI package",
-      "Local five-hour blocks and token reports; subscription balance not listed"
+      "Token and cost reports in the terminal",
+      "Pricing lookup, optional telemetry",
+      "Five-hour blocks and token totals"
     ],
     [
       "AI Usage Bar",
-      "Provider credentials or local provider files",
-      "Claude free; paid Pro tier",
-      "Commercial license",
+      "Provider credentials or local files",
+      "Free; Pro paid",
+      "Commercial",
       "Yes",
       "Pro tier",
       "Not listed",
       "Spend and cost tracking",
-      "Provider APIs; direct-download license activation",
-      "Not stated for direct download",
+      "Provider APIs; license activation",
       "Claude session and week"
     ],
     [
@@ -87,9 +81,8 @@
       "Yes",
       "Not listed",
       "Not listed",
-      "Polls provider APIs every five minutes",
-      "No; install guide describes an unsigned app",
-      "Provider quotas; some providers include five-hour, weekly and monthly windows"
+      "Polls provider APIs every 5 min",
+      "Provider quotas, incl. 5-hour, weekly, monthly"
     ]
   ]
 }

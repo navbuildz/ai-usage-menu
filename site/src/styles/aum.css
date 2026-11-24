@@ -844,3 +844,43 @@ figure.dataflow{margin:0 auto}
 .ring{transition:transform .3s var(--spring)}
 .ap-row:hover .ring{transform:scale(1.06) rotate(-4deg)}
 .wl-in{display:grid;gap:14px;justify-items:start}.wl-in .btn{justify-self:end}
+
+/* Header logo: the mark and the wordmark, with a subtle hover. */
+.brand-live{gap:10px}
+.brand-live .brand-mark{width:34px;height:34px;transition:transform .5s var(--spring),filter .3s var(--ease)}
+.brand-word{font:700 1.12rem/1 'Inter Variable',sans-serif;letter-spacing:-.02em;color:var(--ink);transition:color .25s var(--ease)}
+.brand-live:hover .brand-mark{transform:rotate(-10deg) scale(1.08);filter:drop-shadow(0 6px 12px #7c5cff55)}
+.brand-live:hover .brand-word{color:var(--violet-ink)}
+.brand-live:active .brand-mark{transform:rotate(-4deg) scale(.96)}
+@media (max-width:380px){.brand-live .brand-mark{width:28px;height:28px}.brand-word{font-size:1rem}}
+
+/* Compare table: icons, status cells, centred rows. */
+.compare th,.compare td{vertical-align:middle}
+.th-in{display:inline-flex;align-items:center;gap:6px}
+.th-in .ic,.th-in .plogo{width:14px;height:14px;color:var(--violet)}
+.tool{display:flex;align-items:center;gap:10px}
+.tool img{width:28px;height:28px;flex:none}
+.tool b{font-weight:650}
+.avatar{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;border-radius:8px;background:var(--raised);border:1px solid var(--line);font:700 .68rem/1 'Inter Variable',sans-serif;color:var(--muted);letter-spacing:.02em}
+.cell{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.cell .ic{width:16px;height:16px;flex:none}
+.cell.yes{color:var(--mint)}
+.cell.nl{color:var(--faint);font-weight:500}
+.cell.part{color:var(--amber)}
+.tagpill{display:inline-block;padding:4px 9px;border-radius:999px;background:var(--raised);border:1px solid var(--line);font:600 .78rem/1.2 'Inter Variable',sans-serif;color:var(--ink-2);white-space:nowrap}
+.tagpill.good{background:color-mix(in srgb,var(--mint) 12%,var(--surface));border-color:color-mix(in srgb,var(--mint) 30%,var(--line));color:color-mix(in srgb,var(--mint) 70%,var(--ink))}
+.compare{min-width:1000px}
+@media (max-width:700px){.compare{min-width:0!important}}
+.compare td{color:var(--ink-2)}
+@media (max-width:700px){.compare td:first-child{display:block}.tool .row-more{margin-left:auto}.compare td{align-items:center}}
+@media (min-width:701px){
+  .compare .cell,.compare .tagpill{white-space:nowrap}
+  .compare th:nth-child(2),.compare td:nth-child(2){min-width:136px}
+  .compare th:nth-child(8),.compare td:nth-child(8){min-width:110px}
+  .compare th:nth-child(9),.compare td:nth-child(9){min-width:128px}
+  .compare th:nth-child(10),.compare td:nth-child(10){min-width:104px}
+  .compare th:nth-child(3),.compare th:nth-child(4),.compare th:nth-child(5),.compare th:nth-child(6),.compare th:nth-child(7){width:1%}
+  .compare{min-width:0;width:100%}
+  .compare th,.compare td{padding:13px 7px}
+  .compare th:first-child,.compare td:first-child{padding-left:14px}
+}

@@ -8,7 +8,9 @@ import Icon from './Icon.astro';
 const local=await readFile(resolve('../CHANGELOG.md'),'utf8');
 const milestones=local.split(/^## /m).slice(1).map(block=>{
  const [heading,...lines]=block.trim().split('\n');
- const [tag,date]=heading.split(' | ');
+ const [rawTag,date]=heading.split(' | ');
+ // Written for release day: a release is shown by its version, never as "in development".
+ const tag=rawTag.replace(/\s+in development$/i,'');
  return {tag,date,lines:lines.filter(line=>line.startsWith('- ')).map(line=>line.slice(2))};
 });
 const releases=stats?.releases.length?stats.releases.map(r=>({tag:r.tag,date:r.date,lines:r.lines??[r.note].filter(Boolean)})):milestones;

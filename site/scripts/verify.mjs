@@ -107,4 +107,8 @@ const values=[{stargazers_count:11,forks_count:2,open_issues_count:1,license:{sp
 let i=0;const success=await readRepository(cfg,async()=>Response.json(values[i++],{headers:{link:'<https://api.github.com/test?page=3>; rel="last"'}}));
 assert.equal(success.stars,11);assert.equal(success.contributors,3);assert.equal(success.releases[0].downloads,4);
 assert.equal(Object.keys(pages).length,8);
+// Release day: the site is written for a public repository and a signed, notarized download.
+const cfg2=JSON.parse(await fs.readFile('src/data/repo.json','utf8'));
+const releaseGaps=[cfg2.owner==='OWNER'&&'repo.json owner is the OWNER placeholder (clone command and GitHub links are hidden)',!cfg2.dmg&&'repo.json dmg is empty (the download button falls back to <repo>/releases/latest)'].filter(Boolean);
+if(releaseGaps.length)console.warn('RELEASE-DAY WARNING:\n - '+releaseGaps.join('\n - '));
 if(invalid)process.exitCode=1;

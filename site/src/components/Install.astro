@@ -3,27 +3,27 @@ import config from '../data/repo.json';
 import {repo} from '../data/shared.mjs';
 import Icon from './Icon.astro';
 const {variant='install'}=Astro.props;
-const releaseReady=Boolean(config.dmg);
+// Written for release day: the DMG is signed and notarized and the repository is public.
+const dmg=config.dmg||repo+'/releases/latest';
 const options=variant==='verify'?[
  {id:'process',label:'App sockets',icon:'plug',command:'pid=$(pgrep -x "AI Usage Menu" | head -n 1)\nlsof -nP -a -i -p "$pid"',note:'Open AI Usage Menu first. This takes a point-in-time sample of connections owned by the app process.'},
  {id:'signature',label:'Signature',icon:'seal-check',command:'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"',note:'After installing the released app, run this to verify its code signature.'}
 ]:[
  {id:'download',label:'Download',icon:'download-simple',note:'Requires macOS 13 or later on Apple silicon or Intel.'},
- {id:'homebrew',label:'Homebrew',icon:'package',command:'brew install --cask aiusagemenu',note:'Run the cask command in Terminal once the cask is published.'},
+ ...(config.homebrewPublished?[{id:'homebrew',label:'Homebrew',icon:'package',command:'brew install --cask aiusagemenu',note:'Installs and updates the app from the Homebrew cask.'}]:[]),
  {id:'source',label:'Build from source',icon:'code',command:(config.owner!=='OWNER'?'git clone '+repo+'.git\ncd '+config.repo+'\n':'')+'./app/build.sh',note:'Run the build script from the repository root with Xcode and the Swift 6 toolchain installed.'}
 ];
-const title=variant==='verify'?'Verify the running app':'Install three ways';
+const title=variant==='verify'?'Verify the running app':(config.homebrewPublished?'Install three ways':'Install two ways');
 const anchor=title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-const intro=variant==='verify'?'Two checks you can run yourself: what the app has open right now, and whether the build you installed is the one we signed.':'Download the app, install it with Homebrew, or build it from the source yourself.';
+const intro=variant==='verify'?'Two checks you can run yourself: what the app has open right now, and whether the build you installed is the one we signed.':(config.homebrewPublished?'Download the signed app, install it with Homebrew, or build it from the source yourself.':'Download the signed app, or build it from the source yourself.');
 ---
 <section class="install" id={anchor} aria-labelledby={anchor+'-h'}>
 <div class="install-copy" data-reveal><span class="ic-tile"><Icon name={variant==='verify'?'shield-check':'tray-arrow-down'} duo/></span><h2 id={anchor+'-h'}>{title}</h2><p class="muted">{intro}</p></div>
 <div class="terminal" data-terminal data-reveal style="--d:1">
 <div class="terminal-tabs" role="tablist" aria-label={title}>{options.map((tab,i)=><button type="button" role="tab" id={variant+'-tab-'+tab.id} aria-controls={variant+'-panel-'+tab.id} aria-selected={i===0?'true':'false'}><Icon name={tab.icon}/>{tab.label}</button>)}</div>
 {options.map((tab,i)=><div role="tabpanel" id={variant+'-panel-'+tab.id} aria-labelledby={variant+'-tab-'+tab.id} tabindex="0" hidden={i!==0}>
-{tab.id==='download' && <>{releaseReady?<a class="btn btn-primary" href={config.dmg}>Download the DMG<Icon name="download-simple"/></a>:<span class="pending"><Icon name="hourglass"/>Signed DMG with the first release</span>}
+{tab.id==='download' && <><a class="btn btn-primary" href={dmg}>Download the signed DMG<Icon name="download-simple"/></a>
   <ol class="dmg-steps"><li><Icon name="download-simple"/>Open the downloaded DMG</li><li><Icon name="folder-simple"/>Drag AI Usage Menu to Applications</li><li><Icon name="cursor-click"/>Open it and choose your menu bar and Dock views</li></ol></>}
-{tab.id==='homebrew'&&!config.homebrewPublished && <span class="pending"><Icon name="hourglass"/>Available after the first release</span>}
 {tab.command && <div class="command-row"><pre><code>{tab.command}</code></pre><button type="button" data-copy-command aria-label={'Copy '+tab.label+' command'}><Icon name="copy"/><span>Copy</span></button></div>}
 <p>{tab.note}</p>
 </div>)}

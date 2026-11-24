@@ -19,9 +19,11 @@ import CtaBand from './CtaBand.astro';
 import TextLinks from './TextLinks.astro';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 import release from '../data/release.json';
+import repoConfig from '../data/repo.json';
 import comparison from '../data/compare.json';
 import {compatibility,labels,pathFor} from '../data/shared.mjs';
 const {p, id, date, dateLabel, stepsName, sections} = Astro.props;
+const installTitle = repoConfig.homebrewPublished ? 'Install three ways' : 'Install two ways';
 const guide = ['claude-code-usage','codex-usage','claude-usage-limits'].includes(id);
 const anchor = h => h.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 // Guides: the short sections become "the essentials" cards; the long questions read as prose.
@@ -38,9 +40,10 @@ const visuals = {
 }[id] ?? {};
 const toc = guide
   ? ['Quick answer','Commands',essentialsTitle,...longform.map(([h])=>h),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])]
-  : [...(id==='compare'?['Data sources and features']:[]),...(id==='open-source'?['Read the code that touches your data','Changelog','Install three ways']:[]),...longform.map(([h])=>h),...(id==='privacy'?['Inspect the local reader and network test','Verify the running app','Legal notices']:[]),...(id==='download'?['Install three ways','Inspect the updater and its network boundary']:[]),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])];
+  : [...(id==='compare'?['Data sources and features']:[]),...(id==='open-source'?['Read the code that touches your data','Changelog',installTitle]:[]),...longform.map(([h])=>h),...(id==='privacy'?['Inspect the local reader and network test','Verify the running app','Legal notices']:[]),...(id==='download'?[installTitle,'Inspect the updater and its network boundary']:[]),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])];
 const tocId = h => ({'Read the code that touches your data':'read-the-code','Changelog':'changelog','Legal notices':'legal-notices'})[h] ?? anchor(h);
 const ours = comparison.rows.find(r=>r[0]==='AI Usage Menu');
+const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-four','chart-bar','wifi-slash','gauge'];
 ---
 <section class="hero hero-guide">
   <div class="hero-copy">
@@ -63,7 +66,14 @@ const ours = comparison.rows.find(r=>r[0]==='AI Usage Menu');
 </section>
 
 {id==='compare' && <section class="compare-full" aria-labelledby="data-sources-and-features"><h2 id="data-sources-and-features">Data sources and features</h2>
-      <div class="table-wrap"><table class="compare"><thead><tr>{comparison.columns.map(c=><th scope="col">{c}</th>)}</tr></thead><tbody>{comparison.rows.map(row=><tr class:list={{ours:row[0]==='AI Usage Menu'}}>{row.map((cell,i)=>{const v=row[0]==='AI Usage Menu' && comparison.columns[i]==='Code-signed and notarized' && release.signedAndNotarized?'Yes':cell;return <td data-label={comparison.columns[i]}>{i===0?<>{v}<button type="button" class="row-more" aria-expanded="false"><span>Show all</span><Icon name="caret-down"/></button></>:v==='Yes'?<span class="yes"><Icon name="check-circle"/>Yes</span>:v}</td>})}</tr>)}</tbody></table></div></section>}
+      <div class="table-wrap"><table class="compare"><thead><tr>{comparison.columns.map((c,i)=><th scope="col"><span class="th-in">{colIcons[i] && (colIcons[i].startsWith("@") ? <ProviderLogo id={colIcons[i].slice(1)}/> : <Icon name={colIcons[i]}/>)}{c}</span></th>)}</tr></thead><tbody>{comparison.rows.map(row=><tr class:list={{ours:row[0]==='AI Usage Menu'}}>{row.map((v,i)=><td data-label={comparison.columns[i]}>{
+      i===0 ? <span class="tool">{row[0]==='AI Usage Menu' ? <img src={mark} width="28" height="28" alt="AI Usage Menu"/> : <span class="avatar" aria-hidden="true">{v.replace(/[^A-Za-z]/g,'').slice(0,2)}</span>}<b>{v}</b><button type="button" class="row-more" aria-expanded="false"><span>Show all</span><Icon name="caret-down"/></button></span>
+      : v==='Yes' ? <span class="cell yes"><Icon name="check-circle"/>Yes</span>
+      : v==='Not listed' ? <span class="cell nl"><Icon name="minus-circle"/>Not listed</span>
+      : ['Separate app','Pro tier'].includes(v) ? <span class="cell part"><Icon name="circle-half"/>{v}</span>
+      : (i===2||i===3) ? <span class:list={['tagpill',{good:v==='Free'||v==='MIT'}]}>{v}</span>
+      : (i===8 && row[0]==='AI Usage Menu') ? <span class="cell yes"><Icon name="shield-check"/>{v}</span>
+      : v}</td>)}</tr>)}</tbody></table></div></section>}
 
 <div class="read">
   <aside class="side">

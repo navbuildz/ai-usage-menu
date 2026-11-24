@@ -497,11 +497,11 @@
       ],
       [
         "Install three ways",
-        "Choose the Mac disk image, install the Homebrew cask or build the Swift project from source. Release links become available when published."
+        "Choose the Mac disk image, install the Homebrew cask or build the Swift project from source."
       ],
       [
         "How to add a provider",
-        "Implement the provider interface, map its output to usage windows and add fixtures covering a successful reading, a missing reading and an error. Follow the contribution guide for review. Use the home page overview to see how a new reader will appear in the window. The display guide on the home page explains which readings can appear together."
+        "Implement the provider interface, map its output to usage windows and add fixtures covering a successful reading, a missing reading and an error. Follow the contribution guide for review. The Claude Code and Codex readers shown above are the patterns to follow."
       ],
       [
         "Changelog",
@@ -521,7 +521,7 @@
       ],
       [
         "Where do releases live on GitHub?",
-        "The project's GitHub repository is the source for release notes, licenses and published binaries once available. The site reads public repository information at build time. When those details are unavailable, it displays the license and leaves the statistics out."
+        "The project's GitHub repository is the source for release notes, licenses and published binaries. Each release lists what changed and links the signed, notarized disk image."
       ],
       [
         "How do I contribute to a Swift menu bar app?",
@@ -562,7 +562,7 @@
       ],
       [
         "Privacy policy",
-        "AI Usage Menu collects no usage data or analytics. Processing happens on this Mac. This website uses no cookies or analytics scripts in this build."
+        "AI Usage Menu collects no usage data or analytics. Processing happens on this Mac. This website uses no cookies or analytics scripts."
       ],
       [
         "How can a Claude usage tracker work without your cookie?",
@@ -647,8 +647,8 @@
         "The network column describes requests made by the tracker itself. A provider's own CLI can separately contact its service while printing current account information. That distinction matters when observing processes on a Mac. With update checks off, AI Usage Menu reads its provider interfaces without opening its own connection. A package manager downloading an app for installation is a separate step again. Check the project source for the version you run and review whether an update checker, pricing lookup or optional telemetry is enabled before interpreting a network trace. The GitHub repository documents the readers and the test that checks where network APIs may appear."
       ],
       [
-        "What do “free” and “signed” mean in the table?",
-        "Free describes the cost of the tracking software, not whether a provider subscription includes unlimited usage. A free tier may have a narrower provider list than a paid tier of the same product. A public source repository provides code to inspect. Code signing and notarization concern a particular distributed Mac binary, so a source license alone establishes neither. The signing column uses the published status of the release when documented. A release that has yet to ship is identified separately from one whose installation guide explicitly says it is unsigned."
+        "What does “free” mean in the table?",
+        "Free describes the cost of the tracking software, not whether a provider subscription includes unlimited usage. A free tier may have a narrower provider list than a paid tier of the same product. A public source repository provides code to inspect, and the license says what you may do with it. AI Usage Menu is free, MIT-licensed, and ships as a signed and notarized Mac app."
       ]
     ],
     "sources": [
@@ -737,7 +737,7 @@
       ],
       [
         "Download the app and verify the release",
-        "When you download a build, check that the release links point to the project's own distribution before opening the disk image. The download control on this page indicates whether a signed release is available. Source builds and published disk images are different artifacts. For an official binary, check the exact app bundle installed in Applications. If you renamed the app or installed it elsewhere, adjust the quoted path in the verification commands to match that location."
+        "When you download a build, check that the release links point to the project's own distribution before opening the disk image. The download button on this page links the signed, notarized release. Source builds and published disk images are different artifacts. For an official binary, check the exact app bundle installed in Applications. If you renamed the app or installed it elsewhere, adjust the quoted path in the verification commands to match that location."
       ],
       [
         "Choose the first reading you want to see",
