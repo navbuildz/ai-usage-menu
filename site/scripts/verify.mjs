@@ -8,7 +8,7 @@ import {facts} from '../src/data/facts.mjs';
 import {pageText} from './page-text.mjs';
 import {dates} from '../src/data/shared.mjs';
 // Ranges count everything in <main>, so they include page chrome (eyebrows, figure captions, the download card, the closing call to action) as well as the copy.
-const ranges={home:[900,1300],compare:[900,1400],'claude-usage-limits':[1600,2300],'claude-code-usage':[1200,1750],'codex-usage':[1200,1750]};
+const ranges={privacy:[600,1200],home:[900,1300],compare:[900,1600],'claude-usage-limits':[1600,2300],'claude-code-usage':[1200,1750],'codex-usage':[1200,1750]};
 const full=[],reports=[];
 const root='../app/build/site-dist';
 const titles=new Set(), keywordOwners=new Set(),h1s=new Set();

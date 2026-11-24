@@ -26,6 +26,8 @@
 
 AI Usage Menu is a free, MIT-licensed Mac app that shows your **Claude Code usage** and **Codex usage** where you already look: the menu bar and the Dock. It shows the 5-hour session limit and the weekly limit, when each one resets, how fast you are using them, and what is filling them up. It reads what Claude Code and Codex already show on your Mac, so there is no cookie, password or API key to paste, and checking costs zero tokens.
 
+**AI Usage Menu never uses your Claude or ChatGPT login tokens, cookies or API keys.** It runs Claude Code's own `/usage` command and reads Codex's local session log: the legitimate, documented way to see your limits.
+
 > [!TIP]
 > Works with **Claude Pro, Max and Team** plans and **ChatGPT plans for Codex**. API-key accounts pay per token and have no plan limits to show.
 
@@ -51,7 +53,7 @@ AI Usage Menu is a free, MIT-licensed Mac app that shows your **Claude Code usag
 
 |  |  |
 | --- | --- |
-| 🔒 **No cookie, no key, nothing to paste** | It reads Claude Code's own `/usage` output and Codex's local session logs. Many trackers ask for a claude.ai cookie, a session key, an API key or a sign-in instead. |
+| 🔒 **Never touches your login tokens** | No login token, cookie, password or API key is used, stored or sent. It reads Claude Code's own `/usage` output and Codex's local session logs. Many trackers read your Keychain or a credentials file, or ask you to paste a cookie or session key, instead. |
 | 💻 **Nothing leaves your Mac** | Usage is read and shown locally. AI Usage Menu itself only checks for updates once a day, and you can turn that off. |
 | 📊 **What's contributing** | See what is eating your Claude limit: long-running sessions, subagent models and large context files, each with what to do about it. |
 | 🍩 **A live Dock icon** | A ring that fills green, then amber, then red. The upper arc is your session and the lower arc is your week. |
@@ -185,6 +187,7 @@ The project is generated from `app/project.yml`; after changing targets or build
 | **Platforms** | macOS 13 or later on Intel and Apple silicon. |
 | **Plans** | Claude Pro, Max and Team, and ChatGPT plans for Codex. API-key accounts have no plan limits to show. |
 | **Data sources** | Claude Code’s /usage output and the usage figures it caches in ~/.claude.json; Codex’s local session logs. |
+| **Login tokens** | Never used, stored or sent. No login token, cookie, password or API key is needed. |
 | **Network calls** | None for usage readings. AI Usage Menu itself only checks for updates once a day, and you can turn that off. Claude Code itself may contact Anthropic. |
 | **Price** | Free. |
 | **License** | MIT. |
@@ -192,16 +195,17 @@ The project is generated from `app/project.yml`; after changing targets or build
 
 ## Claude usage trackers compared
 
-How Mac usage trackers for Claude and Codex get their data, from each project's own documentation. "Not listed" means the project's documentation does not describe the feature. See the [full Claude usage tracker comparison](https://aiusagemenu.com/compare).
+How Mac usage trackers for Claude and Codex get their data, from each project's own documentation, checked November 23, 2026. "Not listed" means the project's documentation does not describe the feature. AI Usage Menu is the only menu bar and Dock app here that never uses your login tokens or cookies. See the [full Claude usage tracker comparison](https://aiusagemenu.com/compare).
 
-| Tool | Usage source | Price | License | Claude Code | Codex | Live Dock gauge | Activity breakdown | Network calls by the app |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **AI Usage Menu** | Claude Code `/usage` and local Codex logs | Free | MIT | ✅ Yes | ✅ Yes | ✅ Yes | Session and context drivers | None for usage |
-| ClaudeUsageBar | Claude session cookie | Free | MIT | ✅ Yes | Separate app | Not listed | Not listed | Anthropic usage API |
-| CodexBar | OAuth, CLI or cookies, by provider | Free | MIT | ✅ Yes | ✅ Yes | Not listed | Cost and token reports | Depends on the selected source |
-| ccusage | Local session logs | Free | MIT | ✅ Yes | ✅ Yes | Not listed | Token and cost reports in the terminal | Pricing lookup, optional telemetry |
-| AI Usage Bar | Provider credentials or local files | Free; Pro paid | Commercial | ✅ Yes | Pro tier | Not listed | Spend and cost tracking | Provider APIs; license activation |
-| AI Usage Monitor | Local sign-ins and provider credentials | Public download | MIT | ✅ Yes | ✅ Yes | Not listed | Not listed | Polls provider APIs every 5 min |
+| Tool | Usage source | Uses your login tokens or cookies? | Price · License | Claude Code | Codex | Live Dock gauge | Activity breakdown | Network calls by the app | Limits shown |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **AI Usage Menu** | Claude Code `/usage` and local Codex logs | 🛡️ **No** | Free · MIT | ✅ Yes | ✅ Yes | ✅ Yes | Session and context drivers | None for usage | Session, week and per-model week |
+| ClaudeUsageBar | Claude session cookie | Yes, a session cookie | Free · MIT | ✅ Yes | Separate app | Not listed | Not listed | Anthropic usage API | Session, week, per-model when available |
+| CodexBar | OAuth, CLI or cookies, by provider | Depends on the source (OAuth or cookies) | Free · MIT | ✅ Yes | ✅ Yes | Not listed | Cost and token reports | Depends on the selected source | Provider windows, incl. session and week |
+| ccusage | Local session logs | No (local logs, terminal tool) | Free · MIT | ✅ Yes | ✅ Yes | Not listed | Token and cost reports in the terminal | Pricing lookup, optional telemetry | Five-hour blocks and token totals |
+| AI Usage Bar | Provider credentials or local files | Yes, provider credentials | Free; Pro paid · Commercial | ✅ Yes | Pro tier | Not listed | Spend and cost tracking | Provider APIs; license activation | Claude session and week |
+| AI Usage Monitor | Local sign-ins and provider credentials | Yes, reuses provider sign-ins | Public download · MIT | ✅ Yes | ✅ Yes | Not listed | Not listed | Polls provider APIs every 5 min | Provider quotas, incl. 5-hour, weekly, monthly |
+| AI Meter | Logins already on the Mac (Claude credentials file, Codex auth.json, Cursor session) | Yes, login tokens kept in the Keychain | Free · MIT | ✅ Yes | ✅ Yes | No Dock icon | Per-model spend and tokens | Provider usage requests; update check | Included pools, rolling windows, on-demand spend |
 
 ## FAQ
 
@@ -212,6 +216,14 @@ Sign in to Claude Code with your subscription. Open AI Usage Menu and choose the
 ### Does it need my Claude password or cookie?
 
 No. It uses your existing Claude Code installation and sign-in.
+
+### Does AI Usage Menu read my Claude token or Keychain?
+
+No. AI Usage Menu never reads your Keychain and never uses, stores or sends a Claude or ChatGPT login token, cookie or API key. It runs Claude Code's own `/usage` command and reads Codex's local session log, decoding only the `auth_mode` value of `~/.codex/auth.json`.
+
+### Do I need to sign in?
+
+No new sign-in. AI Usage Menu uses the Claude Code and Codex sign-ins already on your Mac, and it never uses their login tokens, cookies or API keys.
 
 ### Is AI Usage Menu free?
 
@@ -252,6 +264,10 @@ One request can fall into several groups, such as a long-running session and a s
 ### Can the Claude usage bar show both windows?
 
 Yes. The Dock icon can show two numbers for the same provider: the session on top and the week below. The window names and reset times sit next to those figures in the app.
+
+### Is there an AI Usage Meter alternative that doesn't use my login tokens?
+
+AI Usage Menu is an AI Usage Meter alternative for Claude Code and Codex that never uses your login tokens or cookies. AI Meter's site says it uses the login already on your Mac and keeps session tokens in the Keychain, and it also covers Cursor. AI Usage Menu runs Claude Code's `/usage` command and reads Codex's session log instead.
 
 ### Can I see Claude and Codex usage at the same time?
 

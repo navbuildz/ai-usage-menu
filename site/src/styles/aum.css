@@ -879,7 +879,8 @@ figure.dataflow{margin:0 auto}
   .compare th:nth-child(8),.compare td:nth-child(8){min-width:110px}
   .compare th:nth-child(9),.compare td:nth-child(9){min-width:128px}
   .compare th:nth-child(10),.compare td:nth-child(10){min-width:104px}
-  .compare th:nth-child(3),.compare th:nth-child(4),.compare th:nth-child(5),.compare th:nth-child(6),.compare th:nth-child(7){width:1%}
+  .compare th:nth-child(3),.compare td:nth-child(3){min-width:130px}
+  .compare th:nth-child(5),.compare th:nth-child(6),.compare th:nth-child(7){width:1%}
   .compare{min-width:0;width:100%}
   .compare th,.compare td{padding:13px 7px}
   .compare th:first-child,.compare td:first-child{padding-left:14px}
@@ -901,3 +902,9 @@ figure.dataflow{margin:0 auto}
 .network-statement .ic-tile{width:34px;height:34px;border-radius:10px}
 .network-statement .ic-tile .ic{width:18px;height:18px}
 .network-statement p{font:600 1rem/1.45 'Inter Variable',sans-serif;letter-spacing:0}
+
+.cell.tok{color:var(--ink-2);font-weight:500;white-space:normal!important}
+.cell.tok .ic{color:var(--amber)}
+.compare .cell.nl{white-space:normal}
+.spec-row b .ic{color:var(--mint)}
+@media (min-width:701px){.compare .tagpill{white-space:normal;text-align:center}.compare th:nth-child(4),.compare td:nth-child(4){max-width:130px}}

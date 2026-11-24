@@ -2,8 +2,8 @@
   "columns": [
     "Tool",
     "Usage source",
-    "Price",
-    "License",
+    "Uses your login tokens or cookies?",
+    "Price · License",
     "Claude Code",
     "Codex",
     "Live Dock gauge",
@@ -11,12 +11,13 @@
     "Network calls by the app",
     "Limits shown"
   ],
+  "checked": "2026-11-23",
   "rows": [
     [
       "AI Usage Menu",
       "Claude Code /usage and local Codex logs",
-      "Free",
-      "MIT",
+      "No",
+      "Free · MIT",
       "Yes",
       "Yes",
       "Yes",
@@ -27,8 +28,8 @@
     [
       "ClaudeUsageBar",
       "Claude session cookie",
-      "Free",
-      "MIT",
+      "Yes, a session cookie",
+      "Free · MIT",
       "Yes",
       "Separate app",
       "Not listed",
@@ -39,8 +40,8 @@
     [
       "CodexBar",
       "OAuth, CLI or cookies, by provider",
-      "Free",
-      "MIT",
+      "Depends on the source (OAuth or cookies)",
+      "Free · MIT",
       "Yes",
       "Yes",
       "Not listed",
@@ -51,8 +52,8 @@
     [
       "ccusage",
       "Local session logs",
-      "Free",
-      "MIT",
+      "No (local logs, terminal tool)",
+      "Free · MIT",
       "Yes",
       "Yes",
       "Not listed",
@@ -63,8 +64,8 @@
     [
       "AI Usage Bar",
       "Provider credentials or local files",
-      "Free; Pro paid",
-      "Commercial",
+      "Yes, provider credentials",
+      "Free; Pro paid · Commercial",
       "Yes",
       "Pro tier",
       "Not listed",
@@ -75,14 +76,26 @@
     [
       "AI Usage Monitor",
       "Local sign-ins and provider credentials",
-      "Public download",
-      "MIT",
+      "Yes, reuses provider sign-ins",
+      "Public download · MIT",
       "Yes",
       "Yes",
       "Not listed",
       "Not listed",
       "Polls provider APIs every 5 min",
       "Provider quotas, incl. 5-hour, weekly, monthly"
+    ],
+    [
+      "AI Meter",
+      "Logins already on the Mac (Claude credentials file, Codex auth.json, Cursor session)",
+      "Yes, login tokens kept in the Keychain",
+      "Free · MIT",
+      "Yes",
+      "Yes",
+      "No Dock icon",
+      "Per-model spend and tokens",
+      "Provider usage requests; update check",
+      "Included pools, rolling windows, on-demand spend"
     ]
   ]
 }

@@ -44,7 +44,7 @@ const toc = guide
   : [...(id==='compare'?['Data sources and features']:[]),...(id==='open-source'?['Read the code that touches your data','Changelog',installTitle,'Found a bug or want a feature?']:[]),...longform.map(([h])=>h),...(id==='privacy'?['Inspect the local reader and network test','Verify the running app','Legal notices']:[]),...(id==='download'?[installTitle,'Inspect the updater and its network boundary','Found a bug or want a feature?']:[]),...(p.steps.length?[stepsName]:[]),...(p.sources.length?['Sources']:[]),...(p.faqs.length?['Frequently asked questions']:[])];
 const tocId = h => ({'Found a bug or want a feature?':'feedback-h','Read the code that touches your data':'read-the-code','Changelog':'changelog','Legal notices':'legal-notices'})[h] ?? anchor(h);
 const ours = comparison.rows.find(r=>r[0]==='AI Usage Menu');
-const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-four','chart-bar','wifi-slash','gauge'];
+const colIcons = [null,'file-code','key','tag','@claude','@codex','squares-four','chart-bar','wifi-slash','gauge'];
 ---
 <section class="hero hero-guide">
   <div class="hero-copy">
@@ -62,7 +62,7 @@ const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-fo
     {id==='claude-usage-limits' && <div class="stage"><ResetTimeline/></div>}
     {id==='privacy' && <div class="stage"><DataFlow/></div>}
     {id==='open-source' && <div class="stage"><div class="filecard" aria-hidden="true"><header><img src={mark} width="26" height="26" alt="AI Usage Menu"/>navbuildz/ai-usage-menu<span>MIT</span></header>{[['Claude Code reader','app/Sources/ClaudeCodeProvider.swift'],['Codex session reader','app/Sources/CodexProvider.swift'],['Daily update check','app/Sources/Updater/UpdateService.swift'],['Network source test','app/Tests/ProviderTests.swift']].map(([t,f])=><div class="file"><Icon name="file-code"/><div>{t}<small>{f}</small></div></div>)}</div></div>}
-    {id==='compare' && <div class="stage"><div class="spec" aria-hidden="true"><header><img src={mark} width="30" height="30" alt="AI Usage Menu"/>AI Usage Menu<span>MIT</span></header>{[['Usage source',ours[1]],['Price',ours[2]],['@claude','Yes'],['@codex','Yes'],['Live Dock gauge','Yes'],['Activity breakdown','Yes']].map(([k,v])=><div class="spec-row"><span>{k.startsWith('@')?<><ProviderLogo id={k.slice(1)}/>{k==='@claude'?'Claude Code':'Codex'}</>:k}</span><b>{v==='Yes'?<><Icon name="check-circle"/>Yes</>:v}</b></div>)}</div></div>}
+    {id==='compare' && <div class="stage"><div class="spec" aria-hidden="true"><header><img src={mark} width="30" height="30" alt="AI Usage Menu"/>AI Usage Menu<span>MIT</span></header>{[['Usage source',ours[1]],['Uses your login tokens','No'],['Price',ours[3]],['@claude','Yes'],['@codex','Yes'],['Live Dock gauge','Yes'],['Activity breakdown','Yes']].map(([k,v])=><div class="spec-row"><span>{k.startsWith('@')?<><ProviderLogo id={k.slice(1)}/>{k==='@claude'?'Claude Code':'Codex'}</>:k}</span><b>{v==='Yes'?<><Icon name="check-circle"/>Yes</>:v==='No'?<><Icon name="shield-check"/>No</>:v}</b></div>)}</div></div>}
     {id==='download' && <div class="stage"><div class="welcome" role="img" aria-label="First launch of AI Usage Menu: your AI usage at a glance"><div class="wl-in" aria-hidden="true"><span class="wl-dots" aria-hidden="true"><i class="on"></i><i></i><i></i></span><b>Your AI usage at a glance</b><div class="wl-row"><DockTile session={72} week={57} size={88} label="Dock icon at 72 percent"/><div><p>See your Claude Code and Codex limits in the menu bar and Dock, with the time each one resets.</p><p class="muted">The ring fills green, then amber, then red as you use your plan.</p></div></div><p class="wl-note"><Icon name="shield-check"/>Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself only checks for updates once a day.</p><span class="btn btn-primary btn-sm">Continue</span></div></div></div>}
   </div>
 </section>
@@ -73,7 +73,9 @@ const colIcons = [null,'file-code','tag','scales','@claude','@codex','squares-fo
       : v==='Yes' ? <span class="cell yes"><Icon name="check-circle"/>Yes</span>
       : v==='Not listed' ? <span class="cell nl"><Icon name="minus-circle"/>Not listed</span>
       : ['Separate app','Pro tier'].includes(v) ? <span class="cell part"><Icon name="circle-half"/>{v}</span>
-      : (i===2||i===3) ? <span class:list={['tagpill',{good:v==='Free'||v==='MIT'}]}>{v}</span>
+      : i===2 ? (v==='No' ? <span class="cell yes"><Icon name="shield-check"/>No</span> : v.startsWith('No ') ? <span class="cell nl"><Icon name="minus-circle"/>{v}</span> : <span class="cell tok"><Icon name="key"/>{v}</span>)
+      : i===3 ? <span class:list={['tagpill',{good:v==='Free · MIT'}]}>{v}</span>
+      : v==='No Dock icon' ? <span class="cell nl"><Icon name="minus-circle"/>{v}</span>
       : (i===8 && row[0]==='AI Usage Menu') ? <span class="cell yes"><Icon name="shield-check"/>{v}</span>
       : v}</td>)}</tr>)}</tbody></table></div></section>}
 

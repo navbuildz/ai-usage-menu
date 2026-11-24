@@ -1,7 +1,7 @@
 [
   {
     "id": "home",
-    "bodyWords": 1132,
+    "bodyWords": 1196,
     "keywords": [
       "claude usage tracker",
       "ai usage tracker mac",
@@ -31,7 +31,7 @@
   },
   {
     "id": "claude-code-usage",
-    "bodyWords": 1716,
+    "bodyWords": 1728,
     "keywords": [
       "claude code usage",
       "claude code usage limit",
@@ -92,7 +92,7 @@
   },
   {
     "id": "claude-usage-limits",
-    "bodyWords": 2171,
+    "bodyWords": 2183,
     "keywords": [
       "claude usage limits",
       "claude 5 hour limit",
@@ -148,7 +148,7 @@
   },
   {
     "id": "privacy",
-    "bodyWords": 994,
+    "bodyWords": 1195,
     "keywords": [
       "claude usage tracker without cookie",
       "is it safe to paste claude session cookie",
@@ -166,19 +166,22 @@
     "og": "https://aiusagemenu.com/art/og-privacy.png",
     "types": [
       "BreadcrumbList",
-      "WebPage"
+      "WebPage",
+      "FAQPage"
     ]
   },
   {
     "id": "compare",
-    "bodyWords": 1230,
+    "bodyWords": 1407,
     "keywords": [
       "claude usage tracker comparison",
       "claude usage tracker alternatives",
       "ccusage alternative",
       "codexbar alternative",
       "claudeusagebar alternative",
-      "ai usage monitor alternative"
+      "ai usage monitor alternative",
+      "ai usage meter alternative",
+      "ai meter alternative"
     ],
     "date": "2026-11-23",
     "title": "Mac Usage Trackers for Claude and Codex, Compared",
@@ -199,7 +202,7 @@
   },
   {
     "id": "download",
-    "bodyWords": 973,
+    "bodyWords": 984,
     "keywords": [
       "download claude usage tracker mac",
       "claude usage app mac",
