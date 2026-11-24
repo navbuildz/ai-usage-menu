@@ -96,8 +96,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
     }
 
     private func applyActivation() {
-        let target: NSApplication.ActivationPolicy = preferences.options.placement.showsDock ? .regular : .accessory
+        // A test run hosts this app; it must never put an icon in the Dock or the menu bar
+        // (test runs left a column of stale Dock tiles on 2026-11-23).
+        let testing = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        let target: NSApplication.ActivationPolicy = testing ? .prohibited : wantedActivation
         if NSApp.activationPolicy() != target { NSApp.setActivationPolicy(target) }
+    }
+
+    /// What the Dock setting asks for: a Dock icon (.regular) or menu bar only (.accessory).
+    var wantedActivation: NSApplication.ActivationPolicy {
+        preferences.options.placement.showsDock ? .regular : .accessory
     }
 
     private func applyTheme() {
@@ -119,7 +127,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
 
     private func updateDisplays() {
         updateItems()
-        dockTile.update(store: store, options: preferences.options)
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+            dockTile.update(store: store, options: preferences.options)
+        }
     }
 
     private func updateItems() {

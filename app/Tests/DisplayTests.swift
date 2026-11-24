@@ -193,7 +193,7 @@ final class DisplayTests: XCTestCase {
         let saved = prefs.options
         defer { prefs.options = saved }
         prefs.options.placement = .menu
-        XCTAssertEqual(NSApp.activationPolicy(), .accessory)
+        XCTAssertEqual(delegate.wantedActivation, .accessory)
         XCTAssertEqual(delegate.statusItemCount, 1)
         let button = try XCTUnwrap(delegate.items["auto"]?.button)
         button.performClick(nil)
@@ -205,7 +205,7 @@ final class DisplayTests: XCTestCase {
         }
         delegate.popover.performClose(nil)
         prefs.options.placement = .dock
-        XCTAssertEqual(NSApp.activationPolicy(), .regular)
+        XCTAssertEqual(delegate.wantedActivation, .regular)
         XCTAssertEqual(delegate.statusItemCount, 0)
         XCTAssertNil(NSApp.dockTile.badgeLabel)
         XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
@@ -238,7 +238,7 @@ final class DisplayTests: XCTestCase {
         prefs.options.placement.showsMenu = false
         XCTAssertEqual(prefs.options.placement, .hidden)
         XCTAssertEqual(delegate.statusItemCount, 0)
-        XCTAssertEqual(NSApp.activationPolicy(), .accessory)
+        XCTAssertEqual(delegate.wantedActivation, .accessory)
         XCTAssertTrue(delegate.applicationShouldHandleReopen(NSApp, hasVisibleWindows: false))
         XCTAssertTrue(settings.isVisible)
         settings.close()
