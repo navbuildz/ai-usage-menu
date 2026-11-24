@@ -28,7 +28,8 @@ struct DockSnapshot: Equatable {
             guard score > best else { continue }
             best = score
             let center = options.dockWindow == .weekly ? weekly : session
-            result = Self(indicator: center.map { .value($0, provider.glyph) } ?? .warning,
+            let problem = snapshots[provider.id]?.state.isProblem == true
+            result = Self(indicator: center.map { .value($0, provider.glyph) } ?? (problem ? .warning : .absent),
                           thresholds: options.thresholds, session: session, weekly: weekly, twoNumbers: options.twoDockNumbers)
         }
         return result

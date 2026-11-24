@@ -208,4 +208,17 @@ final class HardeningTests: XCTestCase {
         options.menuProvider = "auto"; options.twoMenuNumbers = false
         XCTAssertEqual(store.menuValue("auto", options: options).percent, 92, "Auto still picks the provider with a reading")
     }
+
+    // First launch showed "!" while readings were still arriving. Only real problems warn.
+    @MainActor func testNoWarningWhileWaitingOrAfterReset() {
+        let now = Date()
+        var expired = ProviderSnapshot(asOf: now.addingTimeInterval(-7200), state: .ready)
+        expired.limits = [.init(label: "Session", usedPercent: 92, resetsAt: now.addingTimeInterval(-60), windowMinutes: 300, source: "c")]
+        let providers: [any Provider] = [CodexProvider()]
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": expired], window: .session, at: now), .absent)
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": .init(asOf: now, state: .noSessions)], at: now), .absent)
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": .init(asOf: now, state: .timedOut)], at: now), .warning)
+        var options = DisplayOptions(); options.dockProvider = "codex"
+        XCTAssertEqual(DockSnapshot.resolve(providers: providers, snapshots: ["codex": expired], options: options, now: now).indicator, .absent)
+    }
 }

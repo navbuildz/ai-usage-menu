@@ -123,7 +123,9 @@ enum Indicator: Equatable {
         var best: Indicator = .absent
         for provider in providers where providerID == "auto" || provider.id == providerID {
             guard let snapshot = snapshots[provider.id], snapshot.state != .notInstalled else { continue }
-            if best == .absent { best = .warning }
+            // "!" means something is wrong. A reading that is simply not in yet, or whose window has
+            // reset since it was taken, shows the plain icon instead (first launch showed "!" for seconds).
+            if best == .absent && snapshot.state.isProblem { best = .warning }
             switch snapshot.state {
             case .ready, .limitReached:
                 for limit in snapshot.limits where window.includes(limit) {
@@ -143,5 +145,15 @@ extension Double {
     var compactUsage: String {
         let whole = Int(rounded())
         return String(self < 100 ? min(99, whole) : whole)
+    }
+}
+
+extension ProviderState {
+    /// States the user should act on. Waiting, no plan and no sessions are not problems.
+    var isProblem: Bool {
+        switch self {
+        case .failed, .timedOut, .unreadable, .unknownFormat, .signedOut: true
+        default: false
+        }
     }
 }
