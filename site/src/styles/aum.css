@@ -584,7 +584,7 @@ footer.site{margin-top:clamp(28px,4vw,48px);border-top:1px solid var(--line);bac
 @media (max-width:380px){
   .brand img{height:28px}
   .navline{gap:8px}
-  .nav-cta>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .nav-cta>span:not(.ic){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
   .nav-cta{width:42px;padding:0;min-height:42px}
   .nav-disclosure summary{width:40px;height:40px}
   .chip-tl{display:none}
@@ -680,3 +680,75 @@ figure.dataflow{margin:0 auto}
 
 /* Hero copy uses the full column: no balanced or capped line lengths (Nav 2026-11-23). */
 .hero .hero-copy h1,.hero .lead{max-width:none;text-wrap:wrap}
+
+/* ---------- App panel, matched to the current app (2026-11-23) ---------- */
+.app-panel{width:min(100%,400px)}
+.ap-head b{font-size:16px}
+.ap-tools{gap:2px}
+.ap-tools .ic{width:28px;height:28px;padding:5px;color:var(--p-ink);opacity:.8}
+.ap-tabs{margin:4px 14px 12px;padding:4px;gap:6px}
+.ap-tabs button[aria-selected=true],.ap-tabs .tab.on{background:#7c5cff;color:#fff;box-shadow:0 4px 14px -6px #7c5cffcc}
+.ap-tabs .dot{width:7px;height:7px;margin-left:2px}
+.dot{display:inline-block;flex:none;width:8px;height:8px;border-radius:50%;background:var(--tone)}
+.tone-stale{--tone:#8e90a6}
+.ap-summary{display:flex;align-items:center;gap:8px;margin:0 16px 10px;font:600 12.5px/1.3 'Inter Variable',sans-serif;color:var(--p-ink)}
+.ap-body{margin:0 14px;padding:4px 0}
+.ap-row{grid-template-columns:auto minmax(0,1fr);gap:16px;padding:12px 14px}
+.ap-row+.ap-row{border-top:1px solid var(--p-line)}
+.ap-row b{font-size:14.5px;margin-bottom:3px}
+.ap-row small{font-size:12px;line-height:1.45}
+.ap-row .pace{color:var(--p-ink);opacity:.82}
+.ap-row .pace.hot{color:var(--danger);opacity:1}
+.ap-left{display:none}
+.app-panel .ring{--size:56px}
+.ring .trk{stroke:color-mix(in srgb,var(--tone) 22%,var(--p-card,var(--raised)))}
+.ring .tick{stroke:var(--p-ink,var(--ink));opacity:.75}
+.ring span{font-size:14px}
+.tone-stale.ring span{color:var(--p-muted)}
+.ap-note{display:flex;gap:8px;align-items:flex-start;margin:10px 16px 0;font-size:11.5px;line-height:1.45;color:var(--p-muted)}
+.ap-note .ic{width:14px;height:14px;margin-top:1px}
+.ap-meta{padding:10px 16px 4px}
+.ap-contrib{margin:12px 0 0;padding:14px 14px 4px;border:0;border-top:1px solid var(--p-line);border-radius:0;background:none}
+.ap-contrib header{font-size:15px}
+.ap-contrib header>span:not(.ic){margin-left:auto;background:none;padding:0;color:inherit;font-size:inherit}
+.ap-contrib .seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--p-card);border:1px solid var(--p-line);font-size:11.5px;font-weight:600}
+.ap-contrib .seg span{padding:4px 9px;border-radius:999px;color:var(--p-muted)}
+.ap-contrib .seg span.on{background:#7c5cff;color:#fff}
+.ap-totals{margin-top:10px;font-weight:650;font-size:13px;color:var(--p-ink)}
+.ap-overlap{display:flex;gap:7px;align-items:flex-start;margin-top:6px;font-size:11px;line-height:1.45;color:var(--p-muted)}
+.ap-overlap .ic{width:13px;height:13px;margin-top:1px;flex:none}
+.ap-contrib .bars{margin:10px 0 10px;padding:12px;border-radius:12px;background:var(--p-card);border:1px solid var(--p-line)}
+.ap-foot{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-top:1px solid var(--p-line);font-size:11.5px;color:var(--p-muted)}
+.ap-foot span{display:inline-flex;align-items:center;gap:5px}.ap-foot .ic{width:12px;height:12px}
+.ap-pad{height:14px}
+/* Mobile and tablet: stack every two-column composition (the band rule above was set after the breakpoints). */
+@media (max-width:960px){.band-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){.app-panel{width:100%}.ap-row{gap:12px;padding:12px}.app-panel .ring{--size:50px}}
+.welcome{gap:14px;width:min(100%,460px)}
+.wl-dots{display:flex;gap:5px}.wl-dots i{width:7px;height:7px;border-radius:9px;background:var(--line-2)}.wl-dots i.on{width:22px;background:#7c5cff}
+.wl-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.wl-row .dock-tile{width:88px;height:88px}
+.wl-row p{font-size:.95rem;line-height:1.45;color:var(--ink-2)}.wl-row p.muted{color:var(--muted);font-size:.88rem;margin-top:4px}
+.wl-note{display:grid;grid-template-columns:auto 1fr;gap:8px;font-size:.84rem;line-height:1.5;color:var(--muted)}
+.wl-note .ic{width:16px;height:16px;color:var(--mint);margin-top:2px}
+
+/* Small phones: keep the app panel's own layout and scale it as one unit instead of reflowing it. */
+.ap-head b,.ap-tabs button,.ap-tabs .tab,.ap-meta span{white-space:nowrap}
+@media (max-width:700px){.hero-guide .stage{padding-inline:0}}
+@media (max-width:440px){
+  .app-panel{border-radius:16px}
+  .ap-head{padding:12px 12px 8px;gap:8px}.ap-head img{width:26px;height:26px}.ap-head b{font-size:14px}.ap-head small{font-size:10.5px}
+  .ap-tools .ic{width:24px;height:24px;padding:4px}
+  .ap-tabs{margin:2px 10px 10px;gap:4px}.ap-tabs button,.ap-tabs .tab{height:32px;font-size:12px;gap:6px}.ap-tabs svg{width:14px;height:14px}
+  .ap-summary{margin:0 12px 8px;font-size:11.5px}
+  .ap-body{margin:0 10px}.ap-row{gap:10px;padding:10px}.app-panel .ring{--size:46px}.ring span{font-size:12px}
+  .ap-row b{font-size:13px}.ap-row small{font-size:11px}
+  .ap-meta{padding:8px 12px 2px;gap:12px;font-size:10.5px}.ap-note{margin:8px 12px 0;font-size:10.5px}
+  .ap-contrib{padding:12px 10px 2px}.ap-contrib header{font-size:13.5px}.ap-overlap{font-size:10.5px}
+  .ap-foot{padding:9px 12px;font-size:10.5px}
+}
+.seg span{white-space:nowrap}
+.ap-meta{display:flex;flex-wrap:wrap;gap:4px 14px}
+.activity-card{min-width:0;max-width:100%}
+.activity-card header{flex-wrap:wrap;row-gap:8px}
+.ap-contrib header{flex-wrap:wrap;row-gap:8px}

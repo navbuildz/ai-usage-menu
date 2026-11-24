@@ -11,8 +11,7 @@ import TextLinks from './TextLinks.astro';
 import {facts} from '../data/facts.mjs';
 import {compatibility} from '../data/shared.mjs';
 const {p, id, date, dateLabel} = Astro.props;
-const [glance, activity, dock, pair, open, ...notes] = p.sections;
-const noteIcons = ['hourglass','squares-four','app-window'];
+const [glance, activity, dock, pair, open] = p.sections;
 const factIcons = {Product:'app-window',Platforms:'desktop',Plans:'users-three','Data sources':'file-code','Network calls':'wifi-slash',Price:'coins',License:'scales',Maker:'sparkle'};
 const stepIcons = ['download-simple','magnifying-glass','gauge'];
 ---
@@ -28,7 +27,7 @@ const stepIcons = ['download-simple','magnifying-glass','gauge'];
     <div class="stage" role="img" aria-label="AI Usage Menu showing the Claude Code session at 30 percent and the weekly limit at 57 percent, each with its own reset time, beside the menu bar reading and the Dock icon.">
       <span class="chip chip-tl" aria-hidden="true"><Icon name="coins"/><span>0 tokens<small>to check usage</small></span></span>
       <span class="chip chip-bar chip-tr" aria-hidden="true"><svg viewBox="0 0 32 32" width="18" height="18" class="tone-ok"><path d="M 3.9 24.9 A 12.2 12.2 0 1 1 28.2 16" fill="none" stroke="#34D399" stroke-width="2.6" stroke-linecap="round"/><rect x="8.9" y="18.2" width="4.8" height="7.8" rx="1.8" fill="#34D399"/><rect x="15" y="14.5" width="4.8" height="11.5" rx="1.8" fill="#34D399"/><rect x="21.1" y="10.7" width="4.8" height="15.3" rx="1.8" fill="#34D399"/></svg><span>30%<small>in your menu bar</small></span></span>
-      <AppPanel contrib decorative/>
+      <AppPanel contrib contribRows={2} foot decorative/>
       <span class="chip chip-bl" aria-hidden="true"><Icon name="clock-countdown"/><span>Resets in 1h 52m<small>Session window</small></span></span>
       <span class="dock-float" aria-hidden="true"><DockTile session={30} week={57} size={124}/></span>
     </div>

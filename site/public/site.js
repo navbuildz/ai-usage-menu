@@ -46,6 +46,7 @@
       const select = tab => {
         tabs.forEach(t => { const on = t === tab; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; document.getElementById(t.getAttribute('aria-controls')).hidden = !on; });
         const view = document.getElementById(tab.getAttribute('aria-controls'));
+        const upd = list.closest('[data-panel]').querySelector('[data-updated]'); if (upd && tab.dataset.updatedText) upd.textContent = tab.dataset.updatedText;
         $$('[data-ring]', view).forEach(r => { r.classList.remove('in'); void r.offsetWidth; r.classList.add('in'); const n = r.querySelector('[data-count]'); if (n) countUp(n, +n.dataset.count); });
       };
       tabs.forEach((t, i) => {

@@ -1,41 +1,51 @@
 ---
-// The app's window, rebuilt in HTML so it is crisp at any size, matches each theme and can move.
-// Readings are the same example values as the app captures.
+// The app's window, rebuilt in HTML to match the current app (handoff/screenshots/window, 2026-11-23):
+// title "AI Usage Menu", tabs with status dots, a summary line, one-line resets, a pace line,
+// rings with an elapsed tick, and the contributing card with its overlap note.
 import Ring from './Ring.astro';
 import Icon from './Icon.astro';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 import claudeGlyph from '../../../brand/05-ui-icons/svg/provider-claude-code.svg?raw';
 import codexGlyph from '../../../brand/05-ui-icons/svg/provider-codex.svg?raw';
-const {tab='claude', interactive=false, contrib=false, decorative=false, rows3=false, id='panel'} = Astro.props;
+const {tab='claude', interactive=false, contrib=false, contribRows=1, decorative=false, rows3=false, foot=false, id='panel'} = Astro.props;
+const OK='On track for this window';
 const data = {
-  claude: {
-    rows: rows3
-      ? [['Session',94,'Resets in 1h 52m','Nov 23 at 3:56 PM'],['Weekly (all models)',57,'Resets in 6d 0h','Nov 29 at 2:03 PM'],['Weekly · Fable',90,'Resets in 6d 0h','Nov 29 at 2:03 PM']]
-      : [['Session',30,'Resets in 1h 52m','Nov 23 at 5:28 PM'],['Weekly (all models)',57,'Resets in 6d 0h','Nov 29 at 3:36 PM']],
-    meta: [['Plan','Claude subscription'],['CLI version','2.1.330']], foot: 'Updated just now'
+  claude: rows3 ? {
+    updated:'Updated just now', summary:['tone-hot','Session 94% used · resets in 1h 52m'],
+    rows:[['Session',94,'Resets in 1h 52m · 5:56 PM','At this pace, full in about 12m',.62],['Weekly (all models)',57,'Resets in 6d 0h · Sun 4:04 PM','At this pace, full in about 18h 6m',.14],['Weekly · Fable',90,'Resets in 6d 0h · Sun 4:04 PM','At this pace, full in about 2h 40m',.14]],
+    meta:[['Plan','Claude subscription'],['CLI version','2.1.330']]
+  } : {
+    updated:'Updated just now', summary:['tone-ok','Weekly (all models) 57% used · resets in 6d 0h'],
+    rows:[['Session',30,'Resets in 1h 52m · 5:56 PM',OK,.62],['Weekly (all models)',57,'Resets in 6d 0h · Sun 4:04 PM','At this pace, full in about 18h 6m',.14]],
+    meta:[['Plan','Claude subscription'],['CLI version','2.1.330']]
   },
   codex: {
-    rows: [['Session',72,'Resets in 1h 29m','Nov 23 at 5:06 PM'],['Weekly',57,'Resets in 3d 23h','Nov 27 at 3:36 PM']],
-    meta: [['Plan','Plus']], foot: 'As of 3h ago (last Codex activity)'
+    updated:'Updated 3h ago', summary:['tone-stale','Session 72% used · resets in 1h 29m'], stale:true,
+    rows:[['Session',72,'Resets in 1h 29m · 5:34 PM',null,.66],['Weekly',57,'Resets in 3d 23h · Fri 4:04 PM',null,.43]],
+    note:'From your last Codex session 3h ago. Numbers update when you use Codex again.',
+    meta:[['Plan','Plus']]
   }
 };
+const contributing = [['Start fresh when you switch tasks','98%','/clear',98],['Review sessions active over many hours','90%','whole sessions with requests in 8 or more separate hours',90],['Check which models your subagents use','89%','share covers whole sessions, not only subagents',89],['Trim INDEX.md','22%','19k tokens per request',22]].slice(0, contribRows);
 const views = interactive ? ['claude','codex'] : [tab];
+const tabs = [['claude','Claude Code',claudeGlyph,'tone-ok'],['codex','Codex',codexGlyph,'tone-stale']];
 ---
 <div class="app-panel" data-panel aria-hidden={decorative?'true':undefined}>
-  <div class="ap-head"><img src={mark} width="30" height="30" alt="AI Usage Menu"/><div><b>AI Usage</b><small>{data[tab].foot==='Updated just now'?'Updated just now':'Updated 3h ago'}</small></div><span class="ap-tools"><Icon name="arrows-clockwise"/><Icon name="gear-six"/></span></div>
+  <div class="ap-head"><img src={mark} width="30" height="30" alt="AI Usage Menu"/><div><b>AI Usage Menu</b><small data-updated>{data[tab].updated}</small></div><span class="ap-tools"><Icon name="arrows-clockwise"/><Icon name="gear-six"/><Icon name="x"/></span></div>
   <div class="ap-tabs" role={interactive?'tablist':undefined} aria-label={interactive?'Provider':undefined}>
-    {[['claude','Claude Code',claudeGlyph],['codex','Codex',codexGlyph]].map(([key,label,glyph])=>interactive
-      ? <button type="button" role="tab" id={`${id}-tab-${key}`} aria-controls={`${id}-view-${key}`} aria-selected={key===tab?'true':'false'} tabindex={key===tab?0:-1}><span set:html={glyph}/>{label}</button>
-      : <span class:list={['tab',{on:key===tab}]}><span set:html={glyph}/>{label}</span>)}
+    {tabs.map(([key,label,glyph,dot])=>interactive
+      ? <button type="button" role="tab" id={`${id}-tab-${key}`} aria-controls={`${id}-view-${key}`} aria-selected={key===tab?'true':'false'} tabindex={key===tab?0:-1} data-updated-text={data[key].updated}><span set:html={glyph}/>{label}<i class={`dot ${dot}`}></i></button>
+      : <span class:list={['tab',{on:key===tab}]}><span set:html={glyph}/>{label}<i class={`dot ${dot}`}></i></span>)}
   </div>
-  {views.map(key=>
+  {views.map(key=>{const v=data[key];return(
     <div class="ap-view" id={interactive?`${id}-view-${key}`:undefined} role={interactive?'tabpanel':undefined} aria-labelledby={interactive?`${id}-tab-${key}`:undefined} hidden={key!==tab}>
-      <div class="ap-body">{data[key].rows.map(([name,v,reset,when])=>
-        <div class="ap-row"><Ring value={v}/><div><b>{name}</b><small>{reset}</small><small>{when}</small></div><span class="ap-left">{100-v}% left</span></div>)}</div>
-      <div class="ap-meta">{data[key].meta.map(([k,v])=><span>{k} <b>{v}</b></span>)}</div>
-      {key==='codex' && <p class="ap-foot">{data.codex.foot}</p>}
-    </div>)}
-  {contrib && <div class="ap-contrib"><header><Icon name="stack"/>What's contributing?<span>Last 24h</span></header><p>2,446 requests · 16 sessions · this Mac only</p>
-    <ul class="bars" data-bars><li style="--w:98;--d:0">Start fresh when you switch tasks<span>98%</span><i></i></li><li style="--w:90;--d:1">Review sessions active over many hours<span>90%</span><i></i></li><li style="--w:22;--d:2">Trim INDEX.md<span>22%</span><i></i></li></ul></div>}
-  {!contrib && <div style="height:14px"></div>}
+      <p class="ap-summary"><i class={`dot ${v.summary[0]}`}></i>{v.summary[1]}</p>
+      <div class="ap-body">{v.rows.map(([name,val,reset,pace,tick])=>
+        <div class="ap-row"><Ring value={val} tick={tick} stale={v.stale}/><div><b>{name}</b><small>{reset}</small>{pace && <small class:list={['pace',{hot:pace!==OK}]}>{pace}</small>}</div></div>)}</div>
+      {v.note && <p class="ap-note"><Icon name="clock"/>{v.note}</p>}
+      <div class="ap-meta">{v.meta.map(([k,m])=><span>{k} <b>{m}</b></span>)}</div>
+    </div>)})}
+  {contrib && <div class="ap-contrib"><header><Icon name="stack"/>What's contributing?<span class="seg"><span class="on">Last 24h</span><span>Last 7d</span></span></header><p class="ap-totals">2,446 requests · 16 sessions</p><p class="ap-overlap"><Icon name="info"/>Each figure is the share of this activity it applies to. They overlap, so they don't add up to 100%.</p>
+    <ul class="bars" data-bars>{contributing.map(([label,pct,sub,w],i)=><li style={`--w:${w};--d:${i}`}>{label}<span>{pct}</span><small>{sub.startsWith('/')?<code>{sub}</code>:sub}</small><i></i></li>)}</ul></div>}
+  {foot ? <div class="ap-foot"><span>From the makers of TypeFire <Icon name="arrow-up-right"/></span><span>Quit</span></div> : <div class="ap-pad"></div>}
 </div>

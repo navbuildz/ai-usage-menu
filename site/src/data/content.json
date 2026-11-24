@@ -76,18 +76,6 @@
       [
         "Free, and open source",
         "The Swift app is MIT-licensed. Its provider readers, parsers and tests document exactly how the numbers reach your screen."
-      ],
-      [
-        "What makes a Claude usage tracker useful between tasks?",
-        "A Claude usage tracker helps you answer a small, practical question before starting a large job: which window has the least room left? A long session may leave very little space for the next edit even though the weekly allowance looks comfortable. The reverse happens too. Open Claude Code usage to match a percentage to its reset time. If you want to understand why two times differ, the Claude usage limits guide walks through a session and a weekly reset on the same calendar. The Claude Code weekly limit and the Claude Opus weekly limit have separate explanations for the two kinds of weekly reading."
-      ],
-      [
-        "Claude and Codex on the same Mac",
-        "When you use more than one AI coding tool, a usage monitor has to show which tool each number belongs to. A Claude tab and a Codex tab sit next to each other, each with its own timestamp. Leave the menu bar set to the session that matters while keeping both windows visible in the Dock. On a Mac with only one connected provider, that provider supplies the readings. Open the Codex usage guide for the difference between the time of your last local activity and the time you clicked Refresh. Check ChatGPT Plus Codex limits or ChatGPT Pro Codex limits when the Codex tab shows a different plan from the one you expected."
-      ],
-      [
-        "Menu bar, Dock or both?",
-        "In the Dock, the icon can show two usage windows at once. The short upper arc represents the five-hour session and the longer arc represents the week. In Settings, choose a single number if you want fewer details, or choose two numbers to read both without opening the window. For an uncluttered desktop, leave only the menu bar enabled. Your choice of provider and window for the Dock is independent of the choices for the menu bar. If the short and long arcs are unfamiliar, start with the Claude 5 hour limit or the Codex weekly limit, depending on the selected provider."
       ]
     ],
     "sources": [
