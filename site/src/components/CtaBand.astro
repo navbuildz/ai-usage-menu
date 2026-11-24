@@ -1,9 +1,9 @@
 ---
 import Icon from './Icon.astro';
-import {dmgUrl} from '../data/shared.mjs';
+import {dmgUrl,repo} from '../data/shared.mjs';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 ---
 <section class="cta" data-reveal aria-labelledby="cta-h">
   <div class="cta-icon"><img src={mark} width="64" height="64" alt="AI Usage Menu"/><div><h2 id="cta-h">Free for your Mac. Nothing to paste.</h2><p>Claude Code and Codex limits in your menu bar and Dock, for macOS 13 or later.</p></div></div>
-  <div class="actions"><a class="btn btn-primary" href={dmgUrl} data-cta="cta-band">Download for Mac<Icon name="download-simple"/></a><a class="btn btn-ghost" href="/open-source">Read the code<Icon name="arrow-right"/></a></div>
+  <div class="actions"><a class="btn btn-primary" href={dmgUrl} data-cta="cta-band">Download for Mac<Icon name="download-simple"/></a><a class="btn btn-ghost" href={repo} data-cta="read-code">Read the code<Icon name="arrow-up-right"/></a></div>
 </section>

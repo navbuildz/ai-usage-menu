@@ -894,3 +894,10 @@ figure.dataflow{margin:0 auto}
 @media (max-width:520px){.feedback{grid-template-columns:minmax(0,1fr)}.feedback .actions{grid-column:1}}
 .autodl{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:12px;background:var(--violet-soft);border:1px solid color-mix(in srgb,var(--violet) 25%,var(--line));color:var(--ink-2);font-size:.95rem;max-width:34em}
 .autodl .ic{width:18px;height:18px;color:var(--violet);margin-top:2px}
+/* Code section: heading, a compact network note, then the cards, evenly spaced. */
+.source-section{display:grid;gap:20px}
+.source-section h2{margin-bottom:0}
+.network-statement{gap:12px;padding:12px 16px;border-radius:14px}
+.network-statement .ic-tile{width:34px;height:34px;border-radius:10px}
+.network-statement .ic-tile .ic{width:18px;height:18px}
+.network-statement p{font:600 1rem/1.45 'Inter Variable',sans-serif;letter-spacing:0}

@@ -3,7 +3,7 @@ import '../styles/aum.css';
 import HeaderNav from './HeaderNav.astro';
 import Theme from './Theme.astro';
 import Icon from './Icon.astro';
-import {base,labels,pathFor,dmgUrl} from '../data/shared.mjs';
+import {base,labels,pathFor,dmgUrl,repo} from '../data/shared.mjs';
 import darkLogo from '../../../brand/02-logos/lockups/horizontal-dark-background.svg?url';
 import lightLogo from '../../../brand/02-logos/lockups/horizontal-light-background.svg?url';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
@@ -14,7 +14,7 @@ const og=base+'/art/og-'+id+'.png';
 const cols=[
   ['Product',[[dmgUrl,'Download for Mac'],['/download','Requirements and install'],['/privacy','Privacy & Legal'],['/open-source','Open source'],['/compare','Compare trackers']]],
   ['Guides',[['/claude-usage-limits','Claude usage limits'],['/claude-code-usage','Claude Code usage'],['/codex-usage','Codex usage']]],
-  ['Project',[['/open-source#read-the-code','Read the code'],['/open-source#changelog','Changelog'],['/privacy#legal-notices','MIT license']]],
+  ['Project',[[repo,'Read the code on GitHub'],['/open-source','Open source'],['/open-source#changelog','Changelog'],['/privacy#legal-notices','MIT license']]],
 ];
 ---
 <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>{title}</title><meta name="description" content={meta}/>{!notFound && <link rel="canonical" href={canonical}/>}<link rel="icon" href="/favicon.ico" sizes="any"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192"/><link rel="apple-touch-icon" href="/apple-touch-icon.png"/><link rel="manifest" href="/site.webmanifest"/>

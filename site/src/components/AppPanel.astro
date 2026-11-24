@@ -1,7 +1,7 @@
 ---
 // The app's window, rebuilt in HTML to match the current app (handoff/screenshots/window, 2026-11-23):
 // title "AI Usage Menu", tabs with status dots, a summary line, one-line resets, a pace line,
-// rings with an elapsed tick, and the contributing card with its overlap note.
+// rings, and the contributing card with its overlap note.
 import Ring from './Ring.astro';
 import Icon from './Icon.astro';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
@@ -41,7 +41,7 @@ const tabs = [['claude','Claude Code',claudeGlyph,'tone-ok'],['codex','Codex',co
     <div class="ap-view" id={interactive?`${id}-view-${key}`:undefined} role={interactive?'tabpanel':undefined} aria-labelledby={interactive?`${id}-tab-${key}`:undefined} hidden={key!==tab}>
       <p class="ap-summary"><i class={`dot ${v.summary[0]}`}></i>{v.summary[1]}</p>
       <div class="ap-body">{v.rows.map(([name,val,reset,pace,tick])=>
-        <div class="ap-row"><Ring value={val} tick={tick} stale={v.stale}/><div><b>{name}</b><small>{reset}</small>{pace && <small class:list={['pace',{hot:pace!==OK}]}>{pace}</small>}</div></div>)}</div>
+        <div class="ap-row"><Ring value={val} stale={v.stale}/><div><b>{name}</b><small>{reset}</small>{pace && <small class:list={['pace',{hot:pace!==OK}]}>{pace}</small>}</div></div>)}</div>
       {v.note && <p class="ap-note"><Icon name="clock"/>{v.note}</p>}
       {!lean && <div class="ap-meta">{v.meta.map(([k,m])=><span>{k} <b>{m}</b></span>)}</div>}
     </div>)})}

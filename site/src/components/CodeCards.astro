@@ -26,7 +26,7 @@ const anchor=heading.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'
 ---
 <section class="source-section" id={variant==='all'?'read-the-code':anchor} aria-labelledby={anchor+'-h'}>
 <h2 id={anchor+'-h'}>{heading}</h2>
-<div class="network-statement" data-reveal><span class="ic-tile"><Icon name="wifi-slash" duo/></span><p>The app makes no network requests except a daily update check, which you can turn off.</p></div>
+<div class="network-statement" data-reveal><span class="ic-tile sm"><Icon name="wifi-slash" duo/></span><p>The app makes no network requests except a daily update check, which you can turn off.</p></div>
 <div class="source-grid" data-reveal-group>{cards.map(card=><article id={'source-'+card.id} class="source-card">
 <header><span class="ic-tile sm"><Icon name="file-code"/></span><h3>{card.title}</h3></header>
 <div class="source-path" title={card.path}>{card.path}</div>

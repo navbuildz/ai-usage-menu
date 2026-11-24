@@ -1,13 +1,11 @@
 ---
 // A usage ring as drawn in the app: mint while healthy, amber near the limit, danger near capacity,
-// grey when the reading is old. The short tick marks how much of the window has elapsed.
-const {value, size=56, stroke=5.5, tick, stale=false} = Astro.props;
+// grey when the reading is old.
+const {value, size=56, stroke=5.5, stale=false} = Astro.props;
 const r = 24 - stroke/2, c = +(2*Math.PI*r).toFixed(2);
 const tone = stale ? 'tone-stale' : value >= 90 ? 'tone-hot' : value >= 70 ? 'tone-warn' : 'tone-ok';
-const a = tick == null ? null : tick*2*Math.PI;
-const t = a == null ? null : [r-4.2, r+4.2].map(d => [+(24 + d*Math.cos(a)).toFixed(2), +(24 + d*Math.sin(a)).toFixed(2)]);
 ---
 <span class={`ring ${tone}`} data-ring={value} style={`--size:${size}px;--v:${value};--c:${c}`}>
-  <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="trk" cx="24" cy="24" r={r} fill="none" stroke-width={stroke}/><circle class="val" cx="24" cy="24" r={r} fill="none" stroke-width={stroke} stroke-linecap="round"/>{t && <line class="tick" x1={t[0][0]} y1={t[0][1]} x2={t[1][0]} y2={t[1][1]} stroke-width="1.8" stroke-linecap="round"/>}</svg>
+  <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="trk" cx="24" cy="24" r={r} fill="none" stroke-width={stroke}/><circle class="val" cx="24" cy="24" r={r} fill="none" stroke-width={stroke} stroke-linecap="round"/></svg>
   <span data-count={value}>{value}<small>%</small></span>
 </span>
