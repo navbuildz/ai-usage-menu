@@ -162,4 +162,22 @@ final class HardeningTests: XCTestCase {
         controller.update(store: store, options: options)
         XCTAssertNil(controller.rendered)
     }
+
+    // The app was one read behind: /usage prints the cached figures, then refreshes the cache.
+    func testFreshCacheOverridesPrintedSessionAndWeekly() throws {
+        let json = #"{"numStartups":3,"cachedUsageUtilization":{"fetchedAtMs":1795480178322,"accountUuid":"x","utilization":{"five_hour":{"utilization":25,"resets_at":"2026-11-24T03:10:00.253520+00:00"},"seven_day":{"utilization":80,"resets_at":"2026-11-28T15:00:00.253539+00:00"},"seven_day_opus":null,"extra_usage":{"utilization":null,"resets_at":null},"usage_scopes":[]}}}"#
+        let cache = try XCTUnwrap(ClaudeUsageCache.decode(Data(json.utf8)))
+        XCTAssertEqual(cache.session, .init(percent: 25, resetsAt: date("2026-11-24T03:10:00Z")))
+        XCTAssertEqual(cache.weekly?.percent, 80)
+        let now = date("2026-11-24T00:30:00Z")
+        let printed = ClaudeParser.parse("""
+        Current session: 17% used · resets Nov 23 at 7:09pm (America/Los_Angeles)
+        Current week (all models): 79% used · resets Nov 28 at 6:59am (America/Los_Angeles)
+        Current week (Fable): 90% used · resets Nov 28 at 6:59am (America/Los_Angeles)
+        """, now: now).limits
+        let merged = ClaudeUsageCache.apply(cache, to: printed)
+        XCTAssertEqual(merged.map(\.usedPercent), [25, 80, 90])
+        XCTAssertEqual(merged[0].resetsAt, date("2026-11-24T03:10:00Z"))
+        XCTAssertNil(ClaudeUsageCache.decode(Data(#"{"numStartups":3}"#.utf8)))
+    }
 }

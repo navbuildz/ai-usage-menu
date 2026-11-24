@@ -1,5 +1,6 @@
 // Claude Code provider: the code that touches your Claude data.
-// Reads:  nothing from disk except the claude binary's location.
+// Reads:  the claude binary's location, and one field of ~/.claude.json, cachedUsageUtilization,
+//         which Claude Code refreshes during /usage (no other field is decoded).
 // Runs:   your own `claude -p /usage` (and `claude --version` once), from
 //         ~/Library/Application Support/AI Usage Menu/claude-workdir, with no MCP servers,
 //         no user settings, hooks or plugins, and Claude Code's update check and telemetry off.
@@ -101,12 +102,18 @@ actor ClaudeCodeProvider: Provider {
     func isAvailable() async -> Bool { await resolve() != nil }
     func read() async -> ProviderSnapshot {
         guard let binary = await resolve() else { return .init(asOf: Date(), state: .notInstalled) }
+        let started = Date()
         do {
             try FileManager.default.createDirectory(at: workdir, withIntermediateDirectories: true)
             let output = try await LocalCommand.runOffPool(binary, ["-p","/usage","--output-format","json","--no-session-persistence","--strict-mcp-config","--mcp-config",#"{"mcpServers":{}}"#,"--setting-sources","project,local"], in: workdir, extraEnvironment: Self.quietEnvironment)
             struct Envelope: Decodable { let result: String }
             let body = (try? JSONDecoder().decode(Envelope.self, from: Data(output.stdout.utf8)))?.result ?? output.stdout
             var snapshot = ClaudeParser.parse(body.isEmpty ? output.stderr : body, now: Date())
+            // /usage prints Claude Code's cached figures, then refreshes the cache. Use the refreshed
+            // session and weekly numbers when this run wrote them, so the app is never one read behind.
+            if let cache = ClaudeUsageCache.read(), cache.fetchedAt >= started.addingTimeInterval(-1) {
+                snapshot.limits = ClaudeUsageCache.apply(cache, to: snapshot.limits)
+            }
             if output.status != 0, snapshot.state != .signedOut, !(snapshot.state == .nonSubscription && !body.isEmpty && output.stderr.isEmpty) {
                 return .init(asOf: Date(), state: .failed(output.stderr.isEmpty ? body : output.stderr))
             }
@@ -117,5 +124,51 @@ actor ClaudeCodeProvider: Provider {
             return snapshot
         } catch LocalCommand.Failure.timedOut { return .init(asOf: Date(), state: .timedOut) }
         catch { return .init(asOf: Date(), state: .failed(error.localizedDescription)) }
+    }
+}
+
+/// The usage figures Claude Code caches in ~/.claude.json after fetching them from Anthropic.
+/// Only the cachedUsageUtilization field is decoded; the rest of the file is never read into memory as values.
+struct ClaudeUsageCache: Equatable {
+    struct Window: Equatable { let percent: Double; let resetsAt: Date? }
+    let fetchedAt: Date
+    let session: Window?
+    let weekly: Window?
+
+    static func read(from file: URL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claude.json")) -> ClaudeUsageCache? {
+        guard let data = try? Data(contentsOf: file, options: .mappedIfSafe) else { return nil }
+        return decode(data)
+    }
+
+    static func decode(_ data: Data) -> ClaudeUsageCache? {
+        struct Raw: Decodable { let utilization: Double?; let resets_at: String? }
+        struct Utilization: Decodable { let five_hour: Raw?; let seven_day: Raw? }
+        struct Cache: Decodable { let fetchedAtMs: Double; let utilization: Utilization }
+        struct File: Decodable { let cachedUsageUtilization: Cache? }
+        guard let cache = (try? JSONDecoder().decode(File.self, from: data))?.cachedUsageUtilization else { return nil }
+        func window(_ raw: Raw?) -> Window? {
+            guard let value = raw?.utilization, (0...100).contains(value) else { return nil }
+            return Window(percent: value, resetsAt: raw?.resets_at.flatMap(date))
+        }
+        return .init(fetchedAt: Date(timeIntervalSince1970: cache.fetchedAtMs / 1000),
+                     session: window(cache.utilization.five_hour), weekly: window(cache.utilization.seven_day))
+    }
+
+    /// Accepts "2026-11-24T03:10:00.253520+00:00" (microseconds) by dropping the fraction.
+    static func date(_ text: String) -> Date? {
+        let trimmed = text.replacingOccurrences(of: #"\.\d+"#, with: "", options: .regularExpression)
+        return ISO8601DateFormatter().date(from: trimmed)
+    }
+
+    /// Replaces the session and all-models weekly figures; per-model windows keep the printed values.
+    static func apply(_ cache: ClaudeUsageCache, to limits: [LimitWindow]) -> [LimitWindow] {
+        limits.map { limit in
+            let label = limit.label.lowercased()
+            let fresh: Window? = label == "current session" ? cache.session
+                : label == "current week (all models)" ? cache.weekly : nil
+            guard let fresh else { return limit }
+            return LimitWindow(label: limit.label, usedPercent: fresh.percent, resetsAt: fresh.resetsAt ?? limit.resetsAt,
+                               windowMinutes: limit.windowMinutes, source: limit.source)
+        }
     }
 }
