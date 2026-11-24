@@ -54,7 +54,7 @@ AI Usage Menu is a free, MIT-licensed Mac app that shows your **Claude Code usag
 |  |  |
 | --- | --- |
 | 🔒 **Never touches your login tokens** | No login token, cookie, password or API key is used, stored or sent. It reads Claude Code's own `/usage` output and Codex's local session logs. Many trackers read your Keychain or a credentials file, or ask you to paste a cookie or session key, instead. |
-| 💻 **Nothing leaves your Mac** | Usage is read and shown locally. AI Usage Menu itself only checks for updates once a day, and you can turn that off. |
+| 💻 **Nothing leaves your Mac** | Usage is read and shown locally. AI Usage Menu itself only checks aiusagemenu.com for updates, when it opens and once a day, and you can turn that off. |
 | 📊 **What's contributing** | See what is eating your Claude limit: long-running sessions, subagent models and large context files, each with what to do about it. |
 | 🍩 **A live Dock icon** | A ring that fills green, then amber, then red. The upper arc is your session and the lower arc is your week. |
 | 🪙 **Zero tokens to check** | Reading usage opens the existing readout. It never sends a prompt to a model. |
@@ -126,7 +126,7 @@ Read the full walkthrough on [how AI Usage Menu reads your usage without a cooki
 </picture>
 
 - **The app has no analytics and no telemetry.** Processing happens on your Mac. (The website, aiusagemenu.com, uses Google Analytics and Cloudflare Web Analytics to count visits and downloads.)
-- **No usage network calls.** AI Usage Menu itself only checks for updates once a day, and you can turn that off.
+- **No usage network calls.** AI Usage Menu itself only checks aiusagemenu.com for updates, when it opens and once a day, and you can turn that off.
 - **Verify it yourself.** A test in this repository fails if network APIs appear anywhere outside the updater, and you can sample the running app:
 
 ```sh
@@ -177,7 +177,7 @@ The project is generated from `app/project.yml`; after changing targets or build
 - **Menu bar:** one combined item that follows the most constrained reading, or one item per provider. Show the gauge alone or add the percentage. Choose the 5-hour or weekly number.
 - **Dock:** show it or hide it, one number or two, and its own System, Light or Dark appearance. Auto keeps both arcs on the provider closest to its limit.
 - **Refresh:** every 5 minutes by default, or 2, 10, 15 or 30. Manual, wake and Codex file-change refreshes work on their own.
-- **Alerts and launch at login** are optional, and so is the daily update check.
+- **Alerts and launch at login** are optional, and so is the update check.
 
 ## Key facts
 
@@ -188,7 +188,7 @@ The project is generated from `app/project.yml`; after changing targets or build
 | **Plans** | Claude Pro, Max and Team, and ChatGPT plans for Codex. API-key accounts have no plan limits to show. |
 | **Data sources** | Claude Code’s /usage output and the usage figures it caches in ~/.claude.json; Codex’s local session logs. |
 | **Login tokens** | Never used, stored or sent. No login token, cookie, password or API key is needed. |
-| **Network calls** | None for usage readings. AI Usage Menu itself only checks for updates once a day, and you can turn that off. Claude Code itself may contact Anthropic. |
+| **Network calls** | None for usage readings. AI Usage Menu itself only checks aiusagemenu.com for updates, when it opens and once a day, and you can turn that off. Claude Code itself may contact Anthropic. |
 | **Price** | Free. |
 | **License** | MIT. |
 | **Maker** | TypeFire. |
