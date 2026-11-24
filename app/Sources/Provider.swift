@@ -25,10 +25,15 @@ struct LimitWindow {
     let windowMinutes: Int?
     let source: String
 
+    /// Usage at `time`. Once the window's reset time has passed nothing has been used in the
+    /// new window yet, so a known reading becomes 0 (Codex shows "100% left" then too).
     func percent(at time: Date) -> Double? {
-        if let resetsAt, resetsAt <= time { return nil }
+        guard let usedPercent else { return nil }
+        if hasReset(at: time) { return 0 }
         return usedPercent
     }
+
+    func hasReset(at time: Date) -> Bool { resetsAt.map { $0 <= time } ?? false }
 }
 
 struct DetailRow { let label: String; let value: String }

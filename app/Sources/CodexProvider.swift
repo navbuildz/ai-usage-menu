@@ -1,6 +1,6 @@
 // Codex provider: the code that touches your Codex data.
 // Reads:  the auth_mode field of ~/.codex/auth.json (no other field is decoded), and the last
-//         rate-limit event at the end of the newest ~/.codex/sessions rollout file.
+//         rate-limit event at the end of the most recently written ~/.codex/sessions rollout files.
 // Runs:   nothing.
 // Writes: nothing.
 // Sends:  nothing.
@@ -91,17 +91,33 @@ struct CodexProvider: Provider {
         let root = home.appendingPathComponent("sessions")
         guard FileManager.default.fileExists(atPath: root.path) else { return waiting }
         do {
-            guard let newest = try Self.newestRollout(in: root) else { return waiting }
-            if let snapshot = try Self.latest(in: newest), snapshot.state != .noLimits { return snapshot }
-            return waiting
+            let recent = try Self.recentRollouts(in: root)
+            let snapshots = try recent.compactMap { try Self.latest(in: $0) }.filter { $0.state != .noLimits }
+            return Self.merge(snapshots) ?? waiting
         } catch { return .init(asOf: Date(), state: .unreadable) }
     }
 
-    /// Finds the most recently modified rollout file without walking the whole history.
-    /// Codex stores sessions as sessions/YYYY/MM/DD/rollout-*.jsonl, so we look in the newest
-    /// date folder that has any rollout file. Older Codex versions wrote rollouts directly
-    /// into sessions/, so those are compared too.
-    static func newestRollout(in root: URL) throws -> URL? {
+    /// Several Codex sessions can run at once, and each writes the limits it last saw, so the
+    /// newest line is not always the highest reading. Within one window usage only grows, so for
+    /// each window (same label and reset time) the highest reading among the sessions wins.
+    static func merge(_ snapshots: [ProviderSnapshot]) -> ProviderSnapshot? {
+        guard var result = snapshots.max(by: { $0.asOf < $1.asOf }) else { return nil }
+        result.limits = result.limits.map { limit in
+            let peers = snapshots.flatMap(\.limits).filter { $0.label == limit.label && $0.resetsAt == limit.resetsAt }
+            guard let top = peers.compactMap(\.usedPercent).max(), top > (limit.usedPercent ?? -1) else { return limit }
+            return LimitWindow(label: limit.label, usedPercent: top, resetsAt: limit.resetsAt, windowMinutes: limit.windowMinutes, source: limit.source)
+        }
+        return result
+    }
+
+    static func newestRollout(in root: URL) throws -> URL? { try recentRollouts(in: root, count: 1).first }
+
+    /// The most recently written rollout files, newest first, without walking the whole history.
+    /// Codex stores sessions as sessions/YYYY/MM/DD/rollout-*.jsonl, filed under the day the
+    /// session STARTED, so a session that runs past midnight keeps writing into an older folder.
+    /// We look in the newest `days` date folders that have rollouts. Older Codex versions wrote
+    /// rollouts directly into sessions/, so those are compared too.
+    static func recentRollouts(in root: URL, days: Int = 7, count: Int = 6) throws -> [URL] {
         let manager = FileManager.default
         func children(_ folder: URL) throws -> [URL] {
             try manager.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
@@ -112,15 +128,18 @@ struct CodexProvider: Provider {
                 .sorted { Int($0.lastPathComponent)! > Int($1.lastPathComponent)! }
         }
         var candidates = try rollouts(in: try children(root))
+        var daysLeft = days
         search: for year in try numberedFolders(root) {
             for month in try numberedFolders(year) {
                 for day in try numberedFolders(month) {
                     let found = try rollouts(in: try children(day))
-                    if !found.isEmpty { candidates += found; break search }
+                    if !found.isEmpty { candidates += found; daysLeft -= 1 }
+                    if daysLeft == 0 { break search }
                 }
             }
         }
-        return candidates.max { $0.date < $1.date || ($0.date == $1.date && $0.url.path < $1.url.path) }?.url
+        return candidates.sorted { $0.date > $1.date || ($0.date == $1.date && $0.url.path > $1.url.path) }
+            .prefix(count).map(\.url)
     }
 
     private static func rollouts(in urls: [URL]) throws -> [(url: URL, date: Date)] {

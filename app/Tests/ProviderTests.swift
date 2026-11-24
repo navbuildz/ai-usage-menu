@@ -87,7 +87,7 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(s.limits.map(\.label),["Session","Weekly"])
         XCTAssertEqual(s.details.first?.value,"Plus")
         XCTAssertEqual(s.details.count,1)
-        XCTAssertNil(s.limits.first?.percent(at: Date(timeIntervalSince1970:1795345015)))
+        XCTAssertEqual(s.limits.first?.percent(at: Date(timeIntervalSince1970:1795345015)),0)
         XCTAssertEqual(s.limits.last?.percent(at: now),14)
         let variant = text.replacingOccurrences(of: "300,", with: "240,").replacingOccurrences(of: "0.0,", with: "null,").replacingOccurrences(of: "\"rate_limit_reached_type\":null", with: "\"rate_limit_reached_type\":\"weekly\"").replacingOccurrences(of: "\"unlimited\":false",with:"\"unlimited\":true")
         let reached = try XCTUnwrap(CodexParser.parse(Data(variant.utf8)))

@@ -242,8 +242,8 @@
         "A Codex usage limit can be missing if the client has not written a usable rate-limit record for that ChatGPT account. Open Codex with the intended sign-in, then check the app after ordinary activity. Signing in with an API key gives a different result because there is no subscription window."
       ],
       [
-        "Why is my old reading gray?",
-        "The app marks stale data so a historical figure cannot masquerade as a current allowance. Open the provider tab and inspect the last activity time. If the account view has a newer reading, use that for an immediate decision while waiting for an updated local event."
+        "Why does Codex say the numbers are from my last session?",
+        "The app reads Codex limits from the logs Codex writes on your Mac, so they change when you use Codex. Between sessions the numbers still hold, because usage only grows while Codex runs. A window that passes its reset time reads 0% until your next session starts a new one. Codex use on another computer shows up after your next Codex session on this Mac."
       ],
       [
         "Can I change which number the Dock shows?",

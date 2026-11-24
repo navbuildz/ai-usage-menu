@@ -167,7 +167,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             let description = (named?.displayName ?? "AI Usage Menu") + ", " + (visual.usageDescription ?? (value.percent.map { $0.compactUsage + " percent used" } ?? unavailable))
             let shownID = provider?.id ?? (value.percent != nil ? store.enabled.first { $0.glyph == { if case let .value(_, g) = value { return g }; return "" }() }?.id : nil)
             let stale = shownID.flatMap { id in store.snapshots[id].map { $0.isStale(providerID: id, at: .now) } } ?? false
-            button.alphaValue = stale ? 0.55 : 1
             let staleNote = stale ? ", from the last Codex session" : ""
             button.setAccessibilityLabel(description + staleNote)
             button.toolTip = description + staleNote

@@ -271,10 +271,10 @@
     "Update available: %@" : {
 
     },
-    "Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, once a day, and you can turn that off." : {
+    "Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, when it opens and once a day, and you can turn that off." : {
 
     },
-    "Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself only checks for updates once a day." : {
+    "Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself only checks for updates, when it opens and once a day." : {
 
     },
     "Use Auto" : {

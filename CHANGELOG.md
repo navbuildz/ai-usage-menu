@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.3 | 2026-11-23
+
+- Codex limits now match what Codex shows, even when a Codex session started the day before.
+- When a Codex window resets, it shows 0% used instead of a dash.
+
 ## 1.0.2 | 2026-11-23
 
 - New versions now show up as soon as you open the app, not only once a day.

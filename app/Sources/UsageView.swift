@@ -82,7 +82,7 @@ enum Pace: Equatable {
     }
 
     static func elapsedFraction(_ limit: LimitWindow, at now: Date) -> Double? {
-        guard let reset = limit.resetsAt, let minutes = limit.lengthMinutes else { return nil }
+        guard let reset = limit.resetsAt, reset > now, let minutes = limit.lengthMinutes else { return nil }
         let length = Double(minutes * 60)
         return min(1, max(0, (length - reset.timeIntervalSince(now)) / length))
     }
@@ -193,7 +193,7 @@ struct UsageView: View {
         guard let snapshot = store.snapshots[id] else { return Color("textSecondary").opacity(0.4) }
         switch snapshot.state {
         case .ready, .limitReached:
-            return snapshot.isStale(providerID: id, at: now) ? Color("textSecondary") : Color("mint")
+            return Color("mint")
         case .failed, .timedOut, .unreadable, .unknownFormat: return Color("danger")
         default: return Color("textSecondary").opacity(0.4)
         }
@@ -309,12 +309,13 @@ private struct SummaryLine: View {
     let thresholds: Thresholds
     var body: some View {
         let top = limits.compactMap { limit in limit.percent(at: now).map { (limit, $0) } }.max { $0.1 < $1.1 }
-        if case .limitReached = state {
+        // A limit hit in a window that has reset since the reading is no longer reached.
+        if case .limitReached = state, !limits.contains(where: { $0.hasReset(at: now) }) {
             Label("Limit reached", systemImage: "exclamationmark.octagon.fill").font(.headline).foregroundStyle(Color("danger"))
         } else if let (limit, percent) = top {
-            let reset = limit.resetsAt.map { " · resets in " + countdown($0, now) } ?? ""
+            let reset = limit.resetsAt.flatMap { $0 > now ? " · resets in " + countdown($0, now) : nil } ?? ""
             HStack(spacing: 6) {
-                Circle().fill(stale ? Color("textSecondary") : Color(nsColor: thresholds.color(percent))).frame(width: 8, height: 8)
+                Circle().fill(Color(nsColor: thresholds.color(percent))).frame(width: 8, height: 8)
                 Text("\(limit.title) \(percent.compactUsage)% used" + reset).font(.subheadline.weight(.semibold))
             }
             .accessibilityElement(children: .combine)
@@ -352,12 +353,14 @@ private struct LimitRow: View {
 
     var body: some View {
         let percent = limit.percent(at: now)
-        let tint = stale ? Color("textSecondary") : (percent.map { Color(nsColor: thresholds.color($0, sweep: true)) } ?? Color("textSecondary"))
+        // A reading from an earlier Codex session keeps its colors: within a window usage only
+        // changes when Codex is used, so the numbers still hold (the note under the rows says so).
+        let tint = percent.map { Color(nsColor: thresholds.color($0, sweep: true)) } ?? Color("textSecondary")
         let fraction = min(1, max(0, (percent ?? 0) / 100))
         let elapsed = Pace.elapsedFraction(limit, at: now)
         let pace = stale ? nil : Pace.evaluate(limit, at: now)
         let reset: String = limit.resetsAt.map { date in
-            date <= now ? "Reset since the last read" : "Resets in " + countdown(date, now) + " · " + resetClock(date, now)
+            date <= now ? "Reset. The next window starts when you use \(provider)." : "Resets in " + countdown(date, now) + " · " + resetClock(date, now)
         } ?? "Reset time unavailable"
         HStack(spacing: 14) {
             ZStack {
@@ -374,7 +377,7 @@ private struct LimitRow: View {
                 Text(percent.map { $0.compactUsage + "%" } ?? "–")
                     .font(.system(size: 16, weight: .bold, design: .rounded)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.75).padding(.horizontal, 5)
-            }.frame(width: 52, height: 52).opacity(stale ? 0.6 : 1)
+            }.frame(width: 52, height: 52)
             VStack(alignment: .leading, spacing: 3) {
                 Text(limit.title).font(.headline)
                 Text(reset).font(.caption).foregroundStyle(Color("textSecondary"))

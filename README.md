@@ -91,7 +91,7 @@ Inspect local Claude Code activity over the last 24 hours or 7 days: sessions ac
 
 ### Claude Code and Codex, side by side
 
-Switch provider tabs to see each one's limits, plan and reset times. Each reading shows a pace line ("At this pace, full in about 18h 6m" or "On track for this window"), and an old Codex reading turns gray so a stale number never passes for a current one.
+Switch provider tabs to see each one's limits, plan and reset times. Each reading shows a pace line ("At this pace, full in about 18h 6m" or "On track for this window"), and a Codex reading says which session it came from. A window that has reset since then reads 0%.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/providers-dark.png">

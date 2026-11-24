@@ -215,10 +215,53 @@ final class HardeningTests: XCTestCase {
         var expired = ProviderSnapshot(asOf: now.addingTimeInterval(-7200), state: .ready)
         expired.limits = [.init(label: "Session", usedPercent: 92, resetsAt: now.addingTimeInterval(-60), windowMinutes: 300, source: "c")]
         let providers: [any Provider] = [CodexProvider()]
-        XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": expired], window: .session, at: now), .absent)
+        // A window that has reset since the reading shows 0%, never "!" (Codex shows "100% left").
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": expired], window: .session, at: now), .value(0, "provider-codex"))
         XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": .init(asOf: now, state: .noSessions)], at: now), .absent)
         XCTAssertEqual(Indicator.select(providers: providers, snapshots: ["codex": .init(asOf: now, state: .timedOut)], at: now), .warning)
         var options = DisplayOptions(); options.dockProvider = "codex"
-        XCTAssertEqual(DockSnapshot.resolve(providers: providers, snapshots: ["codex": expired], options: options, now: now).indicator, .absent)
+        XCTAssertEqual(DockSnapshot.resolve(providers: providers, snapshots: ["codex": expired], options: options, now: now).indicator, .value(0, "provider-codex"))
+    }
+
+    // [2026-11-23 Nav] A window whose reset time has passed shows 0% used, not "-".
+    func testPassedResetReadsZero() {
+        let now = date("2026-11-24T06:44:00Z")
+        let session = LimitWindow(label: "Session", usedPercent: 99, resetsAt: now.addingTimeInterval(-3600), windowMinutes: 300, source: "Last Codex activity")
+        let weekly = LimitWindow(label: "Weekly", usedPercent: 16, resetsAt: now.addingTimeInterval(6 * 86400), windowMinutes: 10080, source: "Last Codex activity")
+        XCTAssertEqual(session.percent(at: now), 0)
+        XCTAssertTrue(session.hasReset(at: now))
+        XCTAssertNil(Pace.elapsedFraction(session, at: now))
+        XCTAssertEqual(weekly.percent(at: now), 16)
+        XCTAssertNil(LimitWindow(label: "Session", usedPercent: nil, resetsAt: now.addingTimeInterval(-60), windowMinutes: 300, source: "").percent(at: now))
+    }
+
+    private func codexLine(_ timestamp: String, session: Double, weekly: Double, limitID: String = "codex") -> String {
+        "{\"timestamp\":\"\(timestamp)\",\"type\":\"event_msg\",\"payload\":{\"type\":\"token_count\",\"rate_limits\":{\"limit_id\":\"\(limitID)\",\"primary\":{\"used_percent\":\(session),\"window_minutes\":300,\"resets_at\":1795493629},\"secondary\":{\"used_percent\":\(weekly),\"window_minutes\":10080,\"resets_at\":1796080429},\"plan_type\":\"plus\"}}}\n"
+    }
+
+    // [2026-11-23 Nav] A session started yesterday keeps writing into yesterday's folder, and
+    // parallel sessions each log the limits they last saw: the highest reading in a window wins.
+    func testCodexReadsYesterdaysLiveSessionAndTakesTheHighestReading() async throws {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: home) }
+        let manager = FileManager.default
+        let yesterday = home.appendingPathComponent("sessions/2026/11/22"), today = home.appendingPathComponent("sessions/2026/11/23")
+        try manager.createDirectory(at: yesterday, withIntermediateDirectories: true)
+        try manager.createDirectory(at: today, withIntermediateDirectories: true)
+        let live = yesterday.appendingPathComponent("rollout-live.jsonl")
+        let other = today.appendingPathComponent("rollout-other.jsonl")
+        let premiumTail = "{\"timestamp\":\"2026-11-23T23:38:50.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"token_count\",\"rate_limits\":{\"limit_id\":\"premium\",\"primary\":null,\"secondary\":null,\"plan_type\":\"plus\"}}}\n"
+        try (codexLine("2026-11-23T23:38:26.159Z", session: 99, weekly: 16) + premiumTail).write(to: live, atomically: true, encoding: .utf8)
+        try (codexLine("2026-11-23T23:38:49.622Z", session: 92, weekly: 14) + premiumTail).write(to: other, atomically: true, encoding: .utf8)
+        try manager.setAttributes([.modificationDate: Date(timeIntervalSinceNow: -120)], ofItemAtPath: other.path)
+        XCTAssertEqual(try CodexProvider.newestRollout(in: home.appendingPathComponent("sessions"))?.lastPathComponent, "rollout-live.jsonl")
+        // Make today's file the newest written: the merge must still report yesterday's higher numbers.
+        try manager.setAttributes([.modificationDate: Date()], ofItemAtPath: other.path)
+        try manager.setAttributes([.modificationDate: Date(timeIntervalSinceNow: -120)], ofItemAtPath: live.path)
+        let snapshot = await CodexProvider(home: home).read()
+        XCTAssertEqual(snapshot.state, .ready)
+        XCTAssertEqual(snapshot.limits.map(\.usedPercent), [99, 16])
+        let afterReset = Date(timeIntervalSince1970: 1795493629 + 60)
+        XCTAssertEqual(snapshot.limits.map { $0.percent(at: afterReset) }, [0, 16])
     }
 }
