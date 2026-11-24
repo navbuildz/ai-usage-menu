@@ -73,6 +73,34 @@
       new IntersectionObserver(([e]) => { if (e.isIntersecting) run(); else clearInterval(timer); }).observe(root);
     });
 
+
+    // Illustrations follow the pointer (as on the AI Search Analyzer hero): a gentle 3D tilt, a glare
+    // under the pointer, and floating callouts drifting at another depth. Mouse and pen only.
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches && !reduce) {
+      const CARD = '.app-panel, .reset-timeline, .dataflow, .filecard, .spec, .welcome, .activity-card, .menubar-demo, .dock-row, .checklist, .term';
+      $$('.stage, .show, [data-tilt]').forEach(zone => {
+        if (zone.closest('[data-tilt-done]')) return;
+        zone.setAttribute('data-tilt-done', '');
+        const cards = $$(CARD, zone).filter(c => !c.parentElement.closest(CARD));
+        if (!cards.length) return;
+        zone.classList.add('tilt');
+        cards.forEach(c => { c.classList.add('tilt-card'); if (!c.querySelector(':scope > .glare')) { const g = document.createElement('span'); g.className = 'glare'; g.setAttribute('aria-hidden', 'true'); c.appendChild(g); } });
+        let raf = 0;
+        zone.addEventListener('pointermove', e => {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            const r = cards[0].getBoundingClientRect();
+            const x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+            const y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+            zone.style.setProperty('--rx', x.toFixed(3)); zone.style.setProperty('--ry', y.toFixed(3));
+            cards.forEach(c => { const cr = c.getBoundingClientRect(); c.style.setProperty('--gx', ((e.clientX - cr.left) / cr.width * 100).toFixed(1) + '%'); c.style.setProperty('--gy', ((e.clientY - cr.top) / cr.height * 100).toFixed(1) + '%'); });
+            zone.classList.add('live');
+          });
+        });
+        zone.addEventListener('pointerleave', () => { cancelAnimationFrame(raf); zone.classList.remove('live'); zone.style.setProperty('--rx', '0'); zone.style.setProperty('--ry', '0'); });
+      });
+    }
+
     // Reading pages: highlight the current section in the contents.
     const toc = $$('.toc nav a');
     if (toc.length) {

@@ -821,3 +821,25 @@ figure.dataflow{margin:0 auto}
 .ap-contrib header>span.seg span{padding:3px 7px;border-radius:999px;color:var(--p-muted)}
 .ap-contrib header>span.seg span.on{background:#7c5cff;color:#fff}
 .mb-gauge svg{width:16px;height:13px}
+
+/* ---------- Pointer-reactive illustrations ---------- */
+.tilt{--rx:0;--ry:0;perspective:1100px}
+.tilt .tilt-card{position:relative;transform:rotateX(calc(var(--ry) * -6deg)) rotateY(calc(var(--rx) * 8deg));transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
+.tilt.live .tilt-card{transition:transform .12s linear,box-shadow .3s var(--ease)}
+.tilt.live .tilt-card:is(.app-panel,.reset-timeline,.dataflow,.filecard,.spec,.welcome,.activity-card,.menubar-demo,.checklist,.term){box-shadow:calc(var(--rx) * -18px) calc(18px + var(--ry) * -14px) 50px -18px #261e7859,var(--shadow-3)}
+.tilt-card>.glare{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .4s var(--ease);background:radial-gradient(320px circle at var(--gx,50%) var(--gy,0%),#7c5cff22,#7c5cff0a 45%,transparent 70%)}
+.tilt.live .tilt-card>.glare{opacity:1}
+.dock-row.tilt-card>.glare,.checklist.tilt-card>.glare{display:none}
+.tilt .chip{translate:calc(var(--rx) * -20px) calc(var(--ry) * -14px);transition:translate .6s var(--ease)}
+.tilt .dock-float{translate:calc(var(--rx) * 24px) calc(var(--ry) * 18px);transition:translate .6s var(--ease)}
+.tilt.live .chip,.tilt.live .dock-float{transition:translate .2s linear}
+.band .flow.tilt .app-panel{translate:calc(var(--rx) * 14px) calc(var(--ry) * 10px)}
+/* Hover detail inside the illustrations */
+.ap-row,.bars li,.checklist li,.spec-row,.file{transition:background-color .2s var(--ease),transform .25s var(--spring)}
+.ap-row:hover{background:color-mix(in srgb,var(--violet) 6%,transparent)}
+.bars li:hover,.checklist li:hover,.file:hover{transform:translateX(4px)}
+.spec-row:hover,.file:hover{background:color-mix(in srgb,var(--violet) 5%,transparent)}
+.dock-row figure>svg,.dock-float svg{transition:transform .35s var(--spring)}
+.dock-row figure:hover>svg{transform:translateY(-4px) scale(1.05) rotate(-3deg)}
+.ring{transition:transform .3s var(--spring)}
+.ap-row:hover .ring{transform:scale(1.06) rotate(-4deg)}

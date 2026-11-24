@@ -19,7 +19,7 @@ const captions = {
 };
 ---
 <figure class="figure" data-reveal>
-  {kind==='menubar' ? <MenuBarDemo/> : kind==='terminal' ? <div class="band band-inline"><TerminalFlow/></div> : <div class="show">
+  {kind==='menubar' ? <div data-tilt><MenuBarDemo/></div> : kind==='terminal' ? <div class="band band-inline"><TerminalFlow/></div> : <div class="show">
     {kind==='activity' && <ActivityCard/>}
     {kind==='checklist' && <Checklist/>}
     {kind==='codex' && <div class="pair-visual"><AppPanel tab="codex" decorative/><ResetTimeline/></div>}
