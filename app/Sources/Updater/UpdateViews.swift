@@ -21,20 +21,22 @@ struct UpdateWindowView: View {
                          ? (ready ? "It's downloaded and ready. Updating takes a few seconds and reopens the app." : "Click Update to download and install it.")
                          : "You're up to date. Here's what changed.")
                         .font(.callout).foregroundStyle(Color("textSecondary"))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             if !notes.isEmpty {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 9) {
-                        ForEach(notes.indices, id: \.self) { index in
-                            HStack(alignment: .firstTextBaseline, spacing: 9) {
-                                Circle().fill(Color("violet")).frame(width: 6, height: 6).alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
-                                Text(notes[index]).fixedSize(horizontal: false, vertical: true)
-                            }
+                // A plain list sized to its content; it scrolls only past eight notes.
+                let list = VStack(alignment: .leading, spacing: 9) {
+                    ForEach(notes.indices, id: \.self) { index in
+                        HStack(alignment: .firstTextBaseline, spacing: 9) {
+                            Circle().fill(Color("violet")).frame(width: 6, height: 6).alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
+                            Text(notes[index]).fixedSize(horizontal: false, vertical: true)
                         }
-                    }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                    }
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
+                Group {
+                    if notes.count > 8 { ScrollView { list }.frame(height: 240) } else { list }
                 }
-                .frame(maxHeight: 220)
                 .background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
             }
             HStack {

@@ -63,6 +63,23 @@ fi
 rm -f "$zip"
 ditto -c -k --keepParent "$app" "$zip"
 
+# The website's download: a DMG under a stable name, so the site can always link
+# https://github.com/$repo/releases/latest/download/AIUsageMenu.dmg
+dmg="$out/AIUsageMenu.dmg"
+rm -f "$dmg"
+staging="$out/dmg-staging"
+rm -rf "$staging"; mkdir -p "$staging"
+ditto "$app" "$staging/AI Usage Menu.app"
+ln -s /Applications "$staging/Applications"
+hdiutil create -volname "AI Usage Menu" -srcfolder "$staging" -ov -format UDZO "$dmg" >/dev/null
+rm -rf "$staging"
+codesign --force --timestamp --sign "Developer ID Application: BaseThread LLC ($team)" "$dmg"
+if [ "$mode" != "--local-feed" ]; then
+  xcrun notarytool submit "$dmg" --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$team" --wait
+  xcrun stapler staple "$dmg"
+fi
+echo "DMG: $(du -h "$dmg" | cut -f1) ($(stat -f%z "$dmg") bytes)"
+
 # 4. Release notes page and the signed appcast (key from the Keychain, account ai.aiusagemenu.app).
 python3 -I - "$notes" "$out/AIUsageMenu-$version.html" <<'PY'
 import html, sys
@@ -81,6 +98,6 @@ echo "Packaged $version (build $build_number) in $out"
 # 5. Publish: a GitHub release holding the app and the feed. aiusagemenu.com/appcast.xml forwards to
 #    https://github.com/$repo/releases/latest/download/appcast.xml, so every copy finds it.
 if [ "$mode" = "--publish" ]; then
-  gh release create "v$version" "$zip" "$out/appcast.xml" --repo "$repo" --title "AI Usage Menu $version" --notes-file "$notes"
+  gh release create "v$version" "$zip" "$dmg" "$out/appcast.xml" --repo "$repo" --title "AI Usage Menu $version" --notes-file "$notes"
   echo "Published v$version to https://github.com/$repo/releases/tag/v$version"
 fi
