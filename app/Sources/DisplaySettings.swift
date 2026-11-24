@@ -85,7 +85,7 @@ struct DisplaySettings: View {
                             UpdateCard(updates: services.updates) { services.showUpdate?() }
                             VStack(alignment: .leading, spacing: 8) {
                                 Label("Privacy", systemImage: "lock").font(.headline)
-                                Text("Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, once a day, and you can turn that off.").fixedSize(horizontal: false, vertical: true)
+                                Text("Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, when it opens and once a day, and you can turn that off.").fixedSize(horizontal: false, vertical: true)
                             }.padding(14).background(Color("surface"), in: RoundedRectangle(cornerRadius: 12))
                             Link(destination: URL(string: "https://typefire.app")!) {
                                 HStack {

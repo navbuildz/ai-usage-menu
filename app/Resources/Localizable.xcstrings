@@ -55,6 +55,9 @@
     "AI Usage Menu" : {
 
     },
+    "AI Usage Menu %@ is available" : {
+
+    },
     "AI Usage Menu includes Sparkle (sparkle-project.org), used only for update checks you turn on." : {
 
     },
@@ -67,7 +70,10 @@
     "Appearance" : {
 
     },
-    "Auto" : {
+    "Ask a question" : {
+
+    },
+    "Auto (most used)" : {
 
     },
     "Back" : {
@@ -80,6 +86,9 @@
 
     },
     "Check for Updates…" : {
+
+    },
+    "Click Update to download and install it." : {
 
     },
     "Continue" : {
@@ -97,19 +106,43 @@
     "Dock" : {
 
     },
+    "Dock numbers" : {
+
+    },
     "Dock preview" : {
+
+    },
+    "Dock provider" : {
+
+    },
+    "Dock window" : {
 
     },
     "Done" : {
 
     },
+    "Downloaded and ready to install." : {
+
+    },
     "Each figure is the share of this activity it applies to. They overlap, so they don't add up to 100%." : {
+
+    },
+    "Feedback" : {
+
+    },
+    "Found a bug or want something new? Tell us on GitHub." : {
 
     },
     "From the makers of TypeFire" : {
 
     },
     "From your last Codex session %@. Numbers update when you use Codex again." : {
+
+    },
+    "It's downloaded and ready. Updating takes a few seconds and reopens the app." : {
+
+    },
+    "Later" : {
 
     },
     "Limit reached" : {
@@ -127,10 +160,22 @@
     "Menu bar" : {
 
     },
+    "Menu bar numbers" : {
+
+    },
     "Menu bar preview" : {
 
     },
-    "Numbers" : {
+    "Menu bar provider" : {
+
+    },
+    "Menu bar window" : {
+
+    },
+    "Off" : {
+
+    },
+    "On" : {
 
     },
     "One" : {
@@ -145,9 +190,6 @@
     "Open Settings" : {
 
     },
-    "Preference saved. Checks will start in a release configured for updates." : {
-
-    },
     "Privacy" : {
 
     },
@@ -160,10 +202,22 @@
     "Reading usage…" : {
 
     },
+    "Ready to download." : {
+
+    },
     "Refresh frequency" : {
 
     },
+    "Report a bug" : {
+
+    },
+    "Request a feature" : {
+
+    },
     "Reset alerts" : {
+
+    },
+    "See what's new" : {
 
     },
     "See your Claude Code and Codex limits in the menu bar and Dock, with the time each one resets." : {
@@ -199,13 +253,28 @@
     "Two" : {
 
     },
-    "Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu connects only for update checks you choose." : {
+    "Up to date. Last checked %@." : {
 
     },
-    "Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself connects only for updates you choose." : {
+    "Update" : {
 
     },
-    "Usage window" : {
+    "Update and Relaunch" : {
+
+    },
+    "Update available" : {
+
+    },
+    "Update available, version %@. See what's new." : {
+
+    },
+    "Update available: %@" : {
+
+    },
+    "Usage is processed on this Mac. Claude Code may contact Anthropic. AI Usage Menu itself only checks aiusagemenu.com for updates, once a day, and you can turn that off." : {
+
+    },
+    "Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself only checks for updates once a day." : {
 
     },
     "Use Auto" : {
@@ -214,13 +283,22 @@
     "Use different alert levels" : {
 
     },
+    "Version %@ is available" : {
+
+    },
     "Weekly" : {
 
     },
     "What's contributing?" : {
 
     },
+    "What's new in AI Usage Menu %@" : {
+
+    },
     "You can turn providers on or off later in Settings." : {
+
+    },
+    "You're up to date. Here's what changed." : {
 
     }
   },

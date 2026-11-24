@@ -8,7 +8,7 @@ struct ServiceChoices: View {
         choice("Usage notifications", "Get a local alert when a usage window reaches a threshold.", services.alerts, services.setAlerts)
             .disabled(services.requestingAlerts)
         if !services.alertsNote.isEmpty { notice(services.alertsNote, services.showNotificationSettings ? "Open Notifications" : nil, services.openNotificationSettings) }
-        choice("Automatic updates", "Check aiusagemenu.com once a day and download new versions in the background. You choose when to install.", services.automatic, services.setAutomatic)
+        choice("Automatic updates", "Check aiusagemenu.com when the app opens and once a day, and download new versions in the background. You choose when to install.", services.automatic, services.setAutomatic)
     }
     private func notice(_ text: String, _ actionTitle: String?, _ action: @escaping () -> Void) -> some View {
         HStack(alignment: .top, spacing: 8) {
@@ -74,7 +74,7 @@ struct Onboarding: View {
                 }
             }
             Label {
-                Text("Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself only checks for updates once a day.")
+                Text("Usage stays on your Mac. No cookies or API keys. Claude Code may contact Anthropic when it reads usage; AI Usage Menu itself only checks for updates, when it opens and once a day.")
                     .font(.callout).foregroundStyle(Color("textSecondary")).fixedSize(horizontal: false, vertical: true)
             } icon: { Image(systemName: "lock.shield").foregroundStyle(Color("mint")) }
         }

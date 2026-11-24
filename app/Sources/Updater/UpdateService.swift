@@ -1,7 +1,7 @@
 import AppKit
 import Sparkle
 
-/// Updates, TypeFire style: a quiet check once a day, the update downloads in the background, then
+/// Updates, TypeFire style: a quiet check at launch and once a day, the update downloads in the background, then
 /// the app shows a notification, a banner and a red dot, and one click installs and relaunches.
 /// This is the only code in the app that uses the network (the network test enforces that).
 @MainActor
