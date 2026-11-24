@@ -59,10 +59,13 @@ final class SoakTests: XCTestCase {
         }
 
         for _ in 0..<200 { await cycle() }   // warm up caches
-        let start = footprintMB()
-        for _ in 0..<2016 { await cycle() }
+        // Compare the two halves of a simulated week. A leak grows steadily in both halves; one-off
+        // caches (or memory left by earlier tests in this process) do not grow in the second half.
+        for _ in 0..<1008 { await cycle() }
+        let midweek = footprintMB()
+        for _ in 0..<1008 { await cycle() }
         let end = footprintMB()
-        print("Soak: footprint \(String(format: "%.1f", start)) MB after warm-up, \(String(format: "%.1f", end)) MB after 2,016 refreshes")
-        XCTAssertLessThan(end - start, 8, "memory grew by \(end - start) MB over a simulated week")
+        print("Soak: footprint \(String(format: "%.1f", midweek)) MB at midweek, \(String(format: "%.1f", end)) MB after 2,016 refreshes")
+        XCTAssertLessThan(end - midweek, 4, "memory grew by \(end - midweek) MB over the second half of a simulated week")
     }
 }
