@@ -539,7 +539,7 @@
     "title": "How AI Usage Menu Works: No Cookie, No Key | Privacy",
     "meta": "Check Claude usage without cookie access or a pasted key. See which files AI Usage Menu reads on your Mac, when connections occur and how to verify a refresh.",
     "h1": "Nothing to paste. Nothing leaves your Mac.",
-    "answer": "AI Usage Menu runs Claude Code's own /usage command and reads Codex's own session logs on your Mac. It never asks for a cookie, password or API key, reads no browser data, has no analytics, and makes no network connections of its own; the only optional connection is an update check you turn on.",
+    "answer": "AI Usage Menu runs Claude Code's own /usage command and reads Codex's own session logs on your Mac. It never asks for a cookie, password or API key, reads no browser data and has no analytics. AI Usage Menu itself only checks for updates once a day, and you can turn that off.",
     "primary": "claude usage without cookie",
     "faqs": [],
     "steps": [],
@@ -558,7 +558,7 @@
       ],
       [
         "What Claude Code itself does",
-        "Claude Code may contact Anthropic when it retrieves subscription usage. That request belongs to Claude Code. Optional app update checks contact the update service."
+        "Claude Code may contact Anthropic when it retrieves subscription usage. That request belongs to Claude Code. AI Usage Menu itself only checks for updates once a day, and you can turn that off."
       ],
       [
         "Privacy policy",
@@ -725,7 +725,7 @@
       ],
       [
         "First run",
-        "Open the app, review the detected providers and choose where your usage should appear. Launch at login, alerts and update checks are optional."
+        "Open the app, review the detected providers and choose where your usage should appear. Launch at login and alerts are optional, and you can turn off the daily update check."
       ],
       [
         "What do I need to track Claude usage on a Mac?",

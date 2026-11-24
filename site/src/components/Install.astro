@@ -4,7 +4,7 @@ import {repo} from '../data/shared.mjs';
 import Icon from './Icon.astro';
 const {variant='install'}=Astro.props;
 // Written for release day: the DMG is signed and notarized and the repository is public.
-const dmg=config.dmg||repo+'/releases/latest';
+const dmg=config.dmg||repo+'/releases/latest/download/AIUsageMenu.dmg';
 const options=variant==='verify'?[
  {id:'process',label:'App sockets',icon:'plug',command:'pid=$(pgrep -x "AI Usage Menu" | head -n 1)\nlsof -nP -a -i -p "$pid"',note:'Open AI Usage Menu first. This takes a point-in-time sample of connections owned by the app process.'},
  {id:'signature',label:'Signature',icon:'seal-check',command:'codesign --verify --deep --strict "/Applications/AI Usage Menu.app"',note:'After installing the released app, run this to verify its code signature.'}

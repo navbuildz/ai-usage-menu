@@ -884,3 +884,7 @@ figure.dataflow{margin:0 auto}
   .compare th,.compare td{padding:13px 7px}
   .compare th:first-child,.compare td:first-child{padding-left:14px}
 }
+.band .flow,.band-inline .flow{min-height:560px}
+/* Menu bar glyph: one lit bar when healthy, two when nearing the limit, three near capacity. */
+.mb-gauge .g-bar{fill:color-mix(in srgb,currentColor 28%,transparent)}
+.mb-gauge.tone-ok .b1,.mb-gauge.tone-warn .b1,.mb-gauge.tone-warn .b2,.mb-gauge.tone-hot .g-bar{fill:var(--tone)}
