@@ -677,3 +677,4 @@ html[data-theme=dark] .band,html[data-theme=dark] .cta{background:#11142e;border
 .welcome li .ic{width:18px;height:18px;color:var(--violet);margin-top:2px}
 .welcome .btn{justify-self:end;pointer-events:none}
 figure.dataflow{margin:0 auto}
+.hero .lead{text-wrap:balance}
