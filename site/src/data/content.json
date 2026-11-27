@@ -48,7 +48,7 @@
       ],
       [
         "Can the Claude usage bar show both windows?",
-        "The Claude usage bar can display two numbers for the same provider. The top value is session usage and the bottom value is weekly usage. The popup puts the window names and reset times next to those figures."
+        "The Claude usage bar can display two numbers for the same provider. The top value is session usage and the bottom value is weekly usage, for all models or, if your plan has one, a single model's weekly limit such as Fable. The popup puts the window names and reset times next to those figures."
       ],
       [
         "Can I see Claude and Codex usage at the same time?",
