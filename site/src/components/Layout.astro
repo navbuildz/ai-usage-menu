@@ -8,6 +8,7 @@ import darkLogo from '../../../brand/02-logos/lockups/horizontal-dark-background
 import lightLogo from '../../../brand/02-logos/lockups/horizontal-light-background.svg?url';
 import mark from '../../../brand/02-logos/mark/mark-gradient.svg?url';
 import ProviderLogo from './ProviderLogo.astro';
+import {BADGES} from '../data/badges.mjs';
 const {id,title,meta,graph=[],art,notFound=false}=Astro.props;
 const canonical=base+(notFound?'/404':pathFor(id));
 const og=base+'/art/og-'+id+'.jpg';
@@ -44,6 +45,7 @@ const cols=[
     <div class="fb-glyphs" role="group" aria-label="Supported tools"><span class="glyph"><ProviderLogo id="claude" label/></span><span class="glyph"><ProviderLogo id="codex" label/></span></div>
     <Theme/>
     <p class="legal"><span>AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</span><span>Free and MIT licensed.</span></p>
+    {BADGES.length>0 && <details class="foot-badges"><summary>Featured on</summary><div class="foot-badges-row">{BADGES.map(b=><a href={b.href} target="_blank" rel="noopener">{b.img?<img src={b.img} alt={b.name} width={b.width} height={b.height} loading="lazy"/>:b.name}</a>)}</div></details>}
   </div></div>
 </footer>
 </body></html>

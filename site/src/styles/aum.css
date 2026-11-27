@@ -371,6 +371,13 @@ footer.site{margin-top:clamp(28px,4vw,48px);border-top:1px solid var(--line);bac
 .appearance button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
 .legal{grid-column:1/-1;margin:0;padding-top:16px;border-top:1px dashed var(--line);color:var(--faint);font-size:.82rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px}
 .legal a{color:var(--muted)}
+.foot-badges{grid-column:1/-1;margin:0;color:var(--faint);font-size:.78rem}
+.foot-badges summary{cursor:pointer;width:max-content;list-style-position:inside}
+.foot-badges summary:hover{color:var(--muted)}
+.foot-badges-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-top:10px}
+.foot-badges-row a{color:var(--muted);opacity:.8;transition:opacity .2s var(--ease)}
+.foot-badges-row a:hover{opacity:1}
+.foot-badges-row img{display:block;height:40px;width:auto}
 
 /* ---------- Reading pages (guides, privacy, download, open source, compare) ---------- */
 .read{display:grid;grid-template-columns:230px minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start;padding-top:clamp(24px,3vw,40px);border-top:1px solid var(--line)}
