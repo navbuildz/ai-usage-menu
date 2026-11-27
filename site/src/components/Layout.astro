@@ -44,8 +44,7 @@ const cols=[
     <div class="fb-tag"><img src={mark} width="28" height="28" alt="AI Usage Menu"/><span>Know your limits before you hit them.</span></div>
     <div class="fb-glyphs" role="group" aria-label="Supported tools"><span class="glyph"><ProviderLogo id="claude" label/></span><span class="glyph"><ProviderLogo id="codex" label/></span></div>
     <Theme/>
-    <p class="legal"><span>AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</span><span>Free and MIT licensed.</span></p>
-    {BADGES.length>0 && <details class="foot-badges"><summary>Featured on</summary><div class="foot-badges-row">{BADGES.map(b=><a href={b.href} target="_blank" rel="noopener">{b.img?<img src={b.img} alt={b.name} width={b.width} height={b.height} loading="lazy"/>:b.name}</a>)}</div></details>}
+    <div class="legal"><span>AI Usage Menu is not affiliated with Anthropic or OpenAI. Claude is a trademark of Anthropic, PBC. Codex and ChatGPT are trademarks of OpenAI.</span>{BADGES.length>0 && <details class="foot-badges"><summary>Featured on</summary><div class="foot-badges-row">{BADGES.map(b=><a href={b.href} target="_blank" rel="noopener">{b.img?<img src={b.img} alt={b.name} width={b.width} height={b.height} loading="lazy"/>:b.name}</a>)}</div></details>}</div>
   </div></div>
 </footer>
 </body></html>
