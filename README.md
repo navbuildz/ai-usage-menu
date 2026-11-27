@@ -263,7 +263,7 @@ One request can fall into several groups, such as a long-running session and a s
 
 ### Can the Claude usage bar show both windows?
 
-Yes. The Dock icon can show two numbers for the same provider: the session on top and the week below. The window names and reset times sit next to those figures in the app.
+Yes. The Dock icon can show two numbers for the same provider: the session on top and the week below. If your plan has a per-model weekly limit, such as Fable, you can show that one as the bottom number instead. The window names and reset times sit next to those figures in the app.
 
 ### Is there an AI Usage Meter alternative that doesn't use my login tokens?
 

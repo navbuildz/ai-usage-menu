@@ -218,13 +218,16 @@ struct DisplaySettings: View {
             }
             if preferences.options.twoMenuNumbers && preferences.options.showPercent {
                 row("Top number") { Text("5-hour session") }
-                row("Bottom number") { Text("Weekly") }
+                weeklyRow("Bottom number", selection: $preferences.options.menuWeeklyModel)
             } else {
                 row("Window") {
                     Picker("Menu bar window", selection: $preferences.options.menuWindow) {
                         Text("5-hour").tag(WindowChoice.session)
                         Text("Weekly").tag(WindowChoice.weekly)
                     }.pickerStyle(.segmented).labelsHidden().frame(width: 160)
+                }
+                if preferences.options.menuWindow == .weekly && !weeklyModelChoices(preferences.options.menuWeeklyModel).isEmpty {
+                    weeklyRow("Weekly limit", selection: $preferences.options.menuWeeklyModel)
                 }
             }
             row("One item per provider") { Toggle("One item per provider", isOn: $preferences.options.separateItems).labelsHidden() }
@@ -249,7 +252,7 @@ struct DisplaySettings: View {
             }
             if preferences.options.twoDockNumbers {
                 row("Top number") { Text("5-hour session") }
-                row("Bottom number") { Text("Weekly") }
+                weeklyRow("Bottom number", selection: $preferences.options.dockWeeklyModel)
             } else {
                 row("Center number") {
                     Picker("Dock window", selection: $preferences.options.dockWindow) {
@@ -257,8 +260,43 @@ struct DisplaySettings: View {
                         Text("Weekly").tag(WindowChoice.weekly)
                     }.pickerStyle(.segmented).labelsHidden().frame(width: 160)
                 }
+                if preferences.options.dockWindow == .weekly && !weeklyModelChoices(preferences.options.dockWeeklyModel).isEmpty {
+                    weeklyRow("Weekly limit", selection: $preferences.options.dockWeeklyModel)
+                }
+            }
+            row("Rings") {
+                Picker("Dock rings", selection: $preferences.options.dockRingsCountDown) {
+                    Text("Fill up").tag(false)
+                    Text("Count down").tag(true)
+                }.labelsHidden().pickerStyle(.segmented).frame(width: 190)
             }
             row("Dock appearance") { themePicker($preferences.options.dockTheme) }
+        }
+    }
+
+    /// Per-model weekly limits Claude Code reports (such as Fable), plus the saved choice so the
+    /// picker never shows a value that isn't in its list.
+    private func weeklyModelChoices(_ saved: String) -> [String] {
+        var names: [String] = []
+        for provider in store.enabled { names += store.snapshots[provider.id]?.weeklyModels ?? [] }
+        if !saved.isEmpty { names.append(saved) }
+        var seen = Set<String>()
+        return names.filter { seen.insert($0.lowercased()).inserted }
+    }
+
+    /// "Weekly" as plain text, or a choice between all models and a model's own weekly limit
+    /// when Claude Code reports one.
+    @ViewBuilder private func weeklyRow(_ title: String, selection: Binding<String>) -> some View {
+        let models = weeklyModelChoices(selection.wrappedValue)
+        if models.isEmpty {
+            row(title) { Text("Weekly") }
+        } else {
+            row(title) {
+                Picker(title, selection: selection) {
+                    Text("Weekly (all models)").tag("")
+                    ForEach(models, id: \.self) { Text("Weekly · " + $0).tag($0) }
+                }.labelsHidden().fixedSize()
+            }
         }
     }
 
@@ -298,7 +336,9 @@ struct DisplaySettings: View {
         return HStack(spacing: 10) {
             Image(systemName: "wifi").font(.system(size: 12))
             ForEach(keys, id: \.self) { key in
-                let visual = MenuItemVisual(value: store.menuValue(key, options: preferences.options), pair: preferences.options.twoMenuNumbers && preferences.options.showPercent ? store.menuPair(key, options: preferences.options) : nil, provider: store.providers.first { $0.id == key }, options: preferences.options, appearance: appearance)
+                let value = store.menuValue(key, options: preferences.options)
+                let pair = preferences.options.twoMenuNumbers && preferences.options.showPercent ? store.menuPair(key, options: preferences.options) : nil
+                let visual = MenuItemVisual(value: value, pair: pair, countdown: pair == nil ? store.menuCountdown(value, options: preferences.options) : nil, provider: store.providers.first { $0.id == key }, options: preferences.options, appearance: appearance)
                 HStack(spacing: 3) {
                     if let image = visual.image {
                         Image(nsImage: image).renderingMode(image.isTemplate ? .template : .original)

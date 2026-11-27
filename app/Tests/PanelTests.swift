@@ -164,4 +164,46 @@ final class PanelTests: XCTestCase {
             try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:folder.appendingPathComponent(name+".png"))
         }
     }
+    // [2026-11-25 Nav] The window opened on "Reading usage…" in a plain box and the Dock showed the plain
+    // icon while the first read ran. Now: a loading card, last numbers restored at launch, Dock dots.
+    @MainActor func testLoadingAndRestoredStatesDraw() throws {
+        let look = ProcessInfo.processInfo.environment["LOOK_DIR"].map { URL(fileURLWithPath: $0) }
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "aum-restore-test"))
+        defer { defaults.removePersistentDomain(forName: "aum-restore-test") }
+        let now = Date()
+        let reading = ProviderSnapshot(limits: [
+            .init(label: "Current session", usedPercent: 5, resetsAt: now.addingTimeInterval(4 * 3600), windowMinutes: nil, source: "Claude Code"),
+            .init(label: "Current week (all models)", usedPercent: 47, resetsAt: now.addingTimeInterval(3 * 86_400), windowMinutes: nil, source: "Claude Code")],
+            details: [.init(label: "Plan", value: "Claude subscription")], asOf: now.addingTimeInterval(-600), state: .ready)
+        SavedReading.save(["claude": reading, "codex": .init(asOf: now, state: .noSessions)], to: defaults)
+        let restoredStore = UsageStore(providers: [ClaudeCodeProvider()], saved: defaults)
+        let restored = try XCTUnwrap(restoredStore.snapshots["claude"])
+        XCTAssertTrue(restored.restored)
+        XCTAssertEqual(restored.limits.map(\.usedPercent), [5, 47])
+        XCTAssertNil(restoredStore.snapshots["codex"], "only good readings are saved")
+        let dock = DockSnapshot.resolve(providers: restoredStore.providers, snapshots: restoredStore.snapshots, options: DisplayOptions(), now: now)
+        XCTAssertEqual(dock.indicator.percent, 5, "the Dock shows the restored number at launch")
+
+        let emptyStore = UsageStore(providers: [ClaudeCodeProvider()])
+        for (suffix, theme) in [("dark", ColorScheme.dark), ("light", ColorScheme.light)] {
+            for (name, store) in [("loading", emptyStore), ("restored", restoredStore)] {
+                let host = NSHostingView(rootView: UsageView(store: store, preferences: DisplayPreferences(defaults: UserDefaults(suiteName: "ai.aiusagemenu.tests.panel")!), navigation: Navigation(), settings: {})
+                    .environment(\.colorScheme, theme).frame(width: 390, height: 525))
+                let window = NSWindow(contentRect: .init(x: 0, y: 0, width: 390, height: 525), styleMask: .borderless, backing: .buffered, defer: false)
+                window.appearance = NSAppearance(named: theme == .dark ? .darkAqua : .aqua)
+                window.contentView = host
+                window.layoutIfNeeded(); host.displayIfNeeded()
+                let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+                host.cacheDisplay(in: host.bounds, to: bitmap)
+                if let look { try XCTUnwrap(bitmap.representation(using: .png, properties: [:])).write(to: look.appendingPathComponent("\(name)-\(suffix).png")) }
+            }
+            var loading = DockSnapshot(indicator: .absent, thresholds: Thresholds())
+            loading.loading = true
+            loading.light = suffix == "light"
+            let image = DockIconRenderer.image(for: loading, size: 256)
+            if let look, let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) {
+                try XCTUnwrap(rep.representation(using: .png, properties: [:])).write(to: look.appendingPathComponent("dock-loading-\(suffix).png"))
+            }
+        }
+    }
 }

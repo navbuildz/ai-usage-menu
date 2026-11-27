@@ -12,7 +12,7 @@ private final class UsageWindow: NSWindow {
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPopoverDelegate {
     private let services = AppServices()
     private var welcome: NSWindow?
-    private let store = UsageStore()
+    private let store = UsageStore(saved: .standard)
     let preferences = DisplayPreferences(defaults: ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil ? .standard : UserDefaults(suiteName: "ai.aiusagemenu.tests.display")!)
     var statusItemCount: Int { items.count }
     private(set) var items: [String: NSStatusItem] = [:]
@@ -64,7 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             }
         }
         preferences.changed = { [weak self] in self?.applyPreferences() }
-        store.readingChanged = { [weak self] in self?.updateItems() }
+        store.readingChanged = { [weak self] in self?.updateDisplays() }
         store.onChange = { [weak self] in self?.updateDisplays(); if let self { self.services.evaluate(self.store, health: self.preferences.options.thresholds) } }
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             self?.handle(event) == true ? nil : event
@@ -75,6 +75,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
             services.start()
             store.start(minutes: preferences.options.refreshMinutes)
+            // A full window counts down to its reset in the menu bar and the Dock; redraw each minute.
+            let tick = Timer(timeInterval: 60, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.updateDisplays() }
+            }
+            tick.tolerance = 5
+            RunLoop.main.add(tick, forMode: .common)
             if !UserDefaults.standard.bool(forKey: "onboardingComplete") { showWelcome() }
             else if preferences.options.placement == .hidden { showSettings() }
         }
@@ -155,7 +161,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSPo
             let provider = store.providers.first { $0.id == key }
             let value = store.menuValue(key, options: options)
             let pair = options.twoMenuNumbers && options.showPercent ? store.menuPair(key, options: options) : nil
-            let visual = MenuItemVisual(value: value, pair: pair, provider: provider, options: options, appearance: button.effectiveAppearance)
+            let visual = MenuItemVisual(value: value, pair: pair, countdown: pair == nil ? store.menuCountdown(value, options: options) : nil, provider: provider, options: options, appearance: button.effectiveAppearance)
             button.title = visual.title
             button.font = .monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
             button.image = visual.image

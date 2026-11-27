@@ -264,4 +264,165 @@ final class HardeningTests: XCTestCase {
         let afterReset = Date(timeIntervalSince1970: 1795493629 + 60)
         XCTAssertEqual(snapshot.limits.map { $0.percent(at: afterReset) }, [0, 16])
     }
+
+    // [2026-11-25 Nav] The weekly number can show a model's own weekly limit (Fable); all models by default.
+    @MainActor func testWeeklyNumberCanShowAModelsOwnLimit() {
+        let now = date("2026-11-25T19:30:00Z")
+        var claude = ProviderSnapshot(asOf: now, state: .ready)
+        claude.limits = [.init(label: "Current session", usedPercent: 97, resetsAt: now.addingTimeInterval(2400), windowMinutes: nil, source: "Claude Code"),
+                         .init(label: "Current week (all models)", usedPercent: 42, resetsAt: now.addingTimeInterval(240000), windowMinutes: nil, source: "Claude Code"),
+                         .init(label: "Current week (Fable)", usedPercent: 76, resetsAt: now.addingTimeInterval(240000), windowMinutes: nil, source: "Claude Code")]
+        XCTAssertEqual(claude.weeklyModels, ["Fable"])
+        let providers: [any Provider] = [ClaudeCodeProvider()]
+        let snapshots = ["claude": claude]
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: snapshots, window: .weekly, at: now).percent, 42)
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: snapshots, window: .weekly, weeklyModel: "Fable", at: now).percent, 76)
+        XCTAssertEqual(Indicator.select(providers: providers, snapshots: snapshots, window: .weekly, weeklyModel: "Opus", at: now).percent, 42, "a missing model falls back to all models")
+        var options = DisplayOptions(); options.twoDockNumbers = true; options.dockProvider = "claude"
+        XCTAssertEqual(DockSnapshot.resolve(providers: providers, snapshots: snapshots, options: options, now: now).weekly, 42)
+        options.dockWeeklyModel = "Fable"
+        let dock = DockSnapshot.resolve(providers: providers, snapshots: snapshots, options: options, now: now)
+        XCTAssertEqual(dock.session, 97)
+        XCTAssertEqual(dock.weekly, 76)
+        // Older saved settings have no weekly choice and decode to all models.
+        let old = try! JSONDecoder().decode(DisplayOptions.self, from: Data(#"{"twoDockNumbers":true}"#.utf8))
+        XCTAssertEqual(old.dockWeeklyModel, "")
+        XCTAssertEqual(old.menuWeeklyModel, "")
+    }
+
+    // [2026-11-25 Nav] Past a limit, usage can run over 100%. That reads as full, never as no reading.
+    func testUsageOverOneHundredReadsAsFull() {
+        let now = date("2026-11-25T19:30:00Z")
+        let text = "Current session: 104% used · resets Nov 25 at 12:10pm (America/Los_Angeles)\nCurrent week (all models): 43% used · resets Nov 28 at 7am (America/Los_Angeles)"
+        let parsed = ClaudeParser.parse(text, now: now)
+        XCTAssertEqual(parsed.state, .ready)
+        XCTAssertEqual(parsed.limits.map(\.usedPercent), [100, 43])
+        let cache = ClaudeUsageCache.decode(Data(#"{"cachedUsageUtilization":{"fetchedAtMs":1795635350162,"utilization":{"five_hour":{"utilization":112.5,"resets_at":"2026-11-25T20:10:00.097382+00:00"},"seven_day":{"utilization":43,"resets_at":"2026-11-28T15:00:00+00:00"}}}}"#.utf8))
+        XCTAssertEqual(cache?.session?.percent, 100)
+        let codex = #"{"timestamp":"2026-11-25T19:00:00.000Z","type":"event_msg","payload":{"type":"token_count","rate_limits":{"limit_id":"codex","primary":{"used_percent":101.0,"window_minutes":300,"resets_at":1795700000},"secondary":{"used_percent":20.0,"window_minutes":10080,"resets_at":1796080429},"plan_type":"plus"}}}"#
+        XCTAssertEqual(CodexParser.parse(Data(codex.utf8))?.limits.first?.usedPercent, 100)
+    }
+
+    // [2026-11-25 Nav] Right after a reset Claude Code prints "Current session: 0% used" with no reset
+    // time. Dropping that line left the Dock with nothing to show (the plain app icon).
+    @MainActor func testWindowWithNoResetTimeStillCounts() {
+        let now = date("2026-11-25T20:11:00Z")
+        let text = "You are currently using your subscription to power your Claude Code usage\n\nCurrent session: 0% used\nCurrent week (all models): 43% used · resets Nov 28 at 7am (America/Los_Angeles)\nCurrent week (Fable): 76% used · resets Nov 28 at 7am (America/Los_Angeles)"
+        let parsed = ClaudeParser.parse(text, now: now)
+        XCTAssertEqual(parsed.state, .ready)
+        XCTAssertEqual(parsed.limits.map(\.label), ["Current session", "Current week (all models)", "Current week (Fable)"])
+        XCTAssertEqual(parsed.limits.first?.usedPercent, 0)
+        XCTAssertNil(parsed.limits.first?.resetsAt)
+        XCTAssertNil(parsed.rawText)
+        let dock = DockSnapshot.resolve(providers: [ClaudeCodeProvider()], snapshots: ["claude": parsed], options: DisplayOptions(), now: now)
+        XCTAssertEqual(dock.indicator.percent, 0, "the Dock shows 0, not the plain icon")
+    }
+    // [2026-11-25 Nav] After sleep the Dock showed the plain icon and Refresh did nothing for minutes:
+    // Claude Code couldn't fetch usage and printed its last-known numbers, with the session missing.
+    @MainActor func testLastKnownUsageAfterSleepStillDrawsAndCountsAsFailed() {
+        let now = date("2026-11-26T02:05:00Z") // 6:05pm PT, after a 5:09pm session reset
+        let text = "You are currently using your subscription to power your Claude Code usage\n\nCurrent session: 61% used · resets Nov 25 at 5:09pm (America/Los_Angeles)\nCurrent week (all models): 46% used · resets Nov 28 at 6:59am (America/Los_Angeles)\nCurrent week (Fable): 82% used · resets Nov 28 at 6:59am (America/Los_Angeles)\nShowing last-known usage (couldn't refresh)"
+        let parsed = ClaudeParser.parse(text, now: now)
+        XCTAssertEqual(parsed.state, .ready)
+        XCTAssertEqual(parsed.refreshError, "Showing last-known usage (couldn't refresh)")
+        XCTAssertNil(parsed.rawText)
+        XCTAssertEqual(parsed.limits.first?.resetsAt, date("2026-11-26T01:09:00Z"), "a passed reset stays in the past, not next year")
+        XCTAssertEqual(parsed.limits.first?.percent(at: now), 0)
+        XCTAssertEqual(ClaudeParser.reset("Dec 31 at 11pm", zone: "America/Los_Angeles", after: date("2027-01-01T09:00:00Z")), date("2027-01-01T07:00:00Z"))
+        let limited = ClaudeParser.parse("Claude is temporarily limiting requests to the usage page (not your usage limit). Try again in a moment.", now: now)
+        XCTAssertEqual(limited.state, .failed("Claude is temporarily limiting requests to the usage page (not your usage limit). Try again in a moment."))
+    }
+
+    @MainActor func testDockShowsTheOtherWindowWhenTheChosenOneIsMissing() {
+        let now = date("2026-11-26T02:05:00Z")
+        let weeklyOnly = ProviderSnapshot(limits: [.init(label: "Current week (all models)", usedPercent: 46, resetsAt: date("2026-11-28T14:59:00Z"), windowMinutes: nil, source: "Claude Code")], asOf: now, state: .ready)
+        let dock = DockSnapshot.resolve(providers: [ClaudeCodeProvider()], snapshots: ["claude": weeklyOnly], options: DisplayOptions(), now: now)
+        XCTAssertEqual(dock.indicator.percent, 46, "the Dock shows the weekly number, not the plain icon")
+    }
+    // [2026-11-26 Nav] Once the 5-hour limit is hit, the Dock's top ring counts down to the reset.
+    @MainActor func testFullWindowCountsDownToItsReset() throws {
+        let now = date("2026-11-26T20:00:00Z")
+        XCTAssertEqual(DockSnapshot.countdown(2 * 3600 + 14 * 60), "2h")
+        XCTAssertEqual(DockSnapshot.countdown(47 * 60), "47m")
+        XCTAssertEqual(DockSnapshot.countdown(20), "1m")
+        XCTAssertEqual(DockSnapshot.countdown(3 * 86_400 + 3600), "3d")
+        func reading(session: Double, weekly: Double, weeklyReset: TimeInterval = 3 * 86_400) -> ProviderSnapshot {
+            ProviderSnapshot(limits: [
+                .init(label: "Current session", usedPercent: session, resetsAt: now.addingTimeInterval(2 * 3600 + 14 * 60), windowMinutes: nil, source: "Claude Code"),
+                .init(label: "Current week (all models)", usedPercent: weekly, resetsAt: now.addingTimeInterval(weeklyReset), windowMinutes: nil, source: "Claude Code")],
+                asOf: now, state: .ready)
+        }
+        var options = DisplayOptions()
+        options.twoDockNumbers = true
+        let full = DockSnapshot.resolve(providers: [ClaudeCodeProvider()], snapshots: ["claude": reading(session: 100, weekly: 51)], options: options, now: now)
+        XCTAssertEqual(full.sessionLeft, 2 * 3600 + 14 * 60)
+        XCTAssertNil(full.weeklyLeft)
+        XCTAssertEqual(full.session, 100, "the reading itself still says 100")
+        let open = DockSnapshot.resolve(providers: [ClaudeCodeProvider()], snapshots: ["claude": reading(session: 64, weekly: 51)], options: options, now: now)
+        XCTAssertNil(open.sessionLeft)
+        let weeklyFull = DockSnapshot.resolve(providers: [ClaudeCodeProvider()], snapshots: ["claude": reading(session: 100, weekly: 100, weeklyReset: 2 * 86_400 + 5 * 3600)], options: options, now: now)
+        XCTAssertEqual(weeklyFull.weeklyLeft, 2 * 86_400 + 5 * 3600)
+        var single = DisplayOptions(); single.twoDockNumbers = false
+        let one = DockSnapshot.resolve(providers: [ClaudeCodeProvider()], snapshots: ["claude": reading(session: 100, weekly: 51)], options: single, now: now)
+        XCTAssertEqual(one.sessionLeft, 2 * 3600 + 14 * 60)
+        XCTAssertFalse(one.centerIsWeekly)
+        if let look = ProcessInfo.processInfo.environment["LOOK_DIR"].map({ URL(fileURLWithPath: $0) }) {
+            for (name, var snap) in [("count-two", full), ("count-both", weeklyFull), ("count-single", one), ("solid-open", open)] {
+                for light in [false, true] {
+                    snap.light = light
+                    let image = DockIconRenderer.image(for: snap, size: 256)
+                    if let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) {
+                        try XCTUnwrap(rep.representation(using: .png, properties: [:])).write(to: look.appendingPathComponent("\(name)-\(light ? "light" : "dark").png"))
+                    }
+                }
+            }
+        }
+    }
+
+    @MainActor func testMenuBarCountsDownAndDockRingsCanCountDown() async throws {
+        struct Fixed: Provider {
+            let snapshot: ProviderSnapshot
+            var id: String { "claude" }
+            var displayName: String { "Claude Code" }
+            var glyph: String { "provider-claude-code" }
+            func isAvailable() async -> Bool { true }
+            func read() async -> ProviderSnapshot { snapshot }
+        }
+        let now = Date()
+        let full = ProviderSnapshot(limits: [
+            .init(label: "Current session", usedPercent: 100, resetsAt: now.addingTimeInterval(2 * 3600 + 600), windowMinutes: nil, source: "Claude Code"),
+            .init(label: "Current week (all models)", usedPercent: 46, resetsAt: now.addingTimeInterval(3 * 86_400), windowMinutes: nil, source: "Claude Code")],
+            asOf: now, state: .ready)
+        let store = UsageStore(providers: [Fixed(snapshot: full)])
+        _ = await store.read(store.providers[0])
+        var options = DisplayOptions()
+        let appearance = NSAppearance(named: .darkAqua)!
+        let value = store.menuValue("auto", options: options)
+        let single = MenuItemVisual(value: value, countdown: store.menuCountdown(value, options: options), provider: nil, options: options, appearance: appearance)
+        XCTAssertEqual(single.title, "2h", "a full session reads the time to its reset, not 100%")
+        options.twoMenuNumbers = true
+        let pair = store.menuPair("auto", options: options)
+        let double = MenuItemVisual(value: store.menuValue("auto", options: options), pair: pair, provider: nil, options: options, appearance: appearance)
+        XCTAssertEqual(double.usageDescription, "5-hour 2h, weekly 46%")
+
+        // Rings that count down: 75% used draws a quarter ring and reads 25.
+        var down = DockSnapshot(indicator: .value(75, "provider-claude-code"), thresholds: Thresholds(), session: 75, weekly: 30)
+        let up = DockIconRenderer.image(for: down, size: 128)
+        down.countsDown = true
+        let shrunk = DockIconRenderer.image(for: down, size: 128)
+        XCTAssertNotEqual(up.tiffRepresentation, shrunk.tiffRepresentation)
+        var saved = DisplayOptions(); saved.dockRingsCountDown = true
+        XCTAssertTrue(try JSONDecoder().decode(DisplayOptions.self, from: JSONEncoder().encode(saved)).dockRingsCountDown)
+        XCTAssertFalse(try JSONDecoder().decode(DisplayOptions.self, from: Data("{}".utf8)).dockRingsCountDown, "older settings keep the rings filling up")
+        if let look = ProcessInfo.processInfo.environment["LOOK_DIR"].map({ URL(fileURLWithPath: $0) }) {
+            for (name, var snap) in [("down-75", down), ("down-two", { var s = down; s.twoNumbers = true; return s }()), ("down-100", DockSnapshot(indicator: .value(96, "g"), thresholds: Thresholds(), session: 96, weekly: 12, countsDown: true))] {
+                for light in [false, true] {
+                    snap.light = light
+                    if let tiff = DockIconRenderer.image(for: snap, size: 256).tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) {
+                        try XCTUnwrap(rep.representation(using: .png, properties: [:])).write(to: look.appendingPathComponent("\(name)-\(light ? "light" : "dark").png"))
+                    }
+                }
+            }
+        }
+    }
 }

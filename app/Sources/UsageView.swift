@@ -193,7 +193,7 @@ struct UsageView: View {
         guard let snapshot = store.snapshots[id] else { return Color("textSecondary").opacity(0.4) }
         switch snapshot.state {
         case .ready, .limitReached:
-            return Color("mint")
+            return snapshot.failedReads >= 3 ? Color("danger") : Color("mint")
         case .failed, .timedOut, .unreadable, .unknownFormat: return Color("danger")
         default: return Color("textSecondary").opacity(0.4)
         }
@@ -201,6 +201,7 @@ struct UsageView: View {
 
     private func statusLabel(for id: String, _ now: Date) -> String {
         guard let snapshot = store.snapshots[id] else { return "Not read yet" }
+        if snapshot.failedReads > 0 { return "Couldn't refresh" }
         if snapshot.isStale(providerID: id, at: now) { return "Reading from an earlier session" }
         return snapshot.state.detectionLabel
     }
@@ -220,6 +221,23 @@ struct UsageView: View {
                                      thresholds: preferences.options.thresholds, stale: stale)
                         }
                     }.background(Color("surface"), in: RoundedRectangle(cornerRadius: 16))
+                    if snapshot.failedReads > 0 {
+                        let tries = snapshot.failedReads == 1 ? "1 try" : "\(snapshot.failedReads) tries in a row"
+                        let lastKnown = ClaudeParser.staleNotices.contains { snapshot.refreshError?.hasPrefix($0) == true }
+                        Label(lastKnown ? "Couldn't refresh (\(tries)). Showing Claude Code's last-known numbers; trying again shortly."
+                                        : "Couldn't refresh (\(tries)). Showing the reading from \(relative(snapshot.asOf, now)).", systemImage: "exclamationmark.triangle")
+                            .font(.caption).foregroundStyle(snapshot.failedReads >= 3 ? Color("danger") : Color("textSecondary"))
+                            .help(snapshot.refreshError ?? "")
+                            .contextMenu {
+                                if let error = snapshot.refreshError {
+                                    Button("Copy details") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(error, forType: .string) }
+                                }
+                            }
+                    }
+                    if snapshot.restored, snapshot.failedReads == 0 {
+                        Label("From when the app last ran, \(relative(snapshot.asOf, now)). Reading \(provider.displayName) now…", systemImage: "clock.arrow.circlepath")
+                            .font(.caption).foregroundStyle(Color("textSecondary"))
+                    }
                     if stale {
                         Label("From your last Codex session \(relative(snapshot.asOf, now)). Numbers update when you use Codex again.", systemImage: "clock")
                             .font(.caption).foregroundStyle(Color("textSecondary"))
@@ -246,7 +264,7 @@ struct UsageView: View {
                 Text("Turn on a provider in Settings to see your usage.")
                 Button("Open Settings", action: settings).buttonStyle(PrimaryButtonStyle())
             } else {
-                Text("Reading usage…").foregroundStyle(Color("textSecondary"))
+                LoadingCard(provider: provider?.displayName ?? "usage")
             }
         }.frame(maxWidth: .infinity, alignment: .leading).padding(14)
     }
@@ -361,7 +379,7 @@ private struct LimitRow: View {
         let pace = stale ? nil : Pace.evaluate(limit, at: now)
         let reset: String = limit.resetsAt.map { date in
             date <= now ? "Reset. The next window starts when you use \(provider)." : "Resets in " + countdown(date, now) + " · " + resetClock(date, now)
-        } ?? "Reset time unavailable"
+        } ?? (percent == 0 ? "The next window starts when you use \(provider)." : "Reset time unavailable")
         HStack(spacing: 14) {
             ZStack {
                 Circle().stroke(tint.opacity(0.17), lineWidth: 4)
@@ -453,5 +471,44 @@ struct VioletSwitch: ToggleStyle {
         .accessibilityAddTraits(.isButton)
         .accessibilityValue(configuration.isOn ? "On" : "Off")
         .accessibilityAction { configuration.isOn.toggle() }
+    }
+}
+
+/// Shown while the first reading is on its way: the shape of the limits card, so the window
+/// never opens on a lone line of text (Nav, 2026-11-25).
+struct LoadingCard: View {
+    let provider: String
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dim = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(spacing: 0) {
+                ForEach(0..<2, id: \.self) { index in
+                    if index > 0 { Divider().opacity(0.45).padding(.horizontal, 16) }
+                    HStack(spacing: 16) {
+                        Circle().stroke(Color("textSecondary").opacity(0.18), lineWidth: 9).frame(width: 68, height: 68)
+                        VStack(alignment: .leading, spacing: 8) {
+                            RoundedRectangle(cornerRadius: 5).fill(Color("textSecondary").opacity(0.18)).frame(width: 150, height: 14)
+                            RoundedRectangle(cornerRadius: 5).fill(Color("textSecondary").opacity(0.12)).frame(width: 190, height: 11)
+                            RoundedRectangle(cornerRadius: 5).fill(Color("textSecondary").opacity(0.12)).frame(width: 120, height: 11)
+                        }
+                        Spacer(minLength: 0)
+                    }.padding(16)
+                }
+            }
+            .background(Color("surface"), in: RoundedRectangle(cornerRadius: 16))
+            .opacity(dim ? 0.55 : 1)
+            .accessibilityHidden(true)
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Reading your \(provider) usage. This takes a few seconds.")
+                    .font(.caption).foregroundStyle(Color("textSecondary"))
+            }
+        }
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { dim = true }
+        }
     }
 }

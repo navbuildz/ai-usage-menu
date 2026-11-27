@@ -38,13 +38,23 @@ extension UsageStore {
             if case let .value(_, glyph) = pair.indicator, let peak = [pair.session, pair.weekly].compactMap({ $0 }).max() { return .value(peak, glyph) }
             return pair.indicator
         }
-        return Indicator.select(providers: pool, snapshots: snapshots, providerID: id, window: options.menuWindow, at: .now)
+        return Indicator.select(providers: pool, snapshots: snapshots, providerID: id, window: options.menuWindow, weeklyModel: options.menuWeeklyModel, at: .now)
+    }
+
+    /// Time left until the shown window resets, when the single number is a full window, so the
+    /// menu bar reads "2h" instead of "100%" while you wait (Nav, 2026-11-26).
+    func menuCountdown(_ value: Indicator, options: DisplayOptions) -> TimeInterval? {
+        guard case let .value(percent, glyph) = value, percent >= 100, let provider = enabled.first(where: { $0.glyph == glyph }) else { return nil }
+        let window = options.menuWindow == .weekly ? WindowChoice.weekly : .session
+        return DockSnapshot.timeLeft(snapshots[provider.id], window, weeklyModel: window == .weekly ? options.menuWeeklyModel : "", at: .now)
+            ?? DockSnapshot.timeLeft(snapshots[provider.id], window == .weekly ? .session : .weekly, weeklyModel: options.menuWeeklyModel, at: .now)
     }
 
     func menuPair(_ key: String, options: DisplayOptions) -> DockSnapshot {
         var selection = options
         selection.dockProvider = key == "auto" ? options.menuProvider : key
         selection.dockWindow = .session
+        selection.dockWeeklyModel = options.menuWeeklyModel
         var pair = DockSnapshot.resolve(providers: displayProviders, snapshots: snapshots, options: selection, now: .now)
         if pair.session == nil, pair.weekly != nil {
             selection.dockWindow = .weekly
@@ -62,8 +72,9 @@ struct MenuItemVisual {
 
     var usageDescription: String?
 
-    init(value: Indicator, pair: DockSnapshot? = nil, provider: (any Provider)?, options: DisplayOptions, appearance: NSAppearance) {
-        let singleTitle = value.percent.flatMap { options.showPercent ? $0.compactUsage + "%" : nil } ?? (value == .warning ? "⚠" : "")
+    init(value: Indicator, pair: DockSnapshot? = nil, countdown: TimeInterval? = nil, provider: (any Provider)?, options: DisplayOptions, appearance: NSAppearance) {
+        let singleTitle = value.percent.flatMap { options.showPercent ? (countdown.map(DockSnapshot.countdown) ?? $0.compactUsage + "%") : nil } ?? (value == .warning ? "⚠" : "")
+        if let countdown, options.showPercent { usageDescription = "limit reached, resets in " + DockSnapshot.countdown(countdown) }
         let ink = value.percent.map { options.thresholds.color($0) }
         iconTint = provider != nil && !options.showPercent ? ink : nil
         let symbol: NSImage?
@@ -79,8 +90,9 @@ struct MenuItemVisual {
             image = symbol
             return
         }
-        let labels = [pair.session, pair.weekly].map { $0.map { $0.compactUsage + "%" } ?? "–" }
-        usageDescription = "5-hour " + labels[0] + ", weekly " + labels[1]
+        // A full window shows the time to its reset instead of 100%.
+        let labels = [(pair.session, pair.sessionLeft), (pair.weekly, pair.weeklyLeft)].map { percent, left in left.map(DockSnapshot.countdown) ?? percent.map { $0.compactUsage + "%" } ?? "–" }
+        usageDescription = "5-hour " + labels[0] + ", " + (options.menuWeeklyModel.isEmpty ? "weekly " : options.menuWeeklyModel + " weekly ") + labels[1]
         title = ""
         let light = appearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua
         let foreground: NSColor = light ? .black : .white

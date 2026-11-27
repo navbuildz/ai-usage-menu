@@ -27,6 +27,22 @@ enum WindowChoice: String, CaseIterable, Codable {
     }
 }
 
+extension LimitWindow {
+    /// The model a per-model weekly window is for ("Fable" for "Current week (Fable)"), or nil
+    /// for the session and the all-models weekly window.
+    var weeklyModel: String? {
+        let lower = label.lowercased()
+        guard lower.hasPrefix("current week ("), label.hasSuffix(")"), lower != "current week (all models)" else { return nil }
+        let name = label.dropFirst("Current week (".count).dropLast()
+        return name.isEmpty ? nil : String(name)
+    }
+}
+
+extension ProviderSnapshot {
+    /// Per-model weekly windows in this reading, in the order Claude Code prints them.
+    var weeklyModels: [String] { limits.compactMap(\.weeklyModel) }
+}
+
 struct Thresholds: Equatable, Codable {
     var amber = 60
     var red = 85
@@ -68,6 +84,13 @@ struct DisplayOptions: Equatable, Codable {
     var dockWindow = WindowChoice.session
     var menuProvider = "auto"
     var menuWindow = WindowChoice.session
+    /// Which weekly window the menu bar and Dock show: "" for all models, or a model name such as
+    /// "Fable" for that model's own weekly limit (falls back to all models when it isn't there).
+    var menuWeeklyModel = ""
+    var dockWeeklyModel = ""
+    /// Dock rings start empty and fill as you use a limit (false), or start full and shrink to
+    /// what is left, with the number showing percent left (true).
+    var dockRingsCountDown = false
     var dockTheme = AppTheme.system
     var theme = AppTheme.system
     var refreshMinutes = 5
@@ -87,6 +110,9 @@ struct DisplayOptions: Equatable, Codable {
         dockWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .dockWindow) == .weekly ? .weekly : .session
         menuProvider = try fields.decodeIfPresent(String.self, forKey: .menuProvider) ?? "auto"
         menuWindow = try fields.decodeIfPresent(WindowChoice.self, forKey: .menuWindow) == .weekly ? .weekly : .session
+        menuWeeklyModel = try fields.decodeIfPresent(String.self, forKey: .menuWeeklyModel) ?? ""
+        dockWeeklyModel = try fields.decodeIfPresent(String.self, forKey: .dockWeeklyModel) ?? ""
+        dockRingsCountDown = try fields.decodeIfPresent(Bool.self, forKey: .dockRingsCountDown) ?? false
         dockTheme = try fields.decodeIfPresent(AppTheme.self, forKey: .dockTheme) ?? .system
         theme = try fields.decodeIfPresent(AppTheme.self, forKey: .theme) ?? .system
         refreshMinutes = try fields.decodeIfPresent(Int.self, forKey: .refreshMinutes) ?? 5
@@ -119,7 +145,7 @@ enum Indicator: Equatable {
         return nil
     }
 
-    static func select(providers: [any Provider], snapshots: [String: ProviderSnapshot], providerID: String = "auto", window: WindowChoice = .highest, at now: Date) -> Indicator {
+    static func select(providers: [any Provider], snapshots: [String: ProviderSnapshot], providerID: String = "auto", window: WindowChoice = .highest, weeklyModel: String = "", at now: Date) -> Indicator {
         var best: Indicator = .absent
         for provider in providers where providerID == "auto" || provider.id == providerID {
             guard let snapshot = snapshots[provider.id], snapshot.state != .notInstalled else { continue }
@@ -128,7 +154,12 @@ enum Indicator: Equatable {
             if best == .absent && snapshot.state.isProblem { best = .warning }
             switch snapshot.state {
             case .ready, .limitReached:
-                for limit in snapshot.limits where window.includes(limit) {
+                var limits = snapshot.limits.filter(window.includes)
+                if window == .weekly, !weeklyModel.isEmpty {
+                    let model = snapshot.limits.filter { $0.weeklyModel?.lowercased() == weeklyModel.lowercased() }
+                    if !model.isEmpty { limits = model }
+                }
+                for limit in limits {
                     if let p = limit.percent(at: now), p > (best.percent ?? -1) { best = .value(p, provider.glyph) }
                 }
             default: continue

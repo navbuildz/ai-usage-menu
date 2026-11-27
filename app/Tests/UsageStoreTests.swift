@@ -13,6 +13,7 @@ private actor SampleProvider: Provider {
         snapshot = .init(limits:[.init(label:"Session",usedPercent:percent,resetsAt:nil,windowMinutes:nil,source:id)],asOf:Date(),state:.ready)
     }
     func disconnect() { snapshot = .init(asOf:Date(),state:.notInstalled) }
+    func set(_ next: ProviderSnapshot) { snapshot = next }
     func isAvailable() -> Bool { true }
     func read() async -> ProviderSnapshot {
         reads += 1
@@ -113,5 +114,71 @@ final class UsageStoreTests: XCTestCase {
         try handle.write(contentsOf: Data(contentsOf: fixture))
         try handle.close()
         await fulfillment(of: [appended], timeout: 5)
+    }
+
+    // [2026-11-25 Nav] A failed read keeps the last good numbers on screen and counts the failures,
+    // so the menu bar and Dock never flip to "!" or a blank on one bad read.
+    @MainActor func testFailedReadsKeepTheLastReadingAndCount() async {
+        let provider = SampleProvider("claude", 97)
+        let store = UsageStore(providers: [provider])
+        _ = await store.read(provider)
+        await provider.set(.init(asOf: Date(), state: .failed("API Error: 429 rate limited")))
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.state, .ready)
+        XCTAssertEqual(store.snapshots["claude"]?.limits.first?.usedPercent, 97)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 1)
+        XCTAssertEqual(store.snapshots["claude"]?.refreshError, "API Error: 429 rate limited")
+        await provider.set(.init(asOf: Date(), state: .timedOut))
+        _ = await store.read(provider); _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 3)
+        XCTAssertEqual(Indicator.select(providers: [provider], snapshots: store.snapshots, at: .now).percent, 97)
+        // A good read clears the count; a real answer (signed out) replaces the reading.
+        await provider.set(.init(limits: [.init(label: "Session", usedPercent: 12, resetsAt: nil, windowMinutes: nil, source: "claude")], asOf: Date(), state: .ready))
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 0)
+        await provider.set(.init(asOf: Date(), state: .signedOut))
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.state, .signedOut)
+    }
+
+    @MainActor func testLastKnownUsageCountsAsAFailedRead() async {
+        let provider = SampleProvider("claude", 40)
+        let store = UsageStore(providers: [provider])
+        _ = await store.read(provider)
+        var stale = ProviderSnapshot(limits: [.init(label: "Session", usedPercent: 46, resetsAt: nil, windowMinutes: nil, source: "claude")], asOf: Date(), state: .ready)
+        stale.refreshError = "Showing last-known usage (couldn't refresh)"
+        await provider.set(stale)
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.limits.first?.usedPercent, 46)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 1)
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 2)
+    }
+
+    // [2026-11-25 Nav] After a limit and a model switch the Dock showed the plain app icon: Claude Code
+    // briefly printed its cost summary, which reads as "no plan". Twice in a row is a failed read.
+    @MainActor func testABriefCostSummaryDoesNotHideThePlan() async {
+        let provider = SampleProvider("claude", 100)
+        let store = UsageStore(providers: [provider])
+        _ = await store.read(provider)
+        let summary = ClaudeParser.parse("Total cost:            $0.0000\nTotal duration (API):  0s\nUsage:                 0 input, 0 output", now: Date())
+        XCTAssertEqual(summary.state, .nonSubscription)
+        await provider.set(summary)
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.state, .ready)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 1)
+        XCTAssertEqual(DockSnapshot.resolve(providers: [provider], snapshots: store.snapshots, options: DisplayOptions(), now: .now).indicator.percent, 100)
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.failedReads, 2)
+        _ = await store.read(provider)
+        XCTAssertEqual(store.snapshots["claude"]?.state, .nonSubscription, "the third summary in a row is believed")
+    }
+
+    func testOveragesHeaderIsKnown() {
+        let text = "You are currently using your overages to power your Claude Code usage. We will automatically switch you back to your subscription rate limits when they reset\n\nCurrent session: 100% used · resets Nov 25 at 12:10pm (America/Los_Angeles)"
+        let parsed = ClaudeParser.parse(text, now: Date(timeIntervalSince1970: 1795633000))
+        XCTAssertEqual(parsed.state, .ready)
+        XCTAssertNil(parsed.rawText)
+        XCTAssertEqual(parsed.details.last?.value, "Extra usage until your limits reset")
     }
 }

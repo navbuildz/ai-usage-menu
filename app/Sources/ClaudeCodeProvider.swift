@@ -148,8 +148,8 @@ struct ClaudeUsageCache: Equatable {
         struct File: Decodable { let cachedUsageUtilization: Cache? }
         guard let cache = (try? JSONDecoder().decode(File.self, from: data))?.cachedUsageUtilization else { return nil }
         func window(_ raw: Raw?) -> Window? {
-            guard let value = raw?.utilization, (0...100).contains(value) else { return nil }
-            return Window(percent: value, resetsAt: raw?.resets_at.flatMap(date))
+            guard let value = raw?.utilization, value >= 0, value.isFinite else { return nil }
+            return Window(percent: min(value, 100), resetsAt: raw?.resets_at.flatMap(date))
         }
         return .init(fetchedAt: Date(timeIntervalSince1970: cache.fetchedAtMs / 1000),
                      session: window(cache.utilization.five_hour), weekly: window(cache.utilization.seven_day))

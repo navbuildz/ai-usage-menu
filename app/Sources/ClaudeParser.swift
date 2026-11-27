@@ -20,14 +20,18 @@ enum ClaudeParser {
         calendar.timeZone = timeZone
         var components = DateComponents(month: month + 1, day: day, hour: hour % 12 + (f[4].lowercased() == "pm" ? 12 : 0), minute: minute, second: 0)
         let year = calendar.component(.year, from: now)
-        for candidateYear in year...(year + 1) {
+        var passed: Date?
+        for candidateYear in (year - 1)...(year + 1) {
             components.year = candidateYear
             guard let candidate = calendar.date(from: components),
                   calendar.date(candidate, matchesComponents: components) else { return nil }
-            if candidate > now { return candidate }
-            if let repeated = calendar.nextDate(after: candidate.addingTimeInterval(-1), matching: components, matchingPolicy: .strict, repeatedTimePolicy: .last), repeated > now { return repeated }
+            if candidate > now { return passed ?? candidate }
+            if let repeated = calendar.nextDate(after: candidate.addingTimeInterval(-1), matching: components, matchingPolicy: .strict, repeatedTimePolicy: .last), repeated > now { return passed ?? repeated }
+            // A reset time from the last week has passed; it is not next year's. Claude Code prints
+            // these when it shows last-known usage because it couldn't refresh (after sleep, 2026-11-25).
+            if now.timeIntervalSince(candidate) <= 8 * 86_400 { passed = candidate }
         }
-        return nil
+        return passed
     }
 
     /// True when the text is Claude Code's cost summary ("Estimated cost:" plus a "Usage:" line).
@@ -38,18 +42,37 @@ enum ClaudeParser {
         return hasCost && hasUsage
     }
 
+    /// Lines Claude Code prints when it shows last-known usage instead of a fresh reading.
+    static let staleNotices = ["Showing last-known usage", "Couldn't refresh usage data", "Partial usage data",
+                               "Per-model breakdown unavailable", "Claude is temporarily limiting requests to the usage page",
+                               "The usage page is "]
+
     static func parse(_ text: String, now: Date) -> ProviderSnapshot {
         var result = ProviderSnapshot(asOf: now, state: .ready)
         var periods: [BreakdownPeriod] = []
         var unknown: [String] = []
         var index: Int?
+        var overages = false
         for raw in text.components(separatedBy: .newlines) {
             let line = raw.trimmingCharacters(in: .whitespaces)
             if line.isEmpty || line == "What's contributing to your usage?" || line.hasPrefix("Approximate ·") ||
                 line == "You are currently using your subscription to power your Claude Code usage" { continue }
+            if line.hasPrefix("You are currently using your overages to power your Claude Code usage") { overages = true; continue }
+            if staleNotices.contains(where: line.hasPrefix) {
+                // Claude Code couldn't fetch fresh usage (offline right after wake, or its usage page is
+                // rate limited) and is printing what it last knew. The numbers still show, but the read
+                // counts as failed so the app tries again soon.
+                result.refreshError = line
+                continue
+            }
             if let f = fields(#"^(.+?):\s*(\d+(?:\.\d+)?)% used\s*·\s*resets (.+) \(([^()]+)\)$"#, line),
-               let pct = Double(f[1]), (0...100).contains(pct), let date = reset(f[2], zone: f[3], after: now) {
-                result.limits.append(.init(label: f[0], usedPercent: pct, resetsAt: date, windowMinutes: nil, source: "Claude Code"))
+               let pct = Double(f[1]), pct >= 0, let date = reset(f[2], zone: f[3], after: now) {
+                // Past a limit, usage can run over 100% (Claude Code documents this); show it as full.
+                result.limits.append(.init(label: f[0], usedPercent: min(pct, 100), resetsAt: date, windowMinutes: nil, source: "Claude Code"))
+            } else if let f = fields(#"^(Current [^:]+):\s*(\d+(?:\.\d+)?)% used$"#, line), let pct = Double(f[1]), pct >= 0 {
+                // Right after a reset Claude Code prints the window with no reset time until the next
+                // window starts ("Current session: 0% used", seen 2026-11-25 12:10 to 12:16).
+                result.limits.append(.init(label: f[0], usedPercent: min(pct, 100), resetsAt: nil, windowMinutes: nil, source: "Claude Code"))
             } else if let f = fields(#"^Last (.+?) · ([\d,]+) requests? · ([\d,]+) sessions?$"#, line),
                       let requests = Int(f[1].replacingOccurrences(of: ",", with: "")), let sessions = Int(f[2].replacingOccurrences(of: ",", with: "")) {
                 index = periods.count
@@ -69,7 +92,9 @@ enum ClaudeParser {
                 unknown.append(raw)
             }
         }
-        if result.limits.isEmpty {
+        if result.limits.isEmpty, let notice = result.refreshError {
+            result.state = .failed(notice)
+        } else if result.limits.isEmpty {
             let lower = text.lowercased()
             if ["log in","login","log into","sign in","not logged in","signed out","logged out"].contains(where: lower.contains) {
                 result.state = .signedOut
@@ -83,6 +108,7 @@ enum ClaudeParser {
             }
         } else {
             result.details = [.init(label: "Plan", value: "Claude subscription")]
+            if overages { result.details.append(.init(label: "Now using", value: "Extra usage until your limits reset")) }
             if !unknown.isEmpty { result.rawText = unknown.joined(separator: "\n") }
         }
         result.breakdown = periods.isEmpty ? nil : periods

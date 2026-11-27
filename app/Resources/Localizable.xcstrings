@@ -103,6 +103,19 @@
     "Copy details" : {
 
     },
+    "Couldn't refresh (%@). Showing Claude Code's last-known numbers; trying again shortly." : {
+
+    },
+    "Couldn't refresh (%@). Showing the reading from %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't refresh (%1$@). Showing the reading from %2$@."
+          }
+        }
+      }
+    },
     "Dock" : {
 
     },
@@ -135,6 +148,16 @@
     },
     "From the makers of TypeFire" : {
 
+    },
+    "From when the app last ran, %@. Reading %@ now…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "From when the app last ran, %1$@. Reading %2$@ now…"
+          }
+        }
+      }
     },
     "From your last Codex session %@. Numbers update when you use Codex again." : {
 
@@ -199,7 +222,7 @@
     "Quit" : {
 
     },
-    "Reading usage…" : {
+    "Reading your %@ usage. This takes a few seconds." : {
 
     },
     "Ready to download." : {
@@ -287,6 +310,9 @@
 
     },
     "Weekly" : {
+
+    },
+    "Weekly (all models)" : {
 
     },
     "What's contributing?" : {

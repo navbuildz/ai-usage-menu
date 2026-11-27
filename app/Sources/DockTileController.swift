@@ -13,11 +13,12 @@ final class DockTileController {
             return
         }
         var snapshot = DockSnapshot.resolve(providers: store.displayProviders, snapshots: store.snapshots, options: options, now: .now)
+        snapshot.loading = snapshot.indicator == .absent && !store.active.isEmpty
         snapshot.light = (options.dockTheme.appearance ?? NSApp.effectiveAppearance).bestMatch(from: [.aqua, .darkAqua]) == .aqua
         guard rendered != snapshot else { return }
         rendered = snapshot
         renderCount += 1
-        if snapshot.indicator == .absent && !snapshot.light {
+        if snapshot.indicator == .absent && !snapshot.loading && !snapshot.light {
             tile.contentView = nil
         } else {
             let view = NSImageView(frame: .init(origin: .zero, size: tile.size))

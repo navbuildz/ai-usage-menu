@@ -33,9 +33,18 @@ final class UsageStore: NSObject, ObservableObject {
     private var expiry: Timer?
     private var streams: [FSEventStreamRef] = []
     private var watcherTimers: [String: Timer] = [:]
+    private var retryTimers: [String: Timer] = [:]
+    static let quickRetries = 3
+    static var retryDelay: TimeInterval = 60
 
-    init(providers: [any Provider] = [ClaudeCodeProvider(), CodexProvider()]) {
+    /// Where the last good readings are kept between launches; nil (tests) keeps nothing.
+    private let saved: UserDefaults?
+
+    init(providers: [any Provider] = [ClaudeCodeProvider(), CodexProvider()], saved: UserDefaults? = nil) {
         self.providers = providers
+        self.saved = saved
+        super.init()
+        if let saved { snapshots = SavedReading.load(from: saved).filter { id, _ in providers.contains { $0.id == id } } }
     }
 
     func start(minutes: Int = 5) {
@@ -54,6 +63,7 @@ final class UsageStore: NSObject, ObservableObject {
         DistributedNotificationCenter.default().removeObserver(self)
         timer?.invalidate(); expiry?.invalidate()
         watcherTimers.values.forEach { $0.invalidate() }
+        retryTimers.values.forEach { $0.invalidate() }
         for stream in streams {
             FSEventStreamStop(stream); FSEventStreamInvalidate(stream); FSEventStreamRelease(stream)
         }
@@ -118,9 +128,27 @@ final class UsageStore: NSObject, ObservableObject {
     }
 
     private func finish(_ provider: any Provider) async -> ProviderSnapshot {
-        let snapshot = await provider.read()
+        var snapshot = await provider.read()
+        if let kept = snapshots[provider.id]?.keepingReading(after: snapshot) { snapshot = kept }
+        else if snapshot.refreshError != nil, snapshot.failedReads == 0 {
+            // A reading of last-known numbers shows, but counts as a failed read so it is retried.
+            snapshot.failedReads = (snapshots[provider.id]?.failedReads ?? 0) + 1
+        }
         if !disabled.contains(provider.id) { snapshots[provider.id] = snapshot }
+        if let saved, snapshot.failedReads == 0 { SavedReading.save(snapshots, to: saved) }
         lastRead[provider.id] = Date()
+        // A failed read tries again in a minute instead of waiting for the next scheduled read,
+        // a few times, so a one-off failure clears on its own (Nav had to press Refresh, 2026-11-25).
+        if (1...Self.quickRetries).contains(snapshot.failedReads) {
+            retryTimers[provider.id]?.invalidate()
+            retryTimers[provider.id] = Timer.scheduledTimer(withTimeInterval: Self.retryDelay, repeats: false) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.retryTimers.removeValue(forKey: provider.id)
+                    guard self?.screenLocked == false else { return }
+                    self?.refresh(provider)
+                }
+            }
+        }
         active.remove(provider.id)
         readingChanged?()
         scheduleExpiry()

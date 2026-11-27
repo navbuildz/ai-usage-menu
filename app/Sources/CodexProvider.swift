@@ -54,7 +54,7 @@ enum CodexParser {
             case let minutes? where minutes > 0: label = "\(minutes) min"
             default: label = "Usage window"
             }
-            let pct = window.used_percent.flatMap { (0...100).contains($0) ? $0 : nil }
+            let pct = window.used_percent.flatMap { $0 >= 0 && $0.isFinite ? min($0, 100) : nil }
             result.limits.append(.init(label: label, usedPercent: pct, resetsAt: window.resets_at.map(Date.init(timeIntervalSince1970:)), windowMinutes: window.window_minutes, source: "Last Codex activity"))
         }
         if let plan = limits.plan_type { result.details.append(.init(label: "Plan", value: plan.capitalized)) }

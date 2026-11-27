@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0 | 2026-11-27
+
+- A full limit counts down to its reset in the menu bar and Dock.
+- New setting: Dock rings can count down instead of filling up.
+- Show Fable's weekly limit as the weekly number.
+- Dock rings are one solid color.
+- Your last numbers show right away when the app opens.
+- The Dock keeps its number after sleep.
+- A failed refresh keeps your last numbers and retries.
+- Usage past 100% shows as full.
+- A cleaner app icon.
+
 ## 1.0.3 | 2026-11-23
 
 - Codex limits now match what Codex shows, even when a Codex session started the day before.
