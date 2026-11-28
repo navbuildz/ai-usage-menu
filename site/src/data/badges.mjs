@@ -6,4 +6,6 @@
 export const BADGES = [
   // Findly.tools (DR 82), requested 2026-11-27: free dofollow listing once its badge checker finds this on the homepage.
   { name: "Featured on Findly.tools", href: "https://findly.tools/ai-usage-menu?utm_source=aiusagemenu", img: "https://findly.tools/badges/findly-tools-badge-light.svg", width: 175, height: 55 },
+  // DailyPings (DR 67), requested 2026-11-27 via FLP MARKETING: rechecked daily, so it must stay.
+  { name: "Featured on DailyPings", href: "https://dailypings.com/p/ai-usage-menu", img: "https://dailypings.com/badge.svg", width: 179, height: 32 },
 ];
